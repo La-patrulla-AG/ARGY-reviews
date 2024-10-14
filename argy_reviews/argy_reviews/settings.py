@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig', 
     #Esta es la aplicación que vamos a utilizar para crear nuestra API (esta frase fue recomendada por copilot, tengo miedo)
-    'rest_framework'
+    'rest_framework',
     #Esta es la dependencia que vamos a utilizar para crear nuestra API (esto tambien fue sugerido por copilot)
+    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [
