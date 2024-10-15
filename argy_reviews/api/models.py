@@ -1,13 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User #This is the default user model provided by Django
 from django.utils import timezone
 
 # Create your models here.
-'''
-En Django, los campos del modelo se pueden acceder directamente sin necesidad de métodos adicionales. 
-'''
-from django.contrib.auth.models import User
-        
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
@@ -39,4 +34,4 @@ class Review(models.Model):
 
 
     def __str__(self):
-        return self.user.username
+        return self.owner.username
