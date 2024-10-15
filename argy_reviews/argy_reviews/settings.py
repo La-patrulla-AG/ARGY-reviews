@@ -37,10 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api.apps.ApiConfig', 
-    #Esta es la aplicación que vamos a utilizar para crear nuestra API (esta frase fue recomendada por copilot, tengo miedo)
-    'rest_framework'
-    #Esta es la dependencia que vamos a utilizar para crear nuestra API (esto tambien fue sugerido por copilot)
+    'api.apps.ApiConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -79,10 +77,15 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'S31 - Grupo 11 - ARGY-reviews',
+        'USER': 'grupo11',
+        'PASSWORD': 'meestanqueseando',
+        'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
+        'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     }
 }
+
 
 
 # Password validation

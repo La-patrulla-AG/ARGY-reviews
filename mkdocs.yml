@@ -1,7 +1,30 @@
 site_name: Documentacion de ARGY Reviews
 
+nav:
+  - Getting started: getting_started.md
+  - Estilos del codigo en python: formatts.md
+  - MkDocs: mkdocs.md
+
 theme:
   name: material
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: (prefers-color-scheme)
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+        
   features:
     - navigations.tabs
     - vavigations.sections
@@ -14,19 +37,6 @@ theme:
     - content.code.copy
 
   language: es
-  pallet:
-    - scheme: default
-      toggle: 
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-      primary: teal
-      accent: purple
-    - scheme: slate
-      toggle: 
-        icon: material/toggle-switch-off-outline
-        name: Switch to light mode
-      primary: teal
-      accent: lime
 
 markdown_extensions:
   - nl2br
