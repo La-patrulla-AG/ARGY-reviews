@@ -39,3 +39,31 @@ pip freeze > requirements.txt
 >   ```
 
 ## Django
+
+## Frontend setup
+### Instalacion de npm
+```PowerShell
+winget install Schniz.fnm
+fnm env --use-on-cd | Out-String | Invoke-Expression 
+fnm use --install-if-missing 20
+```
+Ahora si reseteas la consola deberias poder usar npm, pero si no podes proba esto:
+```PowerShell
+Test-Path $PROFILE
+New-Item -Path $PROFILE -Type File -Force
+notepad $PROFILE
+fnm env --use-on-cd | Out-String | Invoke-Expression
+```
+### Node modules step by step
+Desde el directorio `Argy-reviews\argy-reviews\frontend\`:
+```powershell 
+npm init -y
+npm i webpack webpack-cli --save-dev 
+npm install @mui/material @emotion/react @emotion/styled
+npm i react react-dom --save-dev
+npm install react-router-dom
+npm install @fontsource/roboto
+npm install @mui/icons-material
+npm install @babel/plugin-transform-class-properties
+npm install @babel/core @babel/preset-env @babel/preset-react @babel/plugin-transform-class-properties --save-dev
+```
