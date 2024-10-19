@@ -1,16 +1,10 @@
 import "../../../static/css/homePage.css";
 import React from "react";
 import StarValue from "./StarValue";
-import 'flowbite';
 import { useNavigate } from "react-router-dom";
 
 const PostModal = ({ post }) => {
   const navigate = useNavigate();
-
-  const handleClick = () => {
-    console.log(post.id);
-    navigate(`/post/${post.id}`);
-  }
 
   // Verificar si el post es undefined
   if (!post) {
@@ -22,7 +16,7 @@ const PostModal = ({ post }) => {
   }
 
   return (
-    <div className="relative group transition-all duration-300 hover:scale-110 hover:z-10 cursor-pointer" onClick={handleClick}>
+    <div className="relative group transition-all duration-300 hover:scale-110 hover:z-10 cursor-pointer" onClick={()=>{navigate(`/post/${post.id}`)}}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
         <img
           src={post.imagen}

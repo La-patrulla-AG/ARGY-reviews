@@ -2,14 +2,6 @@ import "../../../static/css/homePage.css";
 import React from "react";
 
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  Redirect,
-} from "react-router-dom";
-
-import {
   Home,
   Users,
   Star,
@@ -20,8 +12,11 @@ import {
   Mail,
   Logs,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const Aside = ({state,toggle}) => {
+const Aside = ({ state, toggle }) => {
+  const navigate = useNavigate();
+  
   return (
     <aside
       className={`${
@@ -29,11 +24,7 @@ const Aside = ({state,toggle}) => {
       } fixed top-0 left-0 h-full transition-all duration-200 bg-white dark:bg-gray-800 p-4 z-40`}
     >
       <div className="flex items-center justify-between mb-8">
-        <h1
-          className={`text-xl font-bold ${
-            state ? "block" : "hidden"
-          }`}
-        >
+        <h1 className={`text-xl font-bold ${state ? "block" : "hidden"}`}>
           ArgyReviews
         </h1>
         <button
@@ -46,22 +37,20 @@ const Aside = ({state,toggle}) => {
       <nav>
         <ul
           className={`${
-            state
-              ? "opacity-100 duration-1000"
-              : "opacity-0 duration-500"
+            state ? "opacity-100 duration-1000" : "opacity-0 duration-500"
           } space-y-2 `}
         >
           <li>
-            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700" onClick={()=>{navigate("/")}}>
               <Home className="mr-2" />
               {state && <span>Inicio</span>}
             </button>
           </li>
           <li>
-            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="flex items-center w-full p-2 rounded">
               <Users className="mr-2" />
               {state && <span>Seguidos</span>}
-            </button>
+            </div>
             {state && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
@@ -78,10 +67,10 @@ const Aside = ({state,toggle}) => {
             )}
           </li>
           <li>
-            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="flex items-center w-full p-2 rounded">
               <Star className="mr-2" />
               {state && <span>Reseñas</span>}
-            </button>
+            </div>
             {state && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
@@ -93,10 +82,10 @@ const Aside = ({state,toggle}) => {
             )}
           </li>
           <li>
-            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+            <div className="flex items-center w-full p-2 rounded">
               <Info className="mr-2" />
               {state && <span>ArgyReviews</span>}
-            </button>
+            </div>
             {state && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
@@ -126,9 +115,7 @@ const Aside = ({state,toggle}) => {
       </nav>
       <div
         className={`${
-          state
-            ? "opacity-100 duration-1000"
-            : "opacity-0 duration-200"
+          state ? "opacity-100 duration-1000" : "opacity-0 duration-200"
         } absolute bottom-4 left-4 flex space-x-2`}
       >
         <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">

@@ -17,7 +17,7 @@ const App = () => {
       <MainLayout>
         <Routes>
         <Route path="/" element={<HomePage />} />
-          <Route path="/post/1" element={<PostPage />} />
+          <Route path="/post/:id" element={<PostPage />} />
           {/* Redirige a la página principal si la ruta no existe */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

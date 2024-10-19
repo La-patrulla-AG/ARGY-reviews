@@ -4,8 +4,12 @@ import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import Header from "./ui/Header";
+import { useParams } from "react-router-dom";
 
 const MainLayout = ({ children }) => {
+  // const { id } = useParams(); // Obtiene el id de la URL
+  // const producto = productos.find((p) => p.id === parseInt(id));
+
   const [barraLateralAbierta, setBarraLateralAbierta] = useState(true);
   const [modoOscuro, setModoOscuro] = useState(false);
 
