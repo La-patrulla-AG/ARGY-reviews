@@ -29,11 +29,9 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = '__all__'
-        
-class ReviewSerializer(serializers.ModelSerializer): 
-    owner = serializers.ReadOnlyField(source='owner.username')
-    
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image_url']
+
+class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'code', 'created_at', 'rating', 'comment', 'owner']
