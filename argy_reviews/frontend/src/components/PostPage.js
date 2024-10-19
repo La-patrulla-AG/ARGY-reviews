@@ -6,7 +6,7 @@ const PostPage = () =>{
     return (
         <>
         <ProductDetails />
-        <ReviewSection />
+        <ReviewSection postId={3}/>
         </>
     );
 }

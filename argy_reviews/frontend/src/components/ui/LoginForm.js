@@ -14,13 +14,13 @@ const LoginForm = ({ onClose }) => {
           <input
             type="email"
             placeholder="Correo Electrónico"
-            className="w-full p-2 border rounded bg-white dark:bg-gray-800"
+            className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"  
           />
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
               placeholder="Contraseña"
-              className="w-full p-2 border rounded bg-white dark:bg-gray-800"
+              className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
             />
             <button
               type="button"
