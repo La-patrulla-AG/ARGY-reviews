@@ -1,12 +1,28 @@
 import "../../static/css/homePage.css";
 import React from "react";
+import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
+import PostPage from "./PostPage";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 
 const App = () => {
   return (
-    <div>
-      <HomePage></HomePage>
-    </div>
+    <Router>
+      <MainLayout>
+        <Routes>
+        <Route path="/" element={<HomePage />} />
+          <Route path="/post/1" element={<PostPage />} />
+          {/* Redirige a la página principal si la ruta no existe */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </MainLayout>
+    </Router>
   );
 };
 

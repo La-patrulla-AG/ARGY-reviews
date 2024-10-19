@@ -3,7 +3,7 @@ import React from "react";
 import { Eye, EyeOff, X} from "lucide-react";
 import { useState } from "react";
 
-const FormularioLogin = ({ onClose }) => {
+const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
   return (
@@ -14,13 +14,13 @@ const FormularioLogin = ({ onClose }) => {
           <input
             type="email"
             placeholder="Correo Electrónico"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-white dark:bg-gray-800"
           />
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
               placeholder="Contraseña"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white dark:bg-gray-800"
             />
             <button
               type="button"
@@ -59,4 +59,4 @@ const FormularioLogin = ({ onClose }) => {
   );
 };
 
-export default FormularioLogin;
+export default LoginForm;

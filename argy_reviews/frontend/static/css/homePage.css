@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@media (max-width: 768px) {
+  .ml-64 {
+    margin-left: 0 !important; 
+  }
+}
+
+
 @layer base {
     :root {
       --background: 0 0% 100%;

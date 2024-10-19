@@ -1,27 +1,36 @@
 import "../../../static/css/homePage.css";
 import React from "react";
-import EstrellasValoracion from "./Stars";
+import StarValue from "./StarValue";
+import 'flowbite';
+import { useNavigate } from "react-router-dom";
 
-const TarjetaProducto = ({ producto }) => {
-  // Verificar si el producto es undefined
-  if (!producto) {
+const PostModal = ({ post }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    console.log(post.id);
+    navigate(`/post/${post.id}`);
+  }
+
+  // Verificar si el post es undefined
+  if (!post) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
-        <p className="text-center text-gray-500">Producto no disponible</p>
+        <p className="text-center text-gray-500">post no disponible</p>
       </div>
     );
   }
 
   return (
-    <div className="relative group transition-all duration-300 hover:scale-110 hover:z-10">
+    <div className="relative group transition-all duration-300 hover:scale-110 hover:z-10 cursor-pointer" onClick={handleClick}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
         <img
-          src={producto.imagen}
-          alt={producto.nombre}
-          className="w-full h-32 object-cover rounded mb-2"
+          src={post.imagen}
+          alt={post.nombre}
+          className="w-full h-32 object-contain rounded mb-2"
         />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1 z-20">
-          {producto.categorias.map((categoria, index) => (
+          {post.categorias.map((categoria, index) => (
             <span
               key={index}
               className="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded"
@@ -31,28 +40,28 @@ const TarjetaProducto = ({ producto }) => {
           ))}
         </div>
         <h3 className="font-semibold text-sm mb-1 truncate">
-          {producto.nombre}
+          {post.nombre}
         </h3>
         <div className="flex items-center justify-between">
-          <EstrellasValoracion valoracion={producto.valoracion} />
+          <StarValue valoracion={post.valoracion} />
           <span className="text-xs text-gray-600 dark:text-gray-400">
-            {producto.numReviews} reseñas
+            {post.numReviews} reseñas
           </span>
         </div>
 
         {/* Contenido visible en hover */}
         <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 opacity-100 transition-all duration-300 flex flex-col justify-between">
           <img
-            src={producto.imagen}
-            alt={producto.nombre}
-            className="w-full h-32 object-cover rounded"
+            src={post.imagen}
+            alt={post.nombre}
+            className="w-full h-32 object-contain rounded"
           />
           <div>
-            <h3 className="font-semibold text-sm mb-1">{producto.nombre}</h3>
+            <h3 className="font-semibold text-sm mb-1">{post.nombre}</h3>
             <div className="flex items-center justify-between mb-2">
-              <EstrellasValoracion valoracion={producto.valoracion} />
+              <StarValue valoracion={post.valoracion} />
               <span className="text-xs text-gray-600 dark:text-gray-400">
-                {producto.numReviews} reseñas
+                {post.numReviews} reseñas
               </span>
             </div>
           </div>
@@ -62,4 +71,4 @@ const TarjetaProducto = ({ producto }) => {
   );
 };
 
-export default TarjetaProducto;
+export default PostModal;

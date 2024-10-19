@@ -7,10 +7,16 @@ module.exports = {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "main.js",
   },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    alias: {
+      '@components': path.resolve(__dirname, 'src/components'),
+    },
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
@@ -33,4 +39,9 @@ module.exports = {
       },
     }),
   ],
+  devServer: {
+    contentBase: path.resolve(__dirname, 'dist'),
+    compress: true,
+    port: 9000,
+  },
 };

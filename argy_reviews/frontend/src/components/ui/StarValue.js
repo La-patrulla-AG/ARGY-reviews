@@ -2,7 +2,7 @@ import "../../../static/css/homePage.css";
 import React from "react";
 import { Star } from "lucide-react";
 
-const EstrellasValoracion = ({ valoracion }) => {
+const StarValue = ({ valoracion }) => {
   return (
     <div className="flex">
       {[...Array(5)].map((_, index) => (
@@ -19,4 +19,4 @@ const EstrellasValoracion = ({ valoracion }) => {
   );
 };
 
-export default EstrellasValoracion;
+export default StarValue;
