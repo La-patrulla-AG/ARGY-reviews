@@ -2,9 +2,10 @@ from .models import Post, Review
 from .serializers import PostSerializer, ReviewSerializer, UserSerializer
 
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -12,6 +13,7 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def post_list(request):
     """
     List all posts or create a new post.
@@ -29,12 +31,12 @@ def post_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def post_detail(request, pk):
+def post_detail(request, post_pk):
     """
     Retrieve, update or delete a post.
     """
     try:
-        post = Post.objects.get(pk=pk)
+        post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -52,20 +54,15 @@ def post_detail(request, pk):
     elif request.method == 'DELETE':
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Post, Review
-from .serializers import ReviewSerializer
 
-@api_view(['GET', 'POST', 'DELETE', 'PUT'])
-def reviews_list(request, pk):
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def reviews_list(request, post_pk):
     """
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.get(pk=pk)
+        post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -80,14 +77,14 @@ def reviews_list(request, pk):
             serializer.save(owner=request.user, post=post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 @api_view(['GET', 'PUT', 'DELETE'])
-def review_detail(request, pk):
+def review_detail(request, post_pk, review_pk):
     """
-    Retrieve, update or delete a review.
+    Retrieve, update or delete a review instance.
     """
     try:
-        review = Review.objects.get(pk=pk)
+        review = Review.objects.get(pk=review_pk, post_id=post_pk)
     except Review.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -107,6 +104,7 @@ def review_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     """
     Login a user.
@@ -123,6 +121,7 @@ def login(request):
     return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     """
     Register a user.
