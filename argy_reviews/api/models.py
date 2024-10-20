@@ -46,3 +46,23 @@ class Review(models.Model):
         if not self.pk and not self.owner_id:
             self.owner = get_user_model().objects.get(pk=kwargs.pop('user_id'))
         super().save(*args, **kwargs)
+
+#TODO 
+# - [] Create a model for the Report
+# - [] Makle a way to report a post, a review or a user
+# - [] Create a view to list all the reports
+
+class Report(models.Model):
+    code = models.CharField(max_length=10, default='0000000000')
+    created_at = models.DateTimeField(default=timezone.now)
+    content = models.TextField()
+    owner = models.ForeignKey('auth.User', related_name='reports', on_delete=models.CASCADE, blank=True, null=True)
+    
+
+    def __str__(self):
+        return self.owner.username
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.owner_id:
+            self.owner = get_user_model().objects.get(pk=kwargs.pop('user_id'))
+        super().save(*args, **kwargs)

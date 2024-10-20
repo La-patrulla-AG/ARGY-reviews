@@ -2,14 +2,14 @@ from .models import Post, Review
 from .serializers import PostSerializer, ReviewSerializer, UserSerializer
 
 from rest_framework import status
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-
 from django.shortcuts import get_object_or_404
 
 @api_view(['GET', 'POST'])
@@ -140,12 +140,15 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def profile(request):
     """
     Retrieve the profile of the user.
     """
-    if request.method == 'GET':
-        return Response(status=status.HTTP_200_OK)
+    serializer = UserSerializer(instance=request.user)
+    
+    return Response(serializer.data, status=status.HTTP_200_OK)
     
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
