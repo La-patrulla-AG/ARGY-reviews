@@ -25,21 +25,21 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className={`container mx-auto px-4 transition-all duration-200 ${asideIsOpen ? 'ml-64' : 'ml-16'}`}>
+    <div className={`container mx-auto px-4 transition-all duration-200 ml-14`}>
       <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">
         LAS MEJORES RESEÑAS HACEN MEJORES DECISIONES
       </h2>
       <section className="mb-12">
-        <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Recientemente Reseñados</h3>
-        <PostSwiper posts={recentlyReviewedPosts} asideOpen={asideIsOpen} />
+        <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300 ">Recientemente Reseñados</h3>
+        <PostSwiper posts={recentlyReviewedPosts} />
       </section>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Mejores del Mes</h3>
-        <PostSwiper posts={bestPosts} asideOpen={asideIsOpen} />
+        <PostSwiper posts={bestPosts}/>
       </section>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Recientemente Añadidos</h3>
-        <PostSwiper posts={recentPosts} asideOpen={asideIsOpen} />
+        <PostSwiper posts={recentPosts} />
       </section>
     </div>
   );

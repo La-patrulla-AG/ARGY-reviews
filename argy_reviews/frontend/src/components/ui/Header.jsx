@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="flex justify-between items-center mb-8 p-8 ml-64">
+      <header className="flex justify-between items-center mb-8 p-8 ml-14">
         <div className="relative w-2/3">
           <input
             type="search"

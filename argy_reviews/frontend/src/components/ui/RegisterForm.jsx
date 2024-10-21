@@ -1,29 +1,66 @@
 import "../../../static/css/homePage.css";
-import React from "react";
-import { Eye, EyeOff, X} from "lucide-react";
-import { useState } from "react";
+import { Eye, EyeOff, X } from "lucide-react";
+import React, { useState } from "react";
+import axios from "axios";
 
 const RegisterForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    password: "",
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    axios
+      .post("/register/", formData)
+      .then((response) => {
+        const { auth_token } = response.data;
+
+        // Guarda el token en localStorage o sessionStorage
+        sessionStorage.setItem("authToken", token);
+
+        console.log("User registered successfully:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setError("Registration failed.");
+      });
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-96 relative">
         <h2 className="text-2xl font-bold mb-6 text-center">REGISTRARSE</h2>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             placeholder="Correo Electrónico"
             className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
           />
-           <input
+          <input
             type="text"
+            value={formData.username}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             placeholder="Nombre de Usuario"
             className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
           />
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               placeholder="Contraseña"
               className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
             />

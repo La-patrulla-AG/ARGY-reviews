@@ -15,10 +15,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Aside = ({ toggle }) => {
+const Aside = () => {
   const { asideIsOpen, setAsideIsOpen } = useAside();
-
-
   const handleResize = () => {
     if (window.innerWidth <= 768) {
       setAsideIsOpen(false);
@@ -51,7 +49,7 @@ const Aside = ({ toggle }) => {
         </h1>
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={toggle}
+          onClick={()=>{setAsideIsOpen(!asideIsOpen)}}
         >
           {asideIsOpen ? <ChevronLeft /> : <Logs />}
         </button>

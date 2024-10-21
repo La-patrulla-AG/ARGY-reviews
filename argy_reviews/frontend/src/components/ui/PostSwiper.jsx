@@ -7,36 +7,39 @@ import "../../../static/css/homePage.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { useAside } from "../context/AsideContext";
 
-const PostSwiper = ({ posts, asideOpen }) => {
+const PostSwiper = ({ posts }) => {
+  const { asideIsOpen } = useAside();
+  console.log(asideIsOpen);
   const navigate = useNavigate();
-  const getBreakpoints = () => {
-    return {
-      320: {
-        slidesPerView: 1,
-        spaceBetween: 10,
-      },
-      480: {
-        slidesPerView: asideOpen ? 1 : 2, // Si aside está abierto, mostrar solo 1 slide
-        spaceBetween: 10,
-      },
-      768: {
-        slidesPerView: asideOpen ? 2 : 3, // Menos slides si el aside está abierto
-        spaceBetween: 15,
-      },
-      1024: {
-        slidesPerView: asideOpen ? 3 : 4, // Ajustar número de slides según aside
-        spaceBetween: 15,
-      },
-      1280: {
-        slidesPerView: asideOpen ? 3 : 5, // En pantallas grandes, mostrar más slides si aside está cerrado
-        spaceBetween: 15,
-      },
-    };
-  };
+
+  const getBreakpoints = () => ({
+    320: {
+      slidesPerView: 1,
+      spaceBetween: 10,
+    },
+    480: {
+      slidesPerView: asideIsOpen ? 2 : 1,
+      spaceBetween: 15,
+    },
+    768: {
+      slidesPerView: asideIsOpen ? 3 : 2,
+      spaceBetween: 15,
+    },
+    1024: {
+      slidesPerView: asideIsOpen ? 4 : 3,
+      spaceBetween: 20,
+    },
+    1280: {
+      slidesPerView: asideIsOpen ? 4 : 5,
+      spaceBetween: 20,
+    },
+  });
 
   return (
     <Swiper
+      key={asideIsOpen ? "aside-open" : "aside-closed"}
       spaceBetween={20}
       loop={true}
       pagination={{ clickable: true }}
@@ -47,9 +50,12 @@ const PostSwiper = ({ posts, asideOpen }) => {
     >
       {posts && posts.length > 0 ? (
         posts.map((post) => (
-          <SwiperSlide key={post.id}>
+          <SwiperSlide
+            key={post.id}
+            className="relative group transition-all hover:scale-110 hover:z-10 cursor-pointer"
+          >
             <div
-              className="relative group transition-all hover:z-10 cursor-pointer"
+              className="relative group transition-all hover:scale-90 hover:z-10 cursor-pointer"
               onClick={() => {
                 navigate(`/post/${post.id}`);
               }}

@@ -4,11 +4,12 @@ import HomePage from "./HomePage";
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import Header from "./ui/Header";
-import { AsideProvider } from "./context/AsideContext";
+import { useAside } from "./context/AsideContext";
 
 const MainLayout = ({ children }) => {
-  const [barraLateralAbierta, setBarraLateralAbierta] = useState(true);
   const [modoOscuro, setModoOscuro] = useState(false);
+
+  const { asideIsOpen } = useAside();
 
   const toggleModoOscuro = () => setModoOscuro(!modoOscuro);
 
@@ -17,24 +18,15 @@ const MainLayout = ({ children }) => {
   }, [modoOscuro]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <AsideProvider>
-        <div>
-          <Aside
-            state={barraLateralAbierta}
-            toggle={() => setBarraLateralAbierta(!barraLateralAbierta)}
-          ></Aside>
-          <main
-            className={`flex-1 p-0 transition-all duration-300 ${
-              !barraLateralAbierta ? "ml-64" : "ml-16"
-            }`}
-          >
-            {" "}
-            <Header />
-            {children}
-          </main>
-        </div>
-      </AsideProvider>
+    <div className={`flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${asideIsOpen ? "ml-64":"ml-16"}`}>
+      <div>
+        <Aside></Aside>
+        <main className="flex-1 p-0 transition-all duration-300">
+          {" "}
+          <Header />
+          {children}
+        </main>
+      </div>
 
       {/* Botón de modo oscuro */}
       <button
