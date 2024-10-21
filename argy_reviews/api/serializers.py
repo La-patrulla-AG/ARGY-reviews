@@ -4,18 +4,21 @@ A serializer is a class that converts complex data types, such as querysets and 
 """
 
 from rest_framework import serializers
-from .models import Post, Review, Report, ImageModel #Models are necesary to be imported in order to create the serializers
+from .models import Post, Review, Report #Models are necesary to be imported in order to create the serializers
 from django.db.models import Avg
 from django.contrib.auth.models import User #This is the default user model provided by Django
 import string, random
+from rest_framework.authtoken.models import Token
 
 class UserSerializer(serializers.ModelSerializer):
     posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
     reviews = serializers.PrimaryKeyRelatedField(many=True, queryset=Review.objects.all())
+    auth_token = serializers.SerializerMethodField()
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'posts', 'reviews']
+        fields = ['id', 'username', 'password', 'email', 'posts', 'reviews', 'auth_token']
+        extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -23,7 +26,12 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             email=validated_data['email']
         )
+        Token.objects.create(user=user)
         return user
+    
+    def get_auth_token(self, obj):
+        token, created = Token.objects.get_or_create(user=obj)
+        return token.key
  
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
@@ -37,6 +45,9 @@ class PostSerializer(serializers.ModelSerializer):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         return super().create(validated_data)
+    
+    def get_url(self, obj):
+        return obj.image.url
 
 class ReviewSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
@@ -77,18 +88,18 @@ class ReportSerializer(serializers.ModelSerializer):
             validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         return super().create(validated_data)
     
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImageModel
-        fields = ['id', 'image']
+# class ImageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ImageModel
+#         fields = ['id', 'image']
         
-    def create(self, validated_data):
-        image = super().create(validated_data)
-        return image
+#     def create(self, validated_data):
+#         image = super().create(validated_data)
+#         return image
     
-    def update(self, instance, validated_data):
-        image = super().update(instance, validated_data)
-        return image
+#     def update(self, instance, validated_data):
+#         image = super().update(instance, validated_data)
+#         return image
     
-    def get_photo_url(self, obj):
-        return obj.image.url
+#     def get_url(self, obj):
+#         return obj.image.url

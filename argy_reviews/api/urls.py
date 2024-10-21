@@ -5,7 +5,7 @@ from .views import UserList
 
 urlpatterns = [
     #re_path('login/', views.login, name='login'),
-    path('images/', views.image_list, name='image-list'),
+    # path('images/', views.image_list, name='image-list'),
     re_path('register/', views.register, name='register'),
     re_path('profile/', views.profile, name='profile'),
     
