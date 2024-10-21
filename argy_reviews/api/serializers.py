@@ -31,7 +31,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image_url']
         
-        # This refactorization of the create method is to make the code generation of the post code automatic
+    # This refactorization of the create method is to make the code generation of the post code automatic
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
