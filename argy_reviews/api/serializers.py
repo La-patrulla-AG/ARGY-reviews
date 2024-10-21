@@ -4,9 +4,10 @@ A serializer is a class that converts complex data types, such as querysets and 
 """
 
 from rest_framework import serializers
-from .models import * #Models are necesary to be imported in order to create the serializers
+from .models import Post, Review, Report, ImageModel #Models are necesary to be imported in order to create the serializers
 from django.db.models import Avg
 from django.contrib.auth.models import User #This is the default user model provided by Django
+import string, random
 
 class UserSerializer(serializers.ModelSerializer):
     posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
@@ -29,18 +30,20 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image_url']
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image']
         
-        # This refactorization of the create method is to make the code generation of the post code automatic
+    # This refactorization of the create method is to make the code generation of the post code automatic
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         return super().create(validated_data)
 
 class ReviewSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Review
-        fields = ['id', 'code', 'created_at', 'rating', 'comment', 'owner']
+        fields = ['id','code', 'title', 'content', 'created_at', 'avg_ratings', 'owner']
     
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
@@ -62,7 +65,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             post.avg_ratings = reviews.aggregate(Avg('rating'))['rating__avg']
         else:
             post.avg_ratings = 0
-        post.save()
+        post.save()    
     
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,3 +76,19 @@ class ReportSerializer(serializers.ModelSerializer):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         return super().create(validated_data)
+    
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageModel
+        fields = ['id', 'image']
+        
+    def create(self, validated_data):
+        image = super().create(validated_data)
+        return image
+    
+    def update(self, instance, validated_data):
+        image = super().update(instance, validated_data)
+        return image
+    
+    def get_photo_url(self, obj):
+        return obj.image.url

@@ -1,7 +1,6 @@
-from .models import Post, Review
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer
-from django.utils import timezone
-from datetime import timedelta
+from .models import Post, Review, Report, ImageModel
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, ImageSerializer
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
@@ -206,39 +205,18 @@ def profile(request):
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-@api_view(['GET'])
+    
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
-def get_carousels_data(request):
-    # 1. Posts recientes
-    recent_posts = Post.objects.order_by('-created_at')[:15]
-
-    # 2. Mejores del mes (últimos 30 días)
-    date_limit = timezone.now() - timedelta(days=30)
-    best_posts = Post.objects.filter(
-        review__created_at__gte=date_limit
-    ).annotate(
-        avg_rating=Avg('review__rating')
-    ).order_by('-avg_rating')[:15]
-
-    # 3. Recientemente reseñados
-    recently_reviewed_posts = Post.objects.filter(
-        review__isnull=False
-    ).annotate(
-        last_review=Max('review__created_at')
-    ).order_by('-last_review')[:15]
-
-    # Serializa los datos usando PostSerializer
-    recent_posts_serialized = PostSerializer(recent_posts, many=True)
-    best_posts_serialized = PostSerializer(best_posts, many=True)
-    recently_reviewed_serialized = PostSerializer(recently_reviewed_posts, many=True)
-
-    # Estructura los datos en un diccionario para responder
-    data = {
-        'recent_posts': recent_posts_serialized.data,
-        'best_posts': best_posts_serialized.data,
-        'recently_reviewed_posts': recently_reviewed_serialized.data,
-    }
-
-    # Devuelve los datos como una respuesta JSON
-    return Response(data)
+def image_list(request):
+    if request.method == 'GET':
+        images = ImageModel.objects.all()
+        serializer = ImageSerializer(images, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

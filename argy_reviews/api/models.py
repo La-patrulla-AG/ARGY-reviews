@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User #This is the default user model provided by Django
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-import string
-import random
+import string, random
 
 # Create your models here.
 
@@ -17,6 +16,12 @@ import random
 # - [] Make a way to store images in the Post model
 # - [] Make the avg_rating automatically updated when a review is created, updated or deleted
 
+class ImageModel(models.Model):
+    image = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return self.image.url
+
 class Post(models.Model):
     code = models.CharField(max_length=10, unique= True, blank=True)
     title = models.CharField(max_length=100)
@@ -24,20 +29,18 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
-    image_url = models.URLField(max_length=200, null=True, blank=True)
+    image = models.ForeignKey(ImageModel, on_delete=models.CASCADE, blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        # Generación del código si no está presente
-        if not self.code:
-            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
-        # Asignación del owner si no está presente y si se proporciona user_id
+        # if not self.code:
+        #     self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
         if not self.pk and not self.owner:
             user_id = kwargs.pop('user_id', None)
             if user_id:
                 self.owner = get_user_model().objects.get(pk=user_id)
 
-        # Llamada al método save() del padre para guardar los cambios
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -62,17 +65,15 @@ class Review(models.Model):
     owner = models.ForeignKey('auth.User', related_name='reviews', on_delete=models.CASCADE, blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        # Generación del código si no está presente
-        if not self.code:
-            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
-        # Asignación del owner si no está presente y si se proporciona user_id
+        # if not self.code:
+        #     self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
         if not self.pk and not self.owner:
             user_id = kwargs.pop('user_id', None)
             if user_id:
                 self.owner = get_user_model().objects.get(pk=user_id)
 
-        # Llamada al método save() del padre para guardar los cambios
         super().save(*args, **kwargs)
         
     def __str__(self):
@@ -83,22 +84,19 @@ class Report(models.Model):
     code = models.CharField(max_length=10, unique= True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     content = models.TextField()
-    owner = models.ForeignKey('auth.User', related_name='reports', on_delete=models.CASCADE, blank=True, null=True)
-    
+    owner = models.ForeignKey('auth.User', related_name='reports', on_delete=models.CASCADE, blank=True, null=True)  
 
     def __str__(self):
         return self.owner.username
 
     def save(self, *args, **kwargs):
-        # Generación del código si no está presente
+        
         if not self.code:
             self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
-        # Asignación del owner si no está presente y si se proporciona user_id
         if not self.pk and not self.owner:
             user_id = kwargs.pop('user_id', None)
             if user_id:
                 self.owner = get_user_model().objects.get(pk=user_id)
 
-        # Llamada al método save() del padre para guardar los cambios
         super().save(*args, **kwargs)
