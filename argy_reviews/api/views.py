@@ -12,6 +12,60 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Avg, Max
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_carousels_data(request):
+    # 1. Posts recientes
+    recent_posts = Post.objects.order_by('-created_at')[:15]
+
+    # 2. Mejores del mes (últimos 30 días)
+    date_limit = timezone.now() - timedelta(days=30)
+    best_posts = Post.objects.filter(
+        review__created_at__gte=date_limit
+    ).annotate(
+        avg_rating=Avg('review__rating')
+    ).order_by('-avg_rating')[:15]
+
+    # 3. Recientemente reseñados
+    recently_reviewed_posts = Post.objects.filter(
+        review__isnull=False
+    ).annotate(
+        last_review=Max('review__created_at')
+    ).order_by('-last_review')[:15]
+
+    # Serializa los datos usando PostSerializer
+    recent_posts_serialized = PostSerializer(recent_posts, many=True)
+    best_posts_serialized = PostSerializer(best_posts, many=True)
+    recently_reviewed_serialized = PostSerializer(recently_reviewed_posts, many=True)
+
+    # Estructura los datos en un diccionario para responder
+    data = {
+        'recent_posts': recent_posts_serialized.data,
+        'best_posts': best_posts_serialized.data,
+        'recently_reviewed_posts': recently_reviewed_serialized.data,
+    }
+
+    # Devuelve los datos como una respuesta JSON
+    return Response(data)
+
+@api_view(['GET'])
+def user_detail(request, user_pk):
+    """
+    Retrieve a user instance.
+    """
+    if request.method == 'GET':
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def post_list(request):

@@ -5,6 +5,15 @@ from django.contrib.auth import get_user_model
 
 # Create your models here.
 
+# TODO 
+# - [] Create a model for the Report
+# - [] Makle a way to report a post, a review or a user
+# - [] Create a view to list all the reports
+# - [] Create a model for Category
+# - [] Create a category relation with the Post model
+# - [] Make the code of all the models that have coude automatically generated
+# - [] Make a way to store images in the Post model
+
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -46,11 +55,6 @@ class Review(models.Model):
         if not self.pk and not self.owner_id:
             self.owner = get_user_model().objects.get(pk=kwargs.pop('user_id'))
         super().save(*args, **kwargs)
-
-#TODO 
-# - [] Create a model for the Report
-# - [] Makle a way to report a post, a review or a user
-# - [] Create a view to list all the reports
 
 class Report(models.Model):
     code = models.CharField(max_length=10, default='0000000000')
