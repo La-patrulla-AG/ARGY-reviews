@@ -1,35 +1,16 @@
 import Aside from "./ui/Aside";
 import React from "react";
-import { Outlet } from "react-router-dom";
+import HomePage from "./HomePage";
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import Header from "./ui/Header";
-import { useParams } from "react-router-dom";
+import { AsideProvider } from "./context/AsideContext";
 
 const MainLayout = ({ children }) => {
-  // const { id } = useParams(); // Obtiene el id de la URL
-  // const producto = productos.find((p) => p.id === parseInt(id));
-
   const [barraLateralAbierta, setBarraLateralAbierta] = useState(true);
   const [modoOscuro, setModoOscuro] = useState(false);
 
   const toggleModoOscuro = () => setModoOscuro(!modoOscuro);
-  const handleResize = () => {
-    if (window.innerWidth <= 768) {
-      setBarraLateralAbierta(false);
-    } else {
-      setBarraLateralAbierta(true); 
-    }
-  };
-  
-  useEffect(() => {
-    handleResize(); 
-    window.addEventListener("resize", handleResize); 
-
-    return () => {
-      window.removeEventListener("resize", handleResize); 
-    };
-  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", modoOscuro);
@@ -37,20 +18,23 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <Aside
-        state={barraLateralAbierta}
-        toggle={() => setBarraLateralAbierta(!barraLateralAbierta)}
-      ></Aside>
-      <main
-        className={`flex-1 p-8 transition-all duration-300 ${
-          barraLateralAbierta ? "ml-64" : "ml-16"
-        }`}
-      >
-        {" "}
-        <Header />
-        {children}
-        {/* Aquí se renderizarán las rutas (HomePage, PostPage, etc.) */}
-      </main>
+      <AsideProvider>
+        <div>
+          <Aside
+            state={barraLateralAbierta}
+            toggle={() => setBarraLateralAbierta(!barraLateralAbierta)}
+          ></Aside>
+          <main
+            className={`flex-1 p-0 transition-all duration-300 ${
+              !barraLateralAbierta ? "ml-64" : "ml-16"
+            }`}
+          >
+            {" "}
+            <Header />
+            {children}
+          </main>
+        </div>
+      </AsideProvider>
 
       {/* Botón de modo oscuro */}
       <button

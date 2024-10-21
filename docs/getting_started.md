@@ -59,4 +59,5 @@ Desde el directorio `Argy-reviews\argy-reviews\frontend\`:
 ```powershell 
 npm init -y
 npm install
+npm run dev
 ```

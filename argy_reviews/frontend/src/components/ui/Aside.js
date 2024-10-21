@@ -1,5 +1,6 @@
 import "../../../static/css/homePage.css";
-import React from "react";
+import React, {useEffect} from "react";
+import { useAside } from "../context/AsideContext";
 
 import {
   Home,
@@ -14,44 +15,65 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Aside = ({ state, toggle }) => {
+const Aside = ({ toggle }) => {
+  const { asideIsOpen, setAsideIsOpen } = useAside();
+
+
+  const handleResize = () => {
+    if (window.innerWidth <= 768) {
+      setAsideIsOpen(false);
+    } else {
+      setAsideIsOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+
   const navigate = useNavigate();
   
   return (
     <aside
       className={`${
-        state ? "w-64" : "w-16"
+        asideIsOpen ? "w-64" : "w-16"
       } fixed top-0 left-0 h-full transition-all duration-200 bg-white dark:bg-gray-800 p-4 z-40`}
     >
       <div className="flex items-center justify-between mb-8">
-        <h1 className={`text-xl font-bold ${state ? "block" : "hidden"}`}>
+        <h1 className={`text-xl font-bold ${asideIsOpen ? "block" : "hidden"}`}>
           ArgyReviews
         </h1>
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={toggle}
         >
-          {state ? <ChevronLeft /> : <Logs />}
+          {asideIsOpen ? <ChevronLeft /> : <Logs />}
         </button>
       </div>
       <nav>
         <ul
           className={`${
-            state ? "opacity-100 duration-1000" : "opacity-0 duration-500"
+            asideIsOpen ? "opacity-100 duration-1000" : "opacity-0 duration-500"
           } space-y-2 `}
         >
           <li>
             <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700" onClick={()=>{navigate("/")}}>
               <Home className="mr-2" />
-              {state && <span>Inicio</span>}
+              {asideIsOpen && <span>Inicio</span>}
             </button>
           </li>
           <li>
             <div className="flex items-center w-full p-2 rounded">
               <Users className="mr-2" />
-              {state && <span>Seguidos</span>}
+              {asideIsOpen && <span>Seguidos</span>}
             </div>
-            {state && (
+            {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -69,9 +91,9 @@ const Aside = ({ state, toggle }) => {
           <li>
             <div className="flex items-center w-full p-2 rounded">
               <Star className="mr-2" />
-              {state && <span>Reseñas</span>}
+              {asideIsOpen && <span>Reseñas</span>}
             </div>
-            {state && (
+            {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -84,9 +106,9 @@ const Aside = ({ state, toggle }) => {
           <li>
             <div className="flex items-center w-full p-2 rounded">
               <Info className="mr-2" />
-              {state && <span>ArgyReviews</span>}
+              {asideIsOpen && <span>ArgyReviews</span>}
             </div>
-            {state && (
+            {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
@@ -115,7 +137,7 @@ const Aside = ({ state, toggle }) => {
       </nav>
       <div
         className={`${
-          state ? "opacity-100 duration-1000" : "opacity-0 duration-200"
+          asideIsOpen ? "opacity-100 duration-1000" : "opacity-0 duration-200"
         } absolute bottom-4 left-4 flex space-x-2`}
       >
         <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">

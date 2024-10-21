@@ -3,6 +3,7 @@ import React from "react";
 import { useState } from "react";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import axios from "axios";
 import {
     Search
   } from "lucide-react";
@@ -13,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="flex justify-between items-center mb-8">
+      <header className="flex justify-between items-center mb-8 p-8 ml-64">
         <div className="relative w-2/3">
           <input
             type="search"
