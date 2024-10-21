@@ -1,5 +1,5 @@
 venv/
 .node
 node_modules/
-__pycache__/
-argy_reviews/api/migrations
+argy_review/api/migrations/
+argy_review/api/__pycache__/
