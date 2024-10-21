@@ -1,5 +1,5 @@
-from .models import Post, Review, Report, ImageModel
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, ImageSerializer
+from .models import Post, Review, Report
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -206,17 +206,17 @@ class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def image_list(request):
-    if request.method == 'GET':
-        images = ImageModel.objects.all()
-        serializer = ImageSerializer(images, many=True)
-        return Response(serializer.data)
+# @api_view(['GET', 'POST'])
+# @permission_classes([AllowAny])
+# def image_list(request):
+#     if request.method == 'GET':
+#         images = ImageModel.objects.all()
+#         serializer = ImageSerializer(images, many=True)
+#         return Response(serializer.data)
     
-    elif request.method == 'POST':
-        serializer = ImageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(owner=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = ImageSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(owner=request.user)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
