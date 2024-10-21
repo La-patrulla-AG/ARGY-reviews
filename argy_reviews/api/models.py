@@ -16,6 +16,12 @@ import string, random
 # - [] Make a way to store images in the Post model
 # - [] Make the avg_rating automatically updated when a review is created, updated or deleted
 
+class ImageModel(models.Model):
+    image = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return self.image.url
+
 class Post(models.Model):
     code = models.CharField(max_length=10, unique= True, blank=True)
     title = models.CharField(max_length=100)
@@ -23,12 +29,12 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
-    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    image = models.ForeignKey(ImageModel, on_delete=models.CASCADE, blank=True, null=True)
     
     def save(self, *args, **kwargs):
         
-        if not self.code:
-            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        # if not self.code:
+        #     self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
         if not self.pk and not self.owner:
             user_id = kwargs.pop('user_id', None)
@@ -60,8 +66,8 @@ class Review(models.Model):
     
     def save(self, *args, **kwargs):
         
-        if not self.code:
-            self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        # if not self.code:
+        #     self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
         if not self.pk and not self.owner:
             user_id = kwargs.pop('user_id', None)

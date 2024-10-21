@@ -5,6 +5,7 @@ from .views import UserList
 
 urlpatterns = [
     #re_path('login/', views.login, name='login'),
+    path('images/', views.image_list, name='image-list'),
     re_path('register/', views.register, name='register'),
     re_path('profile/', views.profile, name='profile'),
     
@@ -17,12 +18,5 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/', views.reviews_list, name='reviews-list'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
 ]
-
-from django.conf import settings
-from django.conf.urls.static import static
-
-urlpatterns = [
-    # ... tus otras rutas ...
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns = format_suffix_patterns(urlpatterns)
