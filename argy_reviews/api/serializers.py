@@ -11,16 +11,16 @@ import string, random
 from rest_framework.authtoken.models import Token
 
 class UserSerializer(serializers.ModelSerializer):
-    posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
-    reviews = serializers.PrimaryKeyRelatedField(many=True, queryset=Review.objects.all())
-    auth_token = serializers.SerializerMethodField()
-    
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'posts', 'reviews', 'auth_token']
+        fields = ['username', 'password', 'email']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
+        # Remove posts and reviews from validated_data if they exist
+        validated_data.pop('posts', None)
+        validated_data.pop('reviews', None)
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
