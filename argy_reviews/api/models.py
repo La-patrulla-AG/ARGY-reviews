@@ -31,17 +31,17 @@ class Post(models.Model):
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
     
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
         
-        # if not self.code:
-        #     self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    #     if not self.code:
+    #         self.code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         
-        if not self.pk and not self.owner:
-            user_id = kwargs.pop('user_id', None)
-            if user_id:
-                self.owner = get_user_model().objects.get(pk=user_id)
+    #     if not self.pk and not self.owner:
+    #         user_id = kwargs.pop('user_id', None)
+    #         if user_id:
+    #             self.owner = get_user_model().objects.get(pk=user_id)
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
