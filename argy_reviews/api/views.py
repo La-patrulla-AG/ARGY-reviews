@@ -10,6 +10,7 @@ from rest_framework import generics
 
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
+from django.db import IntegrityError
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
@@ -19,7 +20,6 @@ from datetime import timedelta
 from django.db.models import Avg, Max
 
 # TODO
-# - [x] Create a model for the Report
 
 
 # UserList 
@@ -203,7 +203,6 @@ def login(request):
     
     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
-# Register
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
@@ -213,14 +212,12 @@ def register(request):
     serializer = UserSerializer(data=request.data)
     
     if serializer.is_valid():
-        serializer.save()
-
-        user = User.objects.get(username=serializer.data['username'])
-        user.set_password(serializer.data['password'])
-        user.save()
-        
-        token = Token.objects.create(user=user)
-        return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
+        try:
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Profile
