@@ -1,25 +1,59 @@
 import "../../../static/css/homePage.css";
 import React from "react";
-import { Eye, EyeOff, X} from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("/login/", formData);
+      const { token } = response.data;
+
+      // Guarda el token en sessionStorage
+      sessionStorage.setItem("authToken", token);
+      console.log("User logged in successfully:", response.data);
+
+      // Redirigir a la página de inicio
+      navigate("/");
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Login failed.");
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-96 relative">
         <h2 className="text-2xl font-bold mb-6 text-center">INICIAR SESIÓN</h2>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <input
-            type="email"
-            placeholder="Correo Electrónico"
-            className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"  
+            type="text"
+            placeholder="Usuario"
+            value={formData.username}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
+            className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
           />
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
               placeholder="Contraseña"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
             />
             <button

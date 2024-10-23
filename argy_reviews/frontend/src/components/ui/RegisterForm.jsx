@@ -2,33 +2,29 @@ import "../../../static/css/homePage.css";
 import { Eye, EyeOff, X } from "lucide-react";
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    email: "",
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post("/register/", formData);
+      console.log("User registered successfully:", response.data);
 
-    axios
-      .post("/register/", formData)
-      .then((response) => {
-        const { auth_token } = response.data;
-
-        // Guarda el token en localStorage o sessionStorage
-        sessionStorage.setItem("authToken", token);
-
-        console.log("User registered successfully:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setError("Registration failed.");
-      });
+      // Redirigir a la página de login
+      navigate("/login");
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Registration failed.");
+    }
   };
 
   return (
