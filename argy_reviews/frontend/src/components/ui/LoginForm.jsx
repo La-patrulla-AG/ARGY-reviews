@@ -2,7 +2,7 @@ import "../../../static/css/homePage.css";
 import React from "react";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
+import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ onClose }) => {
@@ -17,18 +17,14 @@ const LoginForm = ({ onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/login/", formData);
+      const response = await api.post('/login/', formData);
       const { token } = response.data;
-
-      // Guarda el token en sessionStorage
-      sessionStorage.setItem("authToken", token);
-      console.log("User logged in successfully:", response.data);
-
-      // Redirigir a la página de inicio
-      navigate("/");
+      localStorage.setItem('authToken', token); // Guarda el token en localStorage
+      console.log('User logged in successfully:', response.data);
+      navigate('/posts');
     } catch (error) {
-      console.error("Error:", error);
-      setError("Login failed.");
+      console.error('Error:', error);
+      setError('Login failed.');
     }
   };
 
