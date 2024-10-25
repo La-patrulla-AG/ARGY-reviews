@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 
 from rest_framework.authtoken.models import Token
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication
 from django.db import IntegrityError
 
 from django.contrib.auth.models import User
@@ -19,13 +19,21 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Avg, Max
 
+from django.views.decorators.csrf import csrf_exempt
+
+from .authentication import CsrfExemptSessionAuthentication
+
 # TODO
 
 
 # UserList 
-class UserList(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def user_list(request):
+     if request.method == 'GET':
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 # User-Detail
 @api_view(['GET'])
@@ -81,7 +89,7 @@ def get_carousels_data(request):
 
 # Post-List
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
+# @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def post_list(request):
     """
@@ -189,6 +197,7 @@ def review_detail(request, post_pk, review_pk):
 # Login
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
 def login(request):
     """
     Login a user.
@@ -210,8 +219,10 @@ def login(request):
 
     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
+# Register
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
 def register(request):
     """
     Register a user.

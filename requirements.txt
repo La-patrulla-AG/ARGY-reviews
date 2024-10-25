@@ -46,3 +46,4 @@ tzdata==2024.2
 urllib3==2.2.3
 virtualenv==20.26.6
 watchdog==5.0.3
+django-cors-headers==4.5.0
