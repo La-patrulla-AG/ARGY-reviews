@@ -193,14 +193,21 @@ def login(request):
     """
     Login a user.
     """
-    user = get_object_or_404(User, username=request.data['username'])
-    
-    if not user.check_password(request.data['password']):
+    username_or_email = request.data.get('username_or_email')
+    password = request.data.get('password')
+
+    # Buscar usuario por username o email
+    user = User.objects.filter(username=username_or_email).first() or User.objects.filter(email=username_or_email).first()
+
+    if user is None:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if not user.check_password(password):
         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(instance=user)
-    
+
     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
@@ -209,16 +216,17 @@ def register(request):
     """
     Register a user.
     """
-    serializer = UserSerializer(data=request.data)
     
-    if serializer.is_valid():
-        try:
-            user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
-        except IntegrityError:
-            return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = serializer.save()
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Profile
 @api_view(['GET'])

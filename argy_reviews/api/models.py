@@ -30,6 +30,7 @@ class Post(models.Model):
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
+    categories = models.ManyToManyField('Category', related_name='posts', blank=True, null=True)
     
     # def save(self, *args, **kwargs):
         
@@ -100,3 +101,9 @@ class Report(models.Model):
                 self.owner = get_user_model().objects.get(pk=user_id)
 
         super().save(*args, **kwargs)
+        
+class Category(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
