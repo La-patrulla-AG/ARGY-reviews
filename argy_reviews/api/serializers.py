@@ -3,13 +3,29 @@ This file contains the serializers for the API.
 A serializer is a class that converts complex data types, such as querysets and model instances, into native Python data types that can then be easily rendered into JSON, XML, or other content types.
 """
 
-from rest_framework import serializers
-from .models import Post, Review, Report #Models are necesary to be imported in order to create the serializers
+from django.contrib.auth.models import User  # This is the default user model provided by Django
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Avg
-from django.contrib.auth.models import User #This is the default user model provided by Django
-import string, random
+from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+import random
+import string
 
+from .models import Post, PostState, Category, Review, Report, ReportCategory  # Models are necessary to be imported in order to create the serializers
+
+"""Auxiliary functions"""
+def generate_code():
+    """
+    This function generates automatically generates 
+    an alphanumeric code of 8 characters.
+    """
+    
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+"""Serializers"""
+
+# UserSerializer
+# ----------------
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -32,23 +48,39 @@ class UserSerializer(serializers.ModelSerializer):
     def get_auth_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
- 
+
+# PostSerializer
+# -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image']
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image', 'verification_state']
         
-    # This refactorization of the create method is to make the code generation of the post code automatic
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
-            validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            validated_data['code'] = generate_code()
+        
+        if 'verification_state' not in validated_data:
+            validated_data['verification_state'] = PostState.objects.get(name='not_verified')
+        else:
+            validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
+            
         return super().create(validated_data)
     
     def get_url(self, obj):
         return obj.image.url
 
+# PostStateSerializer
+# --------------------
+class PostStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostState
+        fields = ['id', 'name']
+
+# ReviewSerializer
+# -------------------------
 class ReviewSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     
@@ -58,7 +90,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
-            validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            validated_data['code'] = generate_code()
             
         review =  super().create(validated_data)
         self.update_post_avg_rating(review.post)
@@ -77,29 +109,42 @@ class ReviewSerializer(serializers.ModelSerializer):
         else:
             post.avg_ratings = 0
         post.save()    
-    
+
+# ReportCategorySerializer
+# -------------------------
+class ReportCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportCategory
+        fields = ['id', 'name']
+
+# ReportSerializer
+# -----------------
 class ReportSerializer(serializers.ModelSerializer):
+    reporter = serializers.StringRelatedField()  # Para mostrar el nombre del usuario que reporta
+    category = ReportCategorySerializer()
+    reported_object = serializers.SerializerMethodField()
+
     class Meta:
         model = Report
-        fields = ['id', 'code', 'created_at', 'content']
-    
-    def create(self, validated_data):
-        if 'code' not in validated_data or not validated_data['code']:
-            validated_data['code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        return super().create(validated_data)
-    
-# class ImageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ImageModel
-#         fields = ['id', 'image']
+        fields = [
+            'id', 
+            'created_at', 
+            'code', 
+            'reporter', 
+            'reported_object', 
+            'category', 
+            'content', 
+            'resolved'
+        ]
+
+    def get_reported_object(self, obj):
+        # Obtener el tipo de contenido (modelo) y el ID del objeto
+        content_type = ContentType.objects.get_for_id(obj.reported_content_type.id)
+        model_class = content_type.model_class()
         
-#     def create(self, validated_data):
-#         image = super().create(validated_data)
-#         return image
-    
-#     def update(self, instance, validated_data):
-#         image = super().update(instance, validated_data)
-#         return image
-    
-#     def get_url(self, obj):
-#         return obj.image.url
+        # Obtener el objeto específico reportado
+        try:
+            reported_object = model_class.objects.get(id=obj.reported_object_id)
+            return str(reported_object)  # Convertir el objeto en string o en la información que desees mostrar
+        except model_class.DoesNotExist:
+            return None
