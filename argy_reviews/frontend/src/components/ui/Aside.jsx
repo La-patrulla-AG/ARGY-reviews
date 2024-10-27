@@ -1,5 +1,5 @@
 import "../../../static/css/homePage.css";
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { useAside } from "../context/AsideContext";
 
 import {
@@ -20,8 +20,6 @@ const Aside = () => {
   const handleResize = () => {
     if (window.innerWidth <= 768) {
       setAsideIsOpen(false);
-    } else {
-      setAsideIsOpen(true);
     }
   };
 
@@ -34,9 +32,8 @@ const Aside = () => {
     };
   }, []);
 
-
   const navigate = useNavigate();
-  
+
   return (
     <aside
       className={`${
@@ -49,7 +46,9 @@ const Aside = () => {
         </h1>
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={()=>{setAsideIsOpen(!asideIsOpen)}}
+          onClick={() => {
+            setAsideIsOpen(!asideIsOpen);
+          }}
         >
           {asideIsOpen ? <ChevronLeft /> : <Logs />}
         </button>
@@ -61,7 +60,12 @@ const Aside = () => {
           } space-y-2 `}
         >
           <li>
-            <button className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700" onClick={()=>{navigate("/")}}>
+            <button
+              className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+              onClick={() => {
+                navigate("/");
+              }}
+            >
               <Home className="mr-2" />
               {asideIsOpen && <span>Inicio</span>}
             </button>

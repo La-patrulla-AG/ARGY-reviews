@@ -18,11 +18,12 @@ const MainLayout = ({ children }) => {
   }, [modoOscuro]);
 
   return (
-    <div className={`flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${asideIsOpen ? "ml-64":"ml-16"}`}>
-      <div>
-        <Aside></Aside>
-        <main className="flex-1 p-0 transition-all duration-300">
-          {" "}
+    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 `}>
+      <div className="flex">
+        <aside className={`${asideIsOpen ? "w-64" : "w-16"}`}><Aside></Aside></aside>
+        
+        <main className={`flex-1 p-4 transition-all duration-300 flex-shrink-0` }>
+            
           <Header />
           {children}
         </main>

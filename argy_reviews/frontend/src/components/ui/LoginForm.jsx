@@ -2,8 +2,8 @@ import "../../../static/css/homePage.css";
 import React from "react";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
-import api from "../../api";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -12,20 +12,15 @@ const LoginForm = ({ onClose }) => {
     username: "",
     password: "",
   });
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const auth = useAuth();
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await api.post('/login/', formData);
-      const { token } = response.data;
-      localStorage.setItem('authToken', token); // Guarda el token en localStorage
-      console.log('User logged in successfully:', response.data);
-      navigate('/posts');
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Login failed.');
+    if (formData.username !== "" && formData.password !== "") {
+      auth.loginAction(formData);
+      return;
     }
+    alert("Credenciales inválidas");
   };
 
   return (

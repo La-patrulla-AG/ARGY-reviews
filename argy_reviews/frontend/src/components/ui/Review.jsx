@@ -50,7 +50,7 @@ const Review = ({review}) => {
               />
             ))}
           </div>
-          <p className="text-gray-700 dark:text-gray-100">{review.comment}</p>
+          <div className="text-gray-700 dark:text-gray-100">{review.comment}</div>
           <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400 text-sm">
             <button className="flex items-center mr-4 hover:text-blue-500 transition-colors duration-200">
               <svg

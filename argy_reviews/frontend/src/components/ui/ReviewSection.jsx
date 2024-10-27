@@ -38,8 +38,8 @@ const ReviewSection = ({ postId }) => {
       });
   }
 
-  if (loading) return <p className="text-md font-semibold mb-4">Loading reviews...</p>;
-  if (error) return <p className="text-md font-semibold mb-4">Error loading reviews</p>;
+  if (loading) return <div className="text-md font-semibold mb-4">Loading reviews...</div>;
+  if (error) return <div className="text-md font-semibold mb-4">Error loading reviews</div>;
 
   return (
     <>
@@ -126,7 +126,7 @@ const ReviewSection = ({ postId }) => {
         </div>
         {reviews.map((review) => (
           <div key={review.id}>
-            <p><Review review={review}></Review></p>
+            <div><Review review={review}></Review></div>
           </div>
         ))}
       </div>

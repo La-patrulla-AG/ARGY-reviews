@@ -3,6 +3,7 @@ import React from "react";
 import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
 import PostPage from "./PostPage";
+import CreatePost from "./CreatePost";
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,22 +11,28 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
-import { AsideProvider } from "./context/AsideContext";
+import AsideProvider from "./context/AsideContext";
+import AuthProvider from "./context/AuthContext";
 
 const App = () => {
   return (
-    <Router>
-      <AsideProvider>
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/post/:id" element={<PostPage />} />
-            {/* Redirige a la página principal si la ruta no existe */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </MainLayout>
-      </AsideProvider>
-    </Router>
+    <div className="App">
+      <Router>
+        <AuthProvider>
+          <AsideProvider>
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/post/:id" element={<PostPage />} />
+                <Route path="/crear-post" element={<CreatePost />} />
+                {/* Redirige a la página principal si la ruta no existe */}
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </MainLayout>
+          </AsideProvider>
+        </AuthProvider>
+      </Router>
+    </div>
   );
 };
 

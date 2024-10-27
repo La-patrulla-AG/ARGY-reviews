@@ -4,7 +4,7 @@ const AsideContext = createContext();
 
 export const useAside = () => useContext(AsideContext);
 
-export const AsideProvider = ({ children }) => {
+const AsideProvider = ({ children }) => {
   const [asideIsOpen, setAsideIsOpen] = useState(true);
 
   return (
@@ -13,3 +13,5 @@ export const AsideProvider = ({ children }) => {
     </AsideContext.Provider>
   );
 };
+
+export default AsideProvider;

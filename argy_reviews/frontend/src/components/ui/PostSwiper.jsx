@@ -11,7 +11,6 @@ import { useAside } from "../context/AsideContext";
 
 const PostSwiper = ({ posts }) => {
   const { asideIsOpen } = useAside();
-  console.log(asideIsOpen);
   const navigate = useNavigate();
 
   const getBreakpoints = () => ({
@@ -65,12 +64,12 @@ const PostSwiper = ({ posts }) => {
                   <img
                     src={post.imagen_url}
                     alt={post.title}
-                    className="w-full h-32 object-cover rounded mb-2"
+                    className="w-16 md:w-32 lg:w-48 h-12 object-cover rounded mb-2"
                   />
                 ) : (
                   <div className="w-full h-32 bg-gray-200 dark:bg-gray-700 rounded mb-2 flex items-center justify-center">
                     <svg
-                      className="w-12 h-12 text-gray-400"
+                      className="w-16 md:w-32 lg:w-48 h-12 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
