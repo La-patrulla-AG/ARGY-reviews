@@ -23,16 +23,17 @@ from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostS
 # - [x] Crear una view para listar todos los reportes
 # - [x] Hacer que la view de los reportes sea solo accesible por los administradores
 # - Intentar subir un report
+# - Hacer que el motodo POST de post_list sea solo accesible por autenticacion.
 
 """Funciones auxiliares"""
-def get_verified_post_state_id() -> int:
+def get_verified_post_state_id(estate) -> int:
     try:
-        return PostState.objects.get(name='verified').id
+        return PostState.objects.get(name=estate).id
     except PostState.DoesNotExist:
         return Response({"error": "Verified state not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-"""Vies auxiliares"""
+"""Views auxiliares"""
 @api_view(['GET'])
 def content_types(request) -> Response:
     content_types = ContentType.objects.all()
@@ -52,7 +53,8 @@ def post_state_list(request):
     return Response(serializer.data)
 
 """Views de la aplicación"""
-VERIFIED_STATE = get_verified_post_state_id()
+VERIFIED_STATE = get_verified_post_state_id('verified')
+UNVERIFIED_STATE = get_verified_post_state_id('not_verified')
 
 # UserList 
 # --------
@@ -128,14 +130,13 @@ def get_carousels_data(request):
 @api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def post_list(request):
+def post_list(request, state):
     """
     List all posts or create a new post.
     """
-    #verified_state = get_verified_post_state_id()
     
     if request.method == 'GET':
-        posts = Post.objects.filter(verification_state=VERIFIED_STATE)
+        posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
