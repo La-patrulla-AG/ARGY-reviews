@@ -6,7 +6,9 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    re_path('login/', views.login, name='login'),
+    path('types/', views.content_types, name='type-list'),
+    
+    #re_path('login/', views.login, name='login'),
     re_path('register/', views.register, name='register'),
     re_path('profile/', views.profile, name='profile'),
     

@@ -82,11 +82,10 @@ class PostStateSerializer(serializers.ModelSerializer):
 # ReviewSerializer
 # -------------------------
 class ReviewSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Review
-        fields = ['id','code', 'title', 'content', 'created_at', 'avg_ratings', 'owner']
+        fields = ['id','code', 'comment', 'created_at', 'rating', 'owner']
     
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
@@ -120,8 +119,7 @@ class ReportCategorySerializer(serializers.ModelSerializer):
 # ReportSerializer
 # -----------------
 class ReportSerializer(serializers.ModelSerializer):
-    reporter = serializers.StringRelatedField()  # Para mostrar el nombre del usuario que reporta
-    category = ReportCategorySerializer()
+    reporter = serializers.ReadOnlyField(source='reporter.username')
     reported_object = serializers.SerializerMethodField()
 
     class Meta:
@@ -130,21 +128,33 @@ class ReportSerializer(serializers.ModelSerializer):
             'id', 
             'created_at', 
             'code', 
-            'reporter', 
+            'reporter',
+            'reported_content_type',
+            'reported_object_id',
             'reported_object', 
             'category', 
             'content', 
             'resolved'
         ]
+        read_only_fields = ['reporter']
+
+    def create(self, validated_data):
+        if 'code' not in validated_data or not validated_data['code']:
+            validated_data['code'] = generate_code()
+        
+        return super().create(validated_data)
 
     def get_reported_object(self, obj):
-        # Obtener el tipo de contenido (modelo) y el ID del objeto
-        content_type = ContentType.objects.get_for_id(obj.reported_content_type.id)
-        model_class = content_type.model_class()
-        
-        # Obtener el objeto específico reportado
+        content_type = obj.reported_content_type.model_class()
         try:
-            reported_object = model_class.objects.get(id=obj.reported_object_id)
-            return str(reported_object)  # Convertir el objeto en string o en la información que desees mostrar
-        except model_class.DoesNotExist:
+            reported_object = content_type.objects.get(id=obj.reported_object_id)
+            if isinstance(reported_object, Post):
+                return PostSerializer(reported_object).data
+            elif isinstance(reported_object, Review):
+                return ReviewSerializer(reported_object).data
+            elif isinstance(reported_object, User):
+                return UserSerializer(reported_object).data
+            else:
+                return None
+        except content_type.DoesNotExist:
             return None

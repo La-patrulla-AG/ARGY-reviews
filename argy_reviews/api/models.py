@@ -103,7 +103,7 @@ class Report(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=10, unique=True, blank=True)
-    reporter = models.ForeignKey(User, related_name='reports', on_delete=models.CASCADE)
+    reporter = models.ForeignKey('auth.User', related_name='reports', on_delete=models.CASCADE, blank=True, null=True)
     reported_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     reported_object_id = models.PositiveIntegerField()
     reported_object = GenericForeignKey('reported_content_type', 'reported_object_id')

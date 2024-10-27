@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from django.db.models import Avg, Max
 from django.shortcuts import get_object_or_404
@@ -19,8 +20,9 @@ from .models import Post, PostState, Report, Review
 from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer
 
 # TODO
-# [] Crear una view para listar todos los reportes
-# [] Hacer que la view de los reportes sea solo accesible por los administradores
+# - [x] Crear una view para listar todos los reportes
+# - [x] Hacer que la view de los reportes sea solo accesible por los administradores
+# - Intentar subir un report
 
 """Funciones auxiliares"""
 def get_verified_post_state_id() -> int:
@@ -29,8 +31,28 @@ def get_verified_post_state_id() -> int:
     except PostState.DoesNotExist:
         return Response({"error": "Verified state not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
+"""Vies auxiliares"""
+@api_view(['GET'])
+def content_types(request) -> Response:
+    content_types = ContentType.objects.all()
+    data = {ct.model: ct.id for ct in content_types}
+    return Response(data)
+
+# PostState-List
+# --------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def post_state_list(request):
+    """
+    List all post states.
+    """
+    post_states = PostState.objects.all()
+    serializer = PostStateSerializer(post_states, many=True)
+    return Response(serializer.data)
+
 """Views de la aplicación"""
-VERFICIED_STATE = get_verified_post_state_id()
+VERIFIED_STATE = get_verified_post_state_id()
 
 # UserList 
 # --------
@@ -63,17 +85,16 @@ def user_detail(request, user_pk):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_carousels_data(request):
-    verified_state = PostState.objects.get(name='verified').id
     
     # 1. Posts recientes
     recent_posts = Post.objects.filter(
-        verification_state=verified_state
+        verification_state=VERIFIED_STATE
     ).order_by('-created_at')[:15]
 
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=verified_state,
+        verification_state=VERIFIED_STATE,
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')
@@ -81,7 +102,7 @@ def get_carousels_data(request):
 
     # 3. Recientemente reseñados
     recently_reviewed_posts = Post.objects.filter(
-        verification_state=verified_state,
+        verification_state=VERIFIED_STATE,
         review__isnull=False
     ).annotate(
         last_review=Max('review__created_at')
@@ -102,31 +123,19 @@ def get_carousels_data(request):
     # Devuelve los datos como una respuesta JSON
     return Response(data)
 
-# PostState-List
-# --------------
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def post_state_list(request):
-    """
-    List all post states.
-    """
-    post_states = PostState.objects.all()
-    serializer = PostStateSerializer(post_states, many=True)
-    return Response(serializer.data)
-
 # Post-List
 # ---------
 @api_view(['GET', 'POST'])
-# @authentication_classes([TokenAuthentication])
+#@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def post_list(request):
     """
     List all posts or create a new post.
     """
     #verified_state = get_verified_post_state_id()
-    #verified_state = PostState.objects.get(name='verified').id
+    
     if request.method == 'GET':
-        posts = Post.objects.filter(verification_state=VERFICIED_STATE)
+        posts = Post.objects.filter(verification_state=VERIFIED_STATE)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
@@ -184,7 +193,7 @@ def reviews_list(request, post_pk):
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.get(pk=post_pk).filter
+        post = Post.objects.filter(verification_state=VERIFIED_STATE).get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -290,8 +299,9 @@ def profile(request):
 # Report-List
 # -----------
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAdminUser])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def report_list(request):
     """
     List all reports or create a new report.
@@ -300,12 +310,48 @@ def report_list(request):
         reports = Report.objects.all()
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
-
+    
     elif request.method == 'POST':
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner=request.user)
+            serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])
+def post_detail(request, report_pk):
+    """
+    Retrieve, update or delete a report.
+    """
+    try:
+        report = Report.objects.get(pk=report_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        # Allows acceses to lecture without authentication
+        serializer = ReportSerializer(report)
+        return Response(serializer.data)
+
+    elif request.method in ['PUT', 'DELETE']:
+        # Requerires atutentication to update and delete a post
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Verifies if the user is the owner of the post
+        if report.owner != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if request.method == 'PUT':
+            serializer = ReportSerializer(report, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
+            report.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
 #print(get_verified_post_state_id())

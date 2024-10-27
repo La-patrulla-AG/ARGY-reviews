@@ -94,6 +94,15 @@ DATABASES = {
         'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
         'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     }
+    
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'argyreviewsDB', 
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'meestanqueseando',
+    #     'HOST': '186.137.212.214',
+    #     'PORT': '5432',
+    # }
 }
 
 
