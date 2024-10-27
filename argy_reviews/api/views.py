@@ -319,8 +319,8 @@ def report_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
-def post_detail(request, report_pk):
+@permission_classes([IsAdminUser, IsAuthenticated])
+def report_detail(request, report_pk):
     """
     Retrieve, update or delete a report.
     """

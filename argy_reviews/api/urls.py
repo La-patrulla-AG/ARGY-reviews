@@ -24,6 +24,7 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
     
     path('reports/', views.report_list, name='report-list'),
+    path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns = format_suffix_patterns(urlpatterns)
