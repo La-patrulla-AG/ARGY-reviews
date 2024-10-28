@@ -7,7 +7,7 @@ const PostPage = () =>{
     const { id } = useParams();
     return (
         <>
-        <ProductDetails />
+        <ProductDetails postId={id}/>
         {console.log(id)}
         <ReviewSection postId={id}/>
         </>
