@@ -29,7 +29,7 @@ const AuthProvider = ({ children }) => {
       if (res.data) {
         setUser(res.data.user);
         setToken(res.token);
-        localStorage.setItem("Token ", res.token);
+        localStorage.setItem("site", res.token);
         navigate("/dashboard");
         return;
       }
@@ -42,7 +42,7 @@ const AuthProvider = ({ children }) => {
   const logOut = () => {
     setUser(null);
     setToken("");
-    localStorage.removeItem("Token");
+    localStorage.removeItem("site");
     navigate("/login");
   };
 

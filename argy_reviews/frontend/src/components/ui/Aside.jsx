@@ -61,7 +61,7 @@ const Aside = () => {
         >
           <li>
             <button
-              className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+              className="flex items-center w-full p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
               onClick={() => {
                 navigate("/");
               }}
@@ -71,39 +71,34 @@ const Aside = () => {
             </button>
           </li>
           <li>
-            <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
+            <div className="flex items-center w-full p-2 rounded">
               <Users className="mr-2" />
-              {asideIsOpen && <span>Perfil</span>}
+              {asideIsOpen && <span>Seguidos</span>}
             </div>
             {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
-                    Mis publicaciones
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+                    Actualizaciones
                   </button>
                 </li>
                 <li>
-                  <button
-                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                    onClick={() => {
-                      navigate("/crear-post");
-                    }}
-                  >
-                    Nueva publicación
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
+                    Perfiles que sigues
                   </button>
                 </li>
               </ul>
             )}
           </li>
           <li>
-            <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
+            <div className="flex items-center w-full p-2 rounded">
               <Star className="mr-2" />
               {asideIsOpen && <span>Reseñas</span>}
             </div>
             {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                     Búsqueda avanzada
                   </button>
                 </li>
@@ -111,29 +106,29 @@ const Aside = () => {
             )}
           </li>
           <li>
-            <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
+            <div className="flex items-center w-full p-2 rounded">
               <Info className="mr-2" />
               {asideIsOpen && <span>ArgyReviews</span>}
             </div>
             {asideIsOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                     Privacidad
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                     Reglas del Sitio
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                     Términos y Condiciones
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700">
                     Sé Parte de ArgyReviews
                   </button>
                 </li>
@@ -147,19 +142,13 @@ const Aside = () => {
           asideIsOpen ? "opacity-100 duration-1000" : "opacity-0 duration-200"
         } absolute bottom-4 left-4 flex space-x-2`}
       >
-        <button
-          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-          onClick={() => {
-            window.location.href =
-              "https://github.com/La-patrulla-AG/ARGY-reviews";
-          }}
-        >
+        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
           <Github className="w-4 h-4" />
         </button>
-        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
           <Mail className="w-4 h-4" />
         </button>
-        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+        <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
           <Twitter className="w-4 h-4" />
         </button>
       </div>
