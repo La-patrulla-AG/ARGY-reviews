@@ -1,4 +1,7 @@
 venv/
 node_modules/
-argy_review/api/migrations/
-argy_review/api/__pycache__/
+argy_reviews/api/migrations/
+argy_reviews/api/__pycache__/
+images/
+argy_reviews/argy_reviews/__pycache__/
+argy_reviews/frontend/__pycache__/

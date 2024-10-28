@@ -58,12 +58,6 @@ fnm env --use-on-cd | Out-String | Invoke-Expression
 Desde el directorio `Argy-reviews\argy-reviews\frontend\`:
 ```powershell 
 npm init -y
-npm i webpack webpack-cli --save-dev 
-npm install @mui/material @emotion/react @emotion/styled
-npm i react react-dom --save-dev
-npm install react-router-dom
-npm install @fontsource/roboto
-npm install @mui/icons-material
-npm install @babel/plugin-transform-class-properties
-npm install @babel/core @babel/preset-env @babel/preset-react @babel/plugin-transform-class-properties --save-dev
+npm install
+npm run dev
 ```
