@@ -1,12 +1,10 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User  # This is the default user model provided by Django
+
+# Create your models here.
+from django.db import models
+from django.contrib.auth import get_user_model  # This is the default user model provided by Django
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
-from enum import Enum
-import random
-import string
 
 # TODO 
 # - [x] Create a model for the Report
@@ -41,7 +39,6 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
-    image = models.ImageField(upload_to='images/', blank=True, null=True)
     categories = models.ManyToManyField('Category', related_name='posts', blank=True)
     verification_state = models.ForeignKey(PostState, on_delete=models.SET_NULL, null=True, blank=True)
     
@@ -57,6 +54,15 @@ class Post(models.Model):
             self.avg_ratings = ratings.aggregate(models.Avg('value'))['value__avg']
             self.save()
 
+# PostImage model
+# ---------------
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return f"Image for post: {self.post.title}"
+    
 # Review model
 # ------------
 class Review(models.Model):

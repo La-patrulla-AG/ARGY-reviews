@@ -7,6 +7,8 @@ from django.conf import settings
 
 urlpatterns = [
     path('types/', views.content_types, name='type-list'),
+    path('posts/<int:post_pk>/images/', views.image_upload, name='post-images'),
+    path('posts/<int:post_pk>/images/<int:image_pk>', views.image_detail, name='post-images'),
     
     #re_path('login/', views.login, name='login'),
     re_path('register/', views.register, name='register'),

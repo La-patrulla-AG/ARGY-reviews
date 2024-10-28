@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'S31 - Grupo 11 - ARGY-reviews',
+        'NAME': 'ArgyReviews',
         'USER': 'grupo11',
         'PASSWORD': 'meestanqueseando',
         'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor

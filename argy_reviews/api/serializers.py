@@ -3,7 +3,7 @@ This file contains the serializers for the API.
 A serializer is a class that converts complex data types, such as querysets and model instances, into native Python data types that can then be easily rendered into JSON, XML, or other content types.
 """
 
-from django.contrib.auth.models import User  # This is the default user model provided by Django
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Avg
 from rest_framework import serializers
@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, Category, Review, Report, ReportCategory  # Models are necessary to be imported in order to create the serializers
+from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage 
 
 """Auxiliary functions"""
 def generate_code():
@@ -23,13 +23,21 @@ def generate_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 """Serializers"""
+# ImageSerializer
+# ----------------
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = ['id','image','post']
 
 # UserSerializer
 # ----------------
 class UserSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['username', 'password', 'email']
+        fields = ['id', 'username', 'password', 'email', 'token']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
@@ -45,7 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
         return user
     
-    def get_auth_token(self, obj):
+    def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
 
@@ -56,7 +64,7 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'image', 'verification_state']
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state']
         
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:

@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -130,7 +130,7 @@ def get_carousels_data(request):
 @api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def post_list(request, state):
+def post_list(request):
     """
     List all posts or create a new post.
     """
@@ -319,6 +319,8 @@ def report_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Report-Detail
+# -------------
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAdminUser, IsAuthenticated])
 def report_detail(request, report_pk):
@@ -354,5 +356,53 @@ def report_detail(request, report_pk):
         elif request.method == 'DELETE':
             report.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
+# Image-List
+# ------------
+@api_view(['GET','POST'])
+def image_upload(request, post_pk):
+    """
+    Upload an image for a post.
+    """
+    if request.method == 'GET':
+        images = PostImage.objects.filter(post_id=post_pk)
+        serializer = ImageSerializer(images, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Image-Detail
+# ------------
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def image_detail(request, post_pk, image_pk):
+    """
+    Retrieve, update or delete an image.
+    """
+    try:
+        image = PostImage.objects.get(pk=image_pk, post_id=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = ImageSerializer(image)
+        return Response(serializer.data)
+
+    elif request.method in ['PUT', 'DELETE']:
+        if request.method == 'PUT':
+            serializer = ImageSerializer(image, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'DELETE':
+            image.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
 #print(get_verified_post_state_id())
