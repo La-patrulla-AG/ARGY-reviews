@@ -21,11 +21,11 @@ const Header = () => {
             placeholder="Buscar..."
             className="w-2/3 p-2 pl-8 rounded bg-gray-200 border-gray-500 dark:border-gray-700 dark:bg-gray-800"
           />
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-1 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
         <div>
           <button
-            className="mr-2 px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:border-gray-600"
+            className="mr-2 px-4 py-2 border rounded hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-black dark:text-white"
             onClick={() => setMostrarLogin(true)}
           >
             Acceder

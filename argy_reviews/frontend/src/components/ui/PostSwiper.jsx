@@ -84,7 +84,7 @@ const PostSwiper = ({ posts }) => {
                     </svg>
                   </div>
                 )}
-                <h3 className="font-semibold text-sm mb-1 truncate">
+                <h3 className="font-semibold text-sm mb-1 truncate dark:text-white text-black">
                   {post.title}
                 </h3>
                 <div className="flex items-center justify-between">
