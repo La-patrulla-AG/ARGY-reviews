@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage 
+from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage, UserProfile
 
 """Auxiliary functions"""
 def generate_code():
@@ -23,6 +23,13 @@ def generate_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 """Serializers"""
+# UserProfileSerializer
+# ----------------------
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'user', 'profile_pic']
+
 # ImageSerializer
 # ----------------
 class ImageSerializer(serializers.ModelSerializer):

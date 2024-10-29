@@ -1,28 +1,25 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Star
   } from "lucide-react";
 import timeSince from "../../utils/TimeSince";
+import axios from "axios";
+
 
 const Review = ({review}) => {
+  const [user, setUser] = useState({});
 
-  // useEffect(()=>{
-  //   getOwner(review.owner);
-  // },[]);
-
-  // const getOwner = () =>{
-  //   axios
-  //     .get(`/posts/`)
-  //     .then((response) => {
-  //       setReviews(response.data);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => {
-  //       setError(err);
-  //       setLoading(false);
-  //       console.log("Error loading data", err);
-  //     });
-  // }
+  useEffect(() => {
+    axios
+      .get(`/users/${review.owner}/`)
+      .then((response) => {
+        setUser(response.data);
+        console.log(response.username);
+      })
+      .catch((err) => {
+        console.log("Error loading data", err);
+      });
+  }, [review.owner]);
 
   return (
     <div className="border-t pt-4 border-gray-300 dark:border-gray-500 ">
@@ -35,7 +32,7 @@ const Review = ({review}) => {
         </div>
         <div className="flex-1">
           <div className="flex items-center mb-1">
-            <span className="font-semibold mr-2">{review.owner}</span>
+            <span className="font-semibold mr-2">{user.username}</span>
             <span className="text-gray-500 dark:text-gray-200 text-sm">
               {timeSince(review.created_at)}
             </span>

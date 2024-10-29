@@ -110,7 +110,7 @@ const ReviewSection = ({ postId }) => {
         </div>
         <div className="flex justify-between items-center mb-4">
           <span className="text-gray-600 dark:text-gray-300">
-            289 comentarios
+            {reviews.length} {reviews.length === 1 ? "comentario" : "comentarios"}
           </span>
           <div className="space-x-2">
             <button className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300">

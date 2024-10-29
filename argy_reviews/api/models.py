@@ -18,12 +18,23 @@ from django.contrib.contenttypes.models import ContentType
 # - [x] Create a relation between the Post and the PostState
 # - [x] Make a way to report a post, a review or a user
 # - [x] Make a ReportCategory model
+# - [] Solamente puede haber una review por usuario en un post
+# - [] Solamente puede haber un reporte por usuario en un post, review o usuario
+# - [] Se debe actualizar dinamicamente el avg_rating de los post cuando hay CUD
 
 """Funciones auxiliares"""
 # No se deben hacer consultas a la base de datos desde los modelos, 
 # solamente se deben hacer consultas desde las vistas o desde los serializadores.
 
 """Modelos de la aplicación"""
+
+#User model
+class UserProfile(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    
+    def __str__(self):
+        return self.user.username
 
 # PostState model
 # ---------------

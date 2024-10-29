@@ -15,7 +15,7 @@ urlpatterns = [
     re_path('profile/', views.profile, name='profile'),
     
     path('users/', views.user_list, name='user_list'),
-    path('users/<int:user_pk>', views.user_detail, name='user-detail'),
+    path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
     
     path('post-states/', views.post_state_list, name='post-state-list'),
     path('carousels/', views.get_carousels_data, name='get_carousels_data'),
