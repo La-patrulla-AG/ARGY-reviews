@@ -1,4 +1,4 @@
-function timeSince(date) {
+function TimeSince(date) {
     const now = new Date();
     const past = new Date(date);
     const seconds = Math.floor((now - past) / 1000);
@@ -21,5 +21,5 @@ function timeSince(date) {
     return "Justo ahora";
   }
 
-  export default timeSince
+  export default TimeSince
   

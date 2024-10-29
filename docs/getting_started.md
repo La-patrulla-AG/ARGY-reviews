@@ -1,4 +1,15 @@
 # Getting started
+El proposito general de esta documentacion es guiar al desarrollador para pode levantar la aplicacion de Argy Reviews.
+
+Primero y principal clone el repositorio.
+```bash
+git clone https://github.com/La-patrulla-AG/ARGY-reviews.git
+```
+## Build dependencies
+Ejecuta el siguiente comando en la raíz del proyecto (donde se encuentra el archivo docker-compose.yml):
+```bash
+docker-compose up --build
+```
 ## Virtual invorement
 Se intuye que Python esta instalado localmente.
 
@@ -61,3 +72,4 @@ npm init -y
 npm install
 npm run dev
 ```
+#
