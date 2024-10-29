@@ -1,73 +1,148 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import ImagePreview from "./ui/ImagePreview";
+import axios from "axios";
 
 const CreatePost = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const imageUrls = files.map(file => URL.createObjectURL(file));
-    setImages(prev => [...prev, ...imageUrls]);
+  const handleImageUpload = (files) => {
+    const imageFiles = Array.from(files).filter((file) =>
+      file.type.startsWith("image/")
+    );
+    const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
+    setImages((prev) => [...prev, ...imageUrls]);
   };
 
-  const handleSubmit = (e) => {
+  const handleFileInput = (e) => {
+    handleImageUpload(e.target.files);
+  };
+
+  const handleDeleteImage = (indexToDelete) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToDelete));
+  };
+
+  const handleDragEnter = useCallback((e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log({ title, description, images });
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    handleImageUpload(files);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+
+    images.forEach((image, index) => {
+      formData.append(`image_${index}`, image);
+    });
+
+    try {
+      const response = await axios.post("/posts/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.status === 201) {
+        console.log("Post creado exitosamente", response.data);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Error al crear el post", err);
+    }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">Crear Post</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="container mx-auto px-4 py-0 max-w-8xl">
+      <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
+        Crear Post
+      </h1>
+
+      <form
+        onSubmit={handleSubmit}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className="space-y-6"
+      >
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Título<span className="text-red-500">*</span>
+          <label className="block text-lg font-medium mb-2 dark:text-white text-black">
+            Título
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
+            className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Descripción</label>
+          <label className="block text-lg font-medium mb-2 dark:text-white text-black">
+            Descripción
+          </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-2 borde rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
             placeholder="Escribe tu descripción aquí..."
           />
         </div>
 
-        <div className="border-t pt-4 border-gray-300 dark:border-gray-500 ">
-          <label className="block text-sm font-medium mb-2">Imagen</label>
+        <div>
+          <label className="block text-lg font-medium mb-2 dark:text-white text-black">
+            Imagen
+          </label>
           <div className="flex flex-wrap gap-4">
             {images.map((img, index) => (
-              <div key={index} className="relative w-32 h-40">
-                <img
-                  src={img}
-                  alt={`Upload ${index + 1}`}
-                  className="w-full h-full object-cover border rounded-md"
-                />
-              </div>
+              <ImagePreview
+                key={index}
+                image={img}
+                index={index}
+                onDelete={handleDeleteImage}
+              />
             ))}
-            <label className="w-32 h-40 border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
-              <div className="text-center text-sm text-gray-600">
+            <label
+              className={`w-36 h-48 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer transition-all duration-200 ${
+                isDragging
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 hover:border-blue-500"
+              }`}
+            >
+              <div className="text-center text-sm text-gray-600 dark:text-gray-200">
                 <p>Haz click o arrastra</p>
                 <p>para añadir archivos</p>
               </div>
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleFileInput}
                 className="hidden"
                 multiple
               />
@@ -75,11 +150,12 @@ const CreatePost = () => {
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4">
+        <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+            className="px-4 py-2 rounded-md transition-colors border
+            hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
             Cancelar
           </button>

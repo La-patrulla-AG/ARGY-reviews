@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import AsideProvider from "./context/AsideContext";
 import AuthProvider from "./context/AuthContext";
+import PrivateRoute from "./ui/ProtectedRoute";
 
 const App = () => {
   return (
@@ -25,6 +26,9 @@ const App = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/post/:id" element={<PostPage />} />
                 <Route path="/crear-post" element={<CreatePost />} />
+                <Route element={<PrivateRoute />}>
+                  
+                </Route>
                 {/* Redirige a la página principal si la ruta no existe */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

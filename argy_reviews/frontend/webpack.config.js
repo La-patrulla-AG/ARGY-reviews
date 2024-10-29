@@ -7,6 +7,10 @@ module.exports = {
     path: path.resolve(__dirname, "./static/frontend"),
     filename: "main.js",
   },
+  watchOptions: {
+    poll: 1000,   // Cada cuánto revisar cambios (en ms)
+    ignored: /node_modules/,   // Ignorar node_modules para evitar consumo de recursos
+  },
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
