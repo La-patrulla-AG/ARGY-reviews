@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {
     Star
   } from "lucide-react";
-import timeSince from "../../utils/TimeSince";
+import TimeSince from "../../utils/TimeSince";
 import axios from "axios";
 
 
@@ -34,7 +34,7 @@ const Review = ({review}) => {
           <div className="flex items-center mb-1">
             <span className="font-semibold mr-2">{user.username}</span>
             <span className="text-gray-500 dark:text-gray-200 text-sm">
-              {timeSince(review.created_at)}
+              {TimeSince(review.created_at)}
             </span>
           </div>
           <div className="flex items-center mb-2">
