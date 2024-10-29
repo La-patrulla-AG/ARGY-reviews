@@ -13,11 +13,11 @@ const LoginForm = ({ onClose }) => {
     password: "",
   });
 
-  const auth = useAuth();
+  const { loginAction } = useAuth();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.username !== "" && formData.password !== "") {
-      auth.loginAction(formData);
+      loginAction(formData);
       return;
     }
     alert("Credenciales inválidas");

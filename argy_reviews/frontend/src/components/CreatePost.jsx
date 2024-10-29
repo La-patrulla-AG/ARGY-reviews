@@ -2,12 +2,18 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ImagePreview from "./ui/ImagePreview";
 import axios from "axios";
+import { useAuth } from "./context/AuthContext";
 
 const CreatePost = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+  });
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
   const navigate = useNavigate();
 
   const handleImageUpload = (files) => {
@@ -54,26 +60,35 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
 
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("content", formData.content);
+
+    // Si tienes imágenes, agrégalas a FormData
     images.forEach((image, index) => {
-      formData.append(`image_${index}`, image);
+      data.append(`image_${index}`, image);
     });
 
+    console.log(data);
     try {
-      const response = await axios.post("/posts/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        "/posts/",
+        {
+          title: formData.title,
+          content: formData.content,
         },
-      });
-      if (response.status === 201) {
-        console.log("Post creado exitosamente", response.data);
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      console.error("Error al crear el post", err);
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Post creado exitosamente", response.data);
+    } catch (error) {
+      console.error("Error:", error);
+      setError("Registration failed.");
     }
   };
 
@@ -97,8 +112,10 @@ const CreatePost = () => {
           </label>
           <input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
           />
         </div>
@@ -108,8 +125,10 @@ const CreatePost = () => {
             Descripción
           </label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={formData.content}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
+            }
             className="w-full p-2 borde rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
             placeholder="Escribe tu descripción aquí..."
           />

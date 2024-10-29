@@ -10,7 +10,7 @@ urlpatterns = [
     path('posts/<int:post_pk>/images/', views.image_upload, name='post-images'),
     path('posts/<int:post_pk>/images/<int:image_pk>', views.image_detail, name='post-images'),
     
-    #re_path('login/', views.login, name='login'),
+    re_path('login/', views.login, name='login'),
     re_path('register/', views.register, name='register'),
     re_path('profile/', views.profile, name='profile'),
     

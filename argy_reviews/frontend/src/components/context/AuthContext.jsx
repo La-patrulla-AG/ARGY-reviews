@@ -1,12 +1,11 @@
 // import { createContext } from "react";
 
-
 // export const AuthContext = createContext({
 //   user: null,
 //   setUser: () => {},
 // });
 
-import React,{ useContext, createContext, useState } from "react";
+import React, { useContext, createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -14,28 +13,37 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("site") || "");
+  const [token, setToken] = useState(localStorage.getItem("Token") || "");
   const navigate = useNavigate();
 
   const loginAction = async (data) => {
     try {
-      const response = await axios.post("/login/", data, {
-        headers: {
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        "/login/",
+        {
+          username_or_email: data.username,
+          password: data.password,
         },
-      });
-      
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       const res = response.data;
-      if (res.data) {
-        setUser(res.data.user);
+      console.log(res.user)
+      if (res.user) {
+        setUser(res.user);
         setToken(res.token);
-        localStorage.setItem("Token ", res.token);
-        navigate("/dashboard");
+        localStorage.setItem("Token", `Token ${res.token}`);
+        navigate("/");
         return;
+      } else {
+        throw new Error("No se encontró el usuario.");
       }
-      throw new Error(res.message);
     } catch (err) {
-      console.error(err);
+      console.error("Error at loginAction:", err);
     }
   };
 
@@ -43,7 +51,7 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     setToken("");
     localStorage.removeItem("Token");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

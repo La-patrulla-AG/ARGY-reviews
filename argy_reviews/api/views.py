@@ -144,8 +144,9 @@ def get_carousels_data(request):
 # Post-List
 # ---------
 @api_view(['GET', 'POST'])
-#@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+# @permission_classes([AllowAny])
 def post_list(request):
     """
     List all posts or create a new post.

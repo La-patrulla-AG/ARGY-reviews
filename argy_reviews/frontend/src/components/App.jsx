@@ -25,9 +25,9 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/post/:id" element={<PostPage />} />
-                <Route path="/crear-post" element={<CreatePost />} />
+
                 <Route element={<PrivateRoute />}>
-                  
+                  <Route path="/crear-post" element={<CreatePost />} />
                 </Route>
                 {/* Redirige a la página principal si la ruta no existe */}
                 <Route path="*" element={<Navigate to="/" />} />
