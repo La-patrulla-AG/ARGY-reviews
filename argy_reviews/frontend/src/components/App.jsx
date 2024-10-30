@@ -4,7 +4,7 @@ import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
 import PostPage from "./PostPage";
 import CreatePost from "./CreatePost";
-import MyPostsSection from "./ui/MyPostsSection";
+import MyPostsPage from "./MyPostsPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -39,7 +39,7 @@ const App = () => {
                   path="/mis-publicaciones"
                   element={
                     <ProtectedRoute>
-                      <MyPostsSection />
+                      <MyPostsPage/>
                     </ProtectedRoute>
                   }
                 />

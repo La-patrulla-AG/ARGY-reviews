@@ -22,7 +22,7 @@ const MainLayout = ({ children }) => {
       <div className="flex">
         <aside className={`${asideIsOpen ? "w-80" : "w-16"}`}><Aside></Aside></aside>
         
-        <main className={` p-4 transition-all duration-300` }>
+        <main className={`flex-1 p-4 transition-all duration-300` }>
             
           <Header />
           {children}

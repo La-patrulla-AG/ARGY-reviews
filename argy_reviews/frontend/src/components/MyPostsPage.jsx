@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
-import  MyPost  from "./MyPost.jsx";
+import  MyPost  from "./ui/MyPost.jsx";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const MOCK_POSTS = [
     {
@@ -48,13 +50,45 @@ const MOCK_POSTS = [
     '2020',
   ];
 
-const MyPostsSection = () => {
+const MyPostsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Todas");
   const [posts, setPosts]=useState([]);
 
-  const token = localStorage.getItem("Token");
+
+  const getFirstImage = (postId) => {
+    return axios
+      .get(`/posts/${postId}/images/`)
+      .then((response) => {
+        const imageUrl =
+          response.data.length > 0 ? response.data[0].image : null;
+        return { postId, imageUrl };
+      })
+      .catch((error) => {
+        console.error(`Error loading image for post ${postId}:`, error);
+        return { postId, imageUrl: null };
+      });
+  };
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const batch = posts.map((post) => getFirstImage(post.id));
+  
+      const results = await Promise.all(batch);
+      setImages((prevImages) => {
+        const newImages = {};
+        results.forEach(({ postId, imageUrl }) => {
+          newImages[postId] = imageUrl;
+        });
+        return { ...prevImages, ...newImages };
+      });
+    };
+  
+    fetchImages();
+  }, [posts]);
+
+
 
   const handleView = (id) => {
     console.log("View post:", id);
@@ -138,4 +172,4 @@ const MyPostsSection = () => {
   );
 }
 
-export default MyPostsSection;
+export default MyPostsPage;

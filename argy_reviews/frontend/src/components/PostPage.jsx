@@ -8,7 +8,6 @@ const PostPage = () =>{
     return (
         <>
         <ProductDetails postId={id}/>
-        {console.log(id)}
         <ReviewSection postId={id}/>
         </>
     );
