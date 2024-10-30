@@ -32,7 +32,6 @@ const AuthProvider = ({ children }) => {
       );
 
       const res = response.data;
-      console.log(res.user)
       if (res.user) {
         setUser(res.user);
         setToken(res.token);

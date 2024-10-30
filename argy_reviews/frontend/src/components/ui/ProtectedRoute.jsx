@@ -1,12 +1,25 @@
-import React from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
-const PrivateRoute = () => {
+function ProtectedRoute({ children }) {
+  const [isAuthorized, setIsAuthorized] = useState(null);
   const navigate = useNavigate();
-  const {token}=useAuth();
-  if (!token) return navigate("/");
-  return <Outlet />;
-};
 
-export default PrivateRoute;
+  useEffect(() => {
+    auth().catch(() => setIsAuthorized(false));
+  }, []);
+
+  const auth = async () => {
+    const token = localStorage.getItem("Token");
+    if (!token) {
+      setIsAuthorized(false);
+      return;
+    }
+    setIsAuthorized(true);
+  };
+  if (isAuthorized === null) {
+    return <div>Loading...</div>;
+  }
+  return isAuthorized ? children : navigate("/");
+}
+export default ProtectedRoute;

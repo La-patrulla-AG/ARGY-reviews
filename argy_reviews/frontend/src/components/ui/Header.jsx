@@ -9,8 +9,8 @@ import { useAuth } from "../context/AuthContext";
 const Header = () => {
   const [mostrarLogin, setMostrarLogin] = useState(false);
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
-  const {user, logout}=useAuth();
-  console.log(user)
+  const {logOut}=useAuth();
+  const token = localStorage.getItem("Token")
 
   return (
     <>
@@ -23,7 +23,7 @@ const Header = () => {
           />
           <Search className="absolute left-1 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
-        { !user ? (
+        { !token ? (
           <div>
             <button
               className="mr-2 px-4 py-2 border rounded hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-black dark:text-white"
@@ -41,7 +41,7 @@ const Header = () => {
         ) :(<div>
                       <button
               className="mr-2 px-4 py-2 border rounded bg-gray-500 hover:bg-gray-600 dark:hover:bg-gray-400 dark:border-gray-300 text-gray-300 dark:text-white"
-              onClick={() => logout}
+              onClick={logOut}
             >
               Cerrar Sesión
             </button>

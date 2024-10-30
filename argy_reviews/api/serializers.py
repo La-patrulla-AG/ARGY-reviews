@@ -78,7 +78,7 @@ class PostSerializer(serializers.ModelSerializer):
             validated_data['code'] = generate_code()
         
         if 'verification_state' not in validated_data:
-            validated_data['verification_state'] = PostState.objects.get(name='not_verified')
+            validated_data['verification_state'] = PostState.objects.get(name='verified')
         else:
             validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
             

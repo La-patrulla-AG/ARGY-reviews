@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
@@ -8,10 +8,43 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { useAside } from "../context/AsideContext";
+import axios from "axios";
 
 const PostSwiper = ({ posts }) => {
   const { asideIsOpen } = useAside();
   const navigate = useNavigate();
+  const [images, setImages] = useState({});
+
+  const getFirstImage = (postId) => {
+    return axios
+      .get(`/posts/${postId}/images/`)
+      .then((response) => {
+        const imageUrl =
+          response.data.length > 0 ? response.data[0].image : null;
+        return { postId, imageUrl };
+      })
+      .catch((error) => {
+        console.error(`Error loading image for post ${postId}:`, error);
+        return { postId, imageUrl: null };
+      });
+  };
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const batch = posts.map((post) => getFirstImage(post.id));
+  
+      const results = await Promise.all(batch);
+      setImages((prevImages) => {
+        const newImages = {};
+        results.forEach(({ postId, imageUrl }) => {
+          newImages[postId] = imageUrl;
+        });
+        return { ...prevImages, ...newImages };
+      });
+    };
+  
+    fetchImages();
+  }, [posts]);
 
   const getBreakpoints = () => ({
     320: {
@@ -60,11 +93,11 @@ const PostSwiper = ({ posts }) => {
               }}
             >
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
-                {post.imagen_url ? (
+                {images[post.id] ? (
                   <img
-                    src={post.imagen_url}
-                    alt={post.title}
-                    className="w-16 md:w-32 lg:w-48 h-12 object-cover rounded mb-2"
+                    src={images[post.id]}
+                    alt={`Imagen de ${post.title}`}
+                    className="w-full max-h-32 object-cover rounded mb-2"
                   />
                 ) : (
                   <div className="w-full h-32 bg-gray-200 dark:bg-gray-700 rounded mb-2 flex items-center justify-center">

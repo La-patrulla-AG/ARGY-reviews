@@ -25,11 +25,12 @@ const HomePage = () => {
       });
   }, []);
 
+
   return (
     // <div className="container mx-auto px-4 transition-all duration-200 ml-14">
     <div className="container mx-auto duration-200">
       <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">
-        LAS MEJORES RESEÑAS HACEN MEJORES DECISIONES
+        LAS MEJORES RESEÑAS PARA LAS MEJORES DECISIONES
       </h2>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300 ">

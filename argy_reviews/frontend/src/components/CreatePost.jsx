@@ -11,8 +11,9 @@ const CreatePost = () => {
     title: "",
     content: "",
   });
+  const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
-  const { token } = useAuth();
+  const token = localStorage.getItem("Token");
 
   const navigate = useNavigate();
 
@@ -20,6 +21,8 @@ const CreatePost = () => {
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/")
     );
+    setFiles((prev) => [...prev, ...files]);
+    console.log(files)
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
   };
@@ -30,6 +33,7 @@ const CreatePost = () => {
 
   const handleDeleteImage = (indexToDelete) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToDelete));
+    setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
   };
 
   const handleDragEnter = useCallback((e) => {
@@ -61,18 +65,9 @@ const CreatePost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("content", formData.content);
-
     // Si tienes imágenes, agrégalas a FormData
-    images.forEach((image, index) => {
-      data.append(`image_${index}`, image);
-    });
-
-    console.log(data);
     try {
-      const response = await axios.post(
+      const postResponse = await axios.post(
         "/posts/",
         {
           title: formData.title,
@@ -85,9 +80,27 @@ const CreatePost = () => {
           },
         }
       );
-      console.log("Post creado exitosamente", response.data);
+
+      const postId = postResponse.data.id;
+
+      // Enviar cada imagen individualmente, asociándola con el `postId`
+      const uploadPromises = files.map((file) => {
+        const imageData = new FormData();
+        imageData.append('image', file);
+        imageData.append('post', postId);
+        axios.post(`/posts/${postId}/images/`, imageData, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      });
+
+      await Promise.all(uploadPromises);
+
+      console.log("Post y sus imágenes creados exitosamente.");
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error al crear el post o las imágenes:", error);
       setError("Registration failed.");
     }
   };

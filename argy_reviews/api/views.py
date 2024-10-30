@@ -85,6 +85,7 @@ def user_profile(request):
 # User-Detail
 # -----------
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def user_detail(request, user_pk):
     """
     Retrieve a user instance.
@@ -377,6 +378,7 @@ def report_detail(request, report_pk):
 # Image-List
 # ------------
 @api_view(['GET','POST'])
+@permission_classes([AllowAny])
 def image_upload(request, post_pk):
     """
     Upload an image for a post.

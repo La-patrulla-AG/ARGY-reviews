@@ -4,6 +4,7 @@ import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
 import PostPage from "./PostPage";
 import CreatePost from "./CreatePost";
+import MyPostsSection from "./ui/MyPostsSection";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,7 +14,7 @@ import {
 } from "react-router-dom";
 import AsideProvider from "./context/AsideContext";
 import AuthProvider from "./context/AuthContext";
-import PrivateRoute from "./ui/ProtectedRoute";
+import ProtectedRoute from "./ui/ProtectedRoute";
 
 const App = () => {
   return (
@@ -26,10 +27,23 @@ const App = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/post/:id" element={<PostPage />} />
 
-                <Route element={<PrivateRoute />}>
-                  <Route path="/crear-post" element={<CreatePost />} />
-                </Route>
-                {/* Redirige a la página principal si la ruta no existe */}
+                <Route
+                  path="/crear-post"
+                  element={
+                    <ProtectedRoute>
+                      <CreatePost />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/mis-publicaciones"
+                  element={
+                    <ProtectedRoute>
+                      <MyPostsSection />
+                    </ProtectedRoute>
+                  }
+                />
+
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </MainLayout>

@@ -1,33 +1,29 @@
-import React, {useEffect, useState} from "react";
-import {
-    Star
-  } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Star } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
-
-const Review = ({review}) => {
+const Review = ({ review }) => {
   const [user, setUser] = useState({});
-
   useEffect(() => {
     axios
       .get(`/users/${review.owner}/`)
       .then((response) => {
         setUser(response.data);
-        console.log(response.username);
       })
       .catch((err) => {
         console.log("Error loading data", err);
       });
   }, [review.owner]);
-
+  const firstLetter = user?.username ? user.username.charAt(0).toUpperCase() : '';
   return (
     <div className="border-t pt-4 border-gray-300 dark:border-gray-500 ">
       <div className="flex items-start mb-4">
         <div className="mr-4">
           {/*acá va el perfil del usuario*/}
           <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-            P
+            <p>{firstLetter}</p>
           </div>
         </div>
         <div className="flex-1">
@@ -47,7 +43,9 @@ const Review = ({review}) => {
               />
             ))}
           </div>
-          <div className="text-gray-700 dark:text-gray-100">{review.comment}</div>
+          <div className="text-gray-700 dark:text-gray-100 line-clamp-2">
+            {review.comment}
+          </div>
           <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400 text-sm">
             <button className="flex items-center mr-4 hover:text-blue-500 transition-colors duration-200">
               <svg
@@ -90,4 +88,4 @@ const Review = ({review}) => {
   );
 };
 
-export default Review
+export default Review;

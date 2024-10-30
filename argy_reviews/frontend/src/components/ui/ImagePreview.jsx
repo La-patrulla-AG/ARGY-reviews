@@ -77,7 +77,7 @@ const ImagePreview = ({ image, onDelete, index }) => {
             />
             <button
               onClick={() => setIsExpanded(false)}
-              className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"
+              className="absolute -top-4 -right-4 w-8 h-8 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-lg"
               aria-label="Close preview"
             >
               <svg
