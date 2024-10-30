@@ -7,7 +7,7 @@ import Header from "./ui/Header";
 import { useAside } from "./context/AsideContext";
 
 const MainLayout = ({ children }) => {
-  const [modoOscuro, setModoOscuro] = useState(false);
+  const [modoOscuro, setModoOscuro] = useState(true);
 
   const { asideIsOpen } = useAside();
 
@@ -20,9 +20,9 @@ const MainLayout = ({ children }) => {
   return (
     <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 `}>
       <div className="flex">
-        <aside className={`${asideIsOpen ? "w-64" : "w-16"}`}><Aside></Aside></aside>
+        <aside className={`${asideIsOpen ? "w-80" : "w-16"}`}><Aside></Aside></aside>
         
-        <main className={`flex-1 p-4 transition-all duration-300 flex-shrink-0` }>
+        <main className={` p-4 transition-all duration-300` }>
             
           <Header />
           {children}

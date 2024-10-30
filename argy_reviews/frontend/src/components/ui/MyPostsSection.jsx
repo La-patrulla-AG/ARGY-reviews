@@ -69,12 +69,12 @@ const MyPostsSection = () => {
   };
 
   return (
-    <div className="max-w-8xl mx-auto p-6">
+    <div className="container mx-auto px-4 py-0 max-w-8xl">
       <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
-        Crear Post
+        Mis publicaciones
       </h1>
 
-      <div className="bg-gray-100 rounded-lg p-4 mb-6">
+      <div className="bg-gray-100 dark:bg-gray-900 rounded-lg pt-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="relative flex-1 max-w-md">
             <Search
@@ -119,7 +119,7 @@ const MyPostsSection = () => {
         </div>
 
         <div className="text-sm text-gray-600">
-          {posts.length} publicaciones
+          {MOCK_POSTS.length} publicaciones
         </div>
       </div>
 

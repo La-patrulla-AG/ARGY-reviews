@@ -22,7 +22,7 @@ const CreatePost = () => {
       file.type.startsWith("image/")
     );
     setFiles((prev) => [...prev, ...files]);
-    console.log(files)
+    console.log(files);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
   };
@@ -86,8 +86,8 @@ const CreatePost = () => {
       // Enviar cada imagen individualmente, asociándola con el `postId`
       const uploadPromises = files.map((file) => {
         const imageData = new FormData();
-        imageData.append('image', file);
-        imageData.append('post', postId);
+        imageData.append("image", file);
+        imageData.append("post", postId);
         axios.post(`/posts/${postId}/images/`, imageData, {
           headers: {
             Authorization: token,

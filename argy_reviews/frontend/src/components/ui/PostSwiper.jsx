@@ -52,19 +52,19 @@ const PostSwiper = ({ posts }) => {
       spaceBetween: 10,
     },
     480: {
-      slidesPerView: asideIsOpen ? 2 : 1,
+      slidesPerView: asideIsOpen ? 2 : 3,
       spaceBetween: 15,
     },
     768: {
-      slidesPerView: asideIsOpen ? 3 : 2,
+      slidesPerView: asideIsOpen ? 3 : 4,
       spaceBetween: 15,
     },
     1024: {
-      slidesPerView: asideIsOpen ? 4 : 3,
+      slidesPerView: asideIsOpen ? 4 : 5,
       spaceBetween: 20,
     },
     1280: {
-      slidesPerView: asideIsOpen ? 4 : 5,
+      slidesPerView: 5,
       spaceBetween: 20,
     },
   });
