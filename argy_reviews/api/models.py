@@ -84,6 +84,9 @@ class Review(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     owner = models.ForeignKey('auth.User', related_name='reviews', on_delete=models.CASCADE, blank=True, null=True)
     
+    class Meta:
+        unique_together = ('post', 'owner') 
+    
     def save(self, *args, **kwargs):
         
         # if not self.code:

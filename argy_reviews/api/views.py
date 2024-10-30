@@ -222,6 +222,9 @@ def reviews_list(request, post_pk):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        if Review.objects.filter(post=post, owner=request.user).exists():
+            return Response({"error": "You have already reviewed this post. Please edit or delete your existing review."}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user, post=post)
@@ -302,17 +305,18 @@ def register(request):
                 return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Profile
-# -------
+# UserProfile 
+# -----------
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def profile(request):
-    """
-    Retrieve the profile of the user along with their posts.
-    """
-    serializer = UserProfileSerializer(instance=request.user)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+@permission_classes([AllowAny])
+def user_profile(request, user_pk):
+    if request.method == 'GET':
+        try:
+            user = User.objects.get(pk=user_pk)
+        except UserProfile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
 
 # Report-List
 # -----------
