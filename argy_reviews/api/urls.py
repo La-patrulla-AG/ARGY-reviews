@@ -10,12 +10,12 @@ urlpatterns = [
     path('posts/<int:post_pk>/images/', views.image_upload, name='post-images'),
     path('posts/<int:post_pk>/images/<int:image_pk>', views.image_detail, name='post-images'),
     
-    re_path('login/', views.login, name='login'),
-    re_path('register/', views.register, name='register'),
-    re_path('profile/', views.profile, name='profile'),
+    path('login/', views.login, name='login'),
+    path('register/', views.register, name='register'),
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
+    path('profile/<int:user_pk>/', views.user_profile, name='profile'),
     
     path('post-states/', views.post_state_list, name='post-state-list'),
     path('carousels/', views.get_carousels_data, name='get_carousels_data'),
