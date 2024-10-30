@@ -23,12 +23,6 @@ def generate_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 """Serializers"""
-# UserProfileSerializer
-# ----------------------
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ['id', 'user', 'profile_pic']
 
 # ImageSerializer
 # ----------------
@@ -63,6 +57,19 @@ class UserSerializer(serializers.ModelSerializer):
     def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
+
+
+# UserProfilePicture Serializer
+# ------------------------------
+class UserProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'posts']
+    
+    def get_posts(self, obj):
+        posts = Post.objects.filter(owner=obj).order_by('-created_at')
+        return PostSerializer(posts, many=True).data
 
 # PostSerializer
 # -------------------
