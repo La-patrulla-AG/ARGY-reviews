@@ -28,7 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 
 """Modelos de la aplicación"""
 
-#User model
+#UserProfile model
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)

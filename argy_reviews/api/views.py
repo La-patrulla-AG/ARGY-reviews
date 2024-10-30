@@ -309,10 +309,9 @@ def register(request):
 @permission_classes([IsAuthenticated])
 def profile(request):
     """
-    Retrieve the profile of the user.
+    Retrieve the profile of the user along with their posts.
     """
-    serializer = UserSerializer(instance=request.user)
-    
+    serializer = UserProfileSerializer(instance=request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Report-List
