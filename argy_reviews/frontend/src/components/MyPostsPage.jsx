@@ -74,7 +74,7 @@ const MyPostsPage = () => {
         },
       })
       .then((response) => {
-        setPostsId(response.data);
+        setPostsId(response.data.posts);
       })
       .catch((err) => {
         console.log("Error loading data", err);

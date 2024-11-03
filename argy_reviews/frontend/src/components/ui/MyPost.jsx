@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, X, Ellipsis} from "lucide-react";
 
 const MyPost = ({ postId }) => {
   const [image, setImage] = useState({});
@@ -73,12 +73,45 @@ const MyPost = ({ postId }) => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
                   {post.title}
                 </h3>
-                {post.verification_state && (
+                {() => {
+                  switch (post.verification_state) {
+                    case 1:
+                      return (
+                        <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
+                          <Check size={16} className="mr-1" />
+                          Verificado
+                        </span>
+                      );
+                    case 2:
+                      return (
+                        <span className="flex items-center text-orange-600 dark:text-orange-500 text-sm">
+                          <Ellipsis size={16} className="mr-1" />
+                          Pendiente
+                        </span>
+                      );
+                    case 3:
+                      return (
+                        <span className="flex items-center text-red-600 dark:text-red-500 text-sm">
+                          <X size={16} className="mr-1" />
+                          Rechazado
+                        </span>
+                      );
+                    default:
+                      return console.log("Verification state switch error.");
+                  }
+                }}
+
+                {/* {post.verification_state ? (
                   <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
                     <Check size={16} className="mr-1" />
                     Verificado
                   </span>
-                )}
+                ) : (
+                  <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
+                    <Check size={16} className="mr-1" />
+                    Verificado
+                  </span>
+                )} */}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 {post.created_at}
