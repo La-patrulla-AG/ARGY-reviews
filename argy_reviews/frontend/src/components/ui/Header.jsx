@@ -1,6 +1,5 @@
 import "../../../static/css/homePage.css";
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { Search, Power } from "lucide-react";
@@ -8,8 +7,10 @@ import { useAuth } from "../context/AuthContext";
 const Header = () => {
   const [mostrarLogin, setMostrarLogin] = useState(false);
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
-  const { logOut } = useAuth();
-  const token = localStorage.getItem("Token");
+  const [isLoading, setIsLoading] = useState(true);
+  const { logOut, user } = useAuth();
+
+  const token = user?.token;
 
   return (
     <>
@@ -24,19 +25,19 @@ const Header = () => {
             placeholder="Buscar"
             // value={searchTerm}
             // onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-md border bg-gray-200 border-gray-500 dark:border-gray-700 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 rounded-md border bg-gray-100 border-gray-300 focus:outline-none focus:ring-2  dark:border-gray-700 dark:bg-gray-800 focus:ring-blue-500"
           />
         </div>
         {!token ? (
           <div>
             <button
-              className="mr-2 px-4 py-2 border rounded hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-black dark:text-white"
+              className="mr-2 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
               onClick={() => setMostrarLogin(true)}
             >
               Acceder
             </button>
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600"
+              className="px-4 py-2 rounded-md bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600"
               onClick={() => setMostrarRegistro(true)}
             >
               Registrarse

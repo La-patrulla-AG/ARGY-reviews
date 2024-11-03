@@ -1,7 +1,8 @@
 import "../../../static/css/homePage.css";
 import React, { useEffect } from "react";
 import { useAside } from "../context/AsideContext";
-
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   Users,
@@ -13,10 +14,10 @@ import {
   Mail,
   Logs,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const Aside = () => {
   const { asideIsOpen, setAsideIsOpen } = useAside();
+  const { user } = useAuth();
   const handleResize = () => {
     if (window.innerWidth <= 768) {
       setAsideIsOpen(false);
@@ -70,36 +71,40 @@ const Aside = () => {
               {asideIsOpen && <span>Inicio</span>}
             </button>
           </li>
-          <li>
-            <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
-              <Users className="mr-2" />
-              {asideIsOpen && <span>Perfil</span>}
-            </div>
-            {asideIsOpen && (
-              <ul className="ml-6 mt-2 space-y-2">
-                <li>
-                  <button
-                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                    onClick={() => {
-                      navigate("/mis-publicaciones");
-                    }}
-                  >
-                    Mis publicaciones
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                    onClick={() => {
-                      navigate("/crear-post");
-                    }}
-                  >
-                    Nueva publicación
-                  </button>
-                </li>
-              </ul>
-            )}
-          </li>
+          {user ? (
+            <li>
+              <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
+                <Users className="mr-2" />
+                {asideIsOpen && <span>Perfil</span>}
+              </div>
+              {asideIsOpen && (
+                <ul className="ml-6 mt-2 space-y-2">
+                  <li>
+                    <button
+                      className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                      onClick={() => {
+                        navigate("/mis-publicaciones");
+                      }}
+                    >
+                      Mis publicaciones
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                      onClick={() => {
+                        navigate("/crear-post");
+                      }}
+                    >
+                      Nueva publicación
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
+          ) : (
+            <></>
+          )}
           <li>
             <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
               <Star className="mr-2" />

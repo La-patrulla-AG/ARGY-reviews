@@ -109,7 +109,7 @@ DATABASES = {
     #     'NAME': 'argyreviewsDB', 
     #     'USER': 'postgres',
     #     'PASSWORD': 'meestanqueseando',
-    #     'HOST': '186.137.212.214',
+    #     'HOST': '127.0.0.1',
     #     'PORT': '5432',
     # }
 }

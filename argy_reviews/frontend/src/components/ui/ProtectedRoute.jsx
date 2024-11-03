@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function ProtectedRoute({ children }) {
   const [isAuthorized, setIsAuthorized] = useState(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -10,8 +12,7 @@ function ProtectedRoute({ children }) {
   }, []);
 
   const auth = async () => {
-    const token = localStorage.getItem("Token");
-    if (!token) {
+    if (!user) {
       setIsAuthorized(false);
       return;
     }

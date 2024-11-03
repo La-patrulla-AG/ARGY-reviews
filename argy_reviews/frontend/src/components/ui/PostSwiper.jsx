@@ -14,6 +14,7 @@ const PostSwiper = ({ posts }) => {
   const { asideIsOpen } = useAside();
   const navigate = useNavigate();
   const [images, setImages] = useState({});
+  const [reviews, setReviews] = useState({});
 
   const getFirstImage = (postId) => {
     return axios
@@ -29,21 +30,44 @@ const PostSwiper = ({ posts }) => {
       });
   };
 
+  const getReviews = (postId) => {
+    return axios
+      .get(`/posts/${postId}/reviews/`)
+      .then((response) => {
+        const reviewLength = response.data.length > 0 ? response.data.length : 0;
+        return { postId, reviewLength };
+      })
+      .catch((error) => {
+        console.error(`Error loading reviews for post ${postId}:`, error);
+        return { postId, reviewLength: null };
+      });
+  };
+
   useEffect(() => {
-    const fetchImages = async () => {
-      const batch = posts.map((post) => getFirstImage(post.id));
-  
-      const results = await Promise.all(batch);
+    const fetchData = async () => {
+      const imageBatch = posts.map((post) => getFirstImage(post.id));
+      const reviewBatch = posts.map((post) => getReviews(post.id));
+
+      const imageResults = await Promise.all(imageBatch);
       setImages((prevImages) => {
         const newImages = {};
-        results.forEach(({ postId, imageUrl }) => {
+        imageResults.forEach(({ postId, imageUrl }) => {
           newImages[postId] = imageUrl;
         });
         return { ...prevImages, ...newImages };
       });
+
+      const reviewResults = await Promise.all(reviewBatch);
+      setReviews((prevReviews) => {
+        const newReviews = {};
+        reviewResults.forEach(({ postId, reviewLength }) => {
+          newReviews[postId] = reviewLength;
+        });
+        return { ...prevReviews, ...newReviews };
+      });
     };
-  
-    fetchImages();
+
+    fetchData();
   }, [posts]);
 
   const getBreakpoints = () => ({
@@ -120,8 +144,11 @@ const PostSwiper = ({ posts }) => {
                 <h3 className="font-semibold text-sm mb-1 truncate dark:text-white text-black">
                   {post.title}
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start">
                   <StarValue valoracion={post.avg_ratings} />
+                  <span className="text-gray-500 dark:text-gray-300 ml-2">
+                    ({reviews[post.id]})
+                  </span>
                 </div>
               </div>
             </div>

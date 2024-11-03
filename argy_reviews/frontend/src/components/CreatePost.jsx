@@ -13,7 +13,7 @@ const CreatePost = () => {
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("Token");
+  const {user} = useAuth(); 
 
   const navigate = useNavigate();
 
@@ -75,7 +75,7 @@ const CreatePost = () => {
         },
         {
           headers: {
-            Authorization: token,
+            Authorization: `Token ${user?.token}`,
             "Content-Type": "application/json",
           },
         }
@@ -90,7 +90,7 @@ const CreatePost = () => {
         imageData.append("post", postId);
         axios.post(`/posts/${postId}/images/`, imageData, {
           headers: {
-            Authorization: token,
+            Authorization: `Token ${user?.token}`,
             "Content-Type": "multipart/form-data",
           },
         });
