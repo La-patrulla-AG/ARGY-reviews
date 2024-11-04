@@ -13,7 +13,7 @@ const CreatePostPage = () => {
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
-  const {user} = useAuth(); 
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -93,10 +93,11 @@ const CreatePostPage = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        console.log(imageData);
       });
 
       await Promise.all(uploadPromises);
+
+      navigate(`/post/${postResponse.data.id}`);
 
       console.log("Post y sus imágenes creados exitosamente.");
     } catch (error) {

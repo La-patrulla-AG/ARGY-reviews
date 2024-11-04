@@ -1,17 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Review from "./Review";
-import {
-  Star,
-  Image,
-  Bold,
-  Italic,
-  Underline,
-  DollarSign,
-  Code,
-  Quote,
-  AtSign,
-} from "lucide-react";
+import { Star, Bold, Italic, Underline, Code } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const ReviewSection = ({ postId }) => {
   const [reviews, setReviews] = useState([]);
@@ -20,12 +11,13 @@ const ReviewSection = ({ postId }) => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [updateReviews, setUpdateReviews] = useState(false);
 
-  const token = localStorage.getItem("Token");
+  const { user } = useAuth();
 
   useEffect(() => {
     getReviews(postId);
-  }, [postId]);
+  }, [postId, updateReviews]);
 
   const getReviews = (postId) => {
     axios
@@ -56,7 +48,7 @@ const ReviewSection = ({ postId }) => {
         },
         {
           headers: {
-            Authorization: token,
+            Authorization: `Token ${user?.token}`,
           },
         }
       );
@@ -64,6 +56,7 @@ const ReviewSection = ({ postId }) => {
       setRating(0);
       setHover(0);
       setReviewText("");
+      setUpdateReviews((prev) => !prev);
     } catch (error) {
       console.error("Error al publicar la reseña:", error);
     }

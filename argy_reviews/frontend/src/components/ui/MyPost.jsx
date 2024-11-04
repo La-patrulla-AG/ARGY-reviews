@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+
+//Íconos de lucide-react que voy a usar
 import { Check, Pencil, X, Ellipsis } from "lucide-react";
 
-const MyPost = ({ postId }) => {
+//date-fns lo utilizaré para dar formato a la fecha de creación de los posts
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+
+const MyPost = ({ postId, setUpdatePosts }) => {
   const [image, setImage] = useState({});
   const [post, setPost] = useState({});
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const getPostData = (postId) => {
+  const getPostData = () => {
     return axios
       .get(`/posts/${postId}/`)
       .then((response) => {
@@ -27,7 +35,7 @@ const MyPost = ({ postId }) => {
       });
   };
 
-  const getFirstImage = (postId) => {
+  const getFirstImage = () => {
     return axios
       .get(`/posts/${postId}/images/`)
       .then((response) => {
@@ -41,13 +49,30 @@ const MyPost = ({ postId }) => {
       });
   };
 
+  const handleDeletePost = () => {
+    return axios
+      .delete(`/posts/${postId}/`, {
+        headers: {
+          Authorization: `Token ${user?.token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        setUpdatePosts((prev) => !prev);
+      })
+      .catch((error) => {
+        console.error(`Error deleting post ${postId}:`, error);
+      });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Realizamos las dos peticiones en paralelo
         const [postResults, imageResults] = await Promise.all([
-          getPostData(postId),
-          getFirstImage(postId),
+          getPostData(),
+          getFirstImage(),
         ]);
 
         setPost(postResults);
@@ -59,6 +84,17 @@ const MyPost = ({ postId }) => {
 
     fetchData();
   }, [postId]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return ""; // Retorna una cadena vacía si dateString es null o undefined
+    const date = new Date(dateString);
+    if (isNaN(date)) return ""; // Retorna una cadena vacía si la fecha es inválida
+    const formatString =
+      date.getFullYear() === new Date().getFullYear()
+        ? "d 'de' MMMM"
+        : "d 'de' MMMM 'de' yyyy";
+    return format(date, formatString, { locale: es });
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-4 hover:shadow-md transition-shadow">
@@ -102,28 +138,26 @@ const MyPost = ({ postId }) => {
                       return null;
                   }
                 })()}
-
-                {/* {post.verification_state ? (
-                  <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
-                    <Check size={16} className="mr-1" />
-                    Verificado
-                  </span>
-                ) : (
-                  <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
-                    <Check size={16} className="mr-1" />
-                    Verificado
-                  </span>
-                )} */}
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                {post.created_at}
+                {formatDate(post.created_at)}
               </p>
             </div>
             <div className="flex gap-2">
-              <button className="px-4 py-1.5 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600 transition-colors">
+              <button
+                className="px-4 py-1.5 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600 transition-colors"
+                onClick={() => {
+                  navigate(`/post/${postId}`);
+                }}
+              >
                 Ver publicación
               </button>
-              <button className="px-4 py-1.5 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-600 transition-colors">
+              <button
+                className="px-4 py-1.5 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-600 transition-colors"
+                onClick={() => {
+                  handleDeletePost();
+                }}
+              >
                 Eliminar
               </button>
               <button

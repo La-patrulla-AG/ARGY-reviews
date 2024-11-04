@@ -13,7 +13,7 @@ const LoginForm = ({ onClose }) => {
     password: "",
   });
 
-  const { loginAction } = useAuth();
+  const { loginAction , user} = useAuth();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.username !== "" && formData.password !== "") {
@@ -57,7 +57,7 @@ const LoginForm = ({ onClose }) => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600" 
           >
             INICIAR SESIÓN
           </button>

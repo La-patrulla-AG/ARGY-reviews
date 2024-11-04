@@ -63,7 +63,8 @@ const MyPostsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Todas");
-  const [postsId, setPostsId] = useState([]);
+  const [postsId, setPostsId] = useState([]);  
+  const [updatePosts, setUpdatePosts] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -79,7 +80,7 @@ const MyPostsPage = () => {
       .catch((err) => {
         console.log("Error loading data", err);
       });
-  }, [user?.id]);
+  }, [user?.id, updatePosts]);
 
   // const handleView = (id) => {
   //   console.log("View post:", id);
@@ -152,7 +153,7 @@ const MyPostsPage = () => {
         {postsId.map((postId) => (
           <div key={postId}>
             <div>
-              <MyPost postId={postId}></MyPost>
+              <MyPost postId={postId} setUpdatePosts={setUpdatePosts}></MyPost>
             </div>
           </div>
         ))}
