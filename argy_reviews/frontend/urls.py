@@ -3,7 +3,8 @@ from .views import index
 
 urlpatterns = [
     path('', index,name=''),
-    path('post/<str:id>', index),
+    path('post/<str:postId>', index),
     path('crear-post',index),
-    path('mis-publicaciones',index)
+    path('editar-post/<str:postId>',index),
+    path('mis-publicaciones',index)    
 ]

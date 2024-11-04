@@ -4,11 +4,11 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 const PostPage = () =>{
-    const { id } = useParams();
+    const { postId } = useParams();
     return (
         <>
-        <ProductDetails postId={id}/>
-        <ReviewSection postId={id}/>
+        <ProductDetails postId={postId}/>
+        <ReviewSection postId={postId}/>
         </>
     );
 }

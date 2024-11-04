@@ -4,7 +4,7 @@ import ImagePreview from "./ui/ImagePreview";
 import axios from "axios";
 import { useAuth } from "./context/AuthContext";
 
-const CreatePost = () => {
+const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
   const [formData, setFormData] = useState({
@@ -22,7 +22,6 @@ const CreatePost = () => {
       file.type.startsWith("image/")
     );
     setFiles((prev) => [...prev, ...files]);
-    console.log(files);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
   };
@@ -94,6 +93,7 @@ const CreatePost = () => {
             "Content-Type": "multipart/form-data",
           },
         });
+        console.log(imageData);
       });
 
       await Promise.all(uploadPromises);
@@ -203,4 +203,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+export default CreatePostPage;

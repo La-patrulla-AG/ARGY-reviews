@@ -95,23 +95,22 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ArgyReviews',
-        'USER': 'grupo11',
-        'PASSWORD': 'meestanqueseando',
-        'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
-        'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
-    }
-    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'argyreviewsDB', 
-    #     'USER': 'postgres',
+    #     'NAME': 'ArgyReviews',
+    #     'USER': 'grupo11',
     #     'PASSWORD': 'meestanqueseando',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '5432',
+    #     'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
+    #     'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+        'USER': os.getenv('DATABASE_USER', 'default_user'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
+    }
 }
 
 

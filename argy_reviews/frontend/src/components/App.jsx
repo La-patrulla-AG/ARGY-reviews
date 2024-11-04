@@ -3,7 +3,8 @@ import React from "react";
 import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
 import PostPage from "./PostPage";
-import CreatePost from "./CreatePost";
+import CreatePostPage from "./CreatePostPage";
+import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
 import {
   BrowserRouter as Router,
@@ -25,13 +26,13 @@ const App = () => {
             <MainLayout>
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/post/:id" element={<PostPage />} />
+                <Route path="/post/:postId" element={<PostPage />} />
 
                 <Route
                   path="/crear-post"
                   element={
                     <ProtectedRoute>
-                      <CreatePost />
+                      <CreatePostPage />
                     </ProtectedRoute>
                   }
                 />
@@ -39,7 +40,15 @@ const App = () => {
                   path="/mis-publicaciones"
                   element={
                     <ProtectedRoute>
-                      <MyPostsPage/>
+                      <MyPostsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/editar-post/:postId"
+                  element={
+                    <ProtectedRoute>
+                      <EditPostPage />
                     </ProtectedRoute>
                   }
                 />

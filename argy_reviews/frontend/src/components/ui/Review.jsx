@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 
 const Review = ({ review }) => {
   const [user, setUser] = useState({});

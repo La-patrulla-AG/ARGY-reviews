@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Check, Pencil, X, Ellipsis} from "lucide-react";
+import { Check, Pencil, X, Ellipsis } from "lucide-react";
 
 const MyPost = ({ postId }) => {
   const [image, setImage] = useState({});
   const [post, setPost] = useState({});
+  const navigate = useNavigate();
 
   const getPostData = (postId) => {
     return axios
@@ -73,7 +75,7 @@ const MyPost = ({ postId }) => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
                   {post.title}
                 </h3>
-                {() => {
+                {(() => {
                   switch (post.verification_state) {
                     case 1:
                       return (
@@ -97,9 +99,9 @@ const MyPost = ({ postId }) => {
                         </span>
                       );
                     default:
-                      return console.log("Verification state switch error.");
+                      return null;
                   }
-                }}
+                })()}
 
                 {/* {post.verification_state ? (
                   <span className="flex items-center text-green-600 dark:text-green-500 text-sm">
@@ -124,7 +126,12 @@ const MyPost = ({ postId }) => {
               <button className="px-4 py-1.5 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-600 transition-colors">
                 Eliminar
               </button>
-              <button className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-green-950 dark:text-green-500 rounded transition-colors">
+              <button
+                className="p-1.5 text-green-600 hover:bg-green-100 dark:hover:bg-green-950 dark:text-green-500 rounded transition-colors"
+                onClick={() => {
+                  navigate(`/editar-post/${postId}`);
+                }}
+              >
                 <Pencil size={20} />
               </button>
             </div>

@@ -9,6 +9,25 @@ services:
       - .:/app  # Esto permite que los cambios en el código se reflejen sin necesidad de reconstruir
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_NAME: argydb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: Y6*Vav3$zqBr*
+      DATABASE_HOST: db  # Asegúrate de que el nombre del servicio coincida
+      DATABASE_PORT: 5432
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: argydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Y6*Vav3$zqBr*
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   
   frontend:
     build:
@@ -19,3 +38,6 @@ services:
     ports:
       - "3000:3000"  # Cambia según el puerto que utilice tu aplicación React
     command: npm run dev  # Asegúrate de que este comando inicie tu aplicación React
+
+volumes:
+  postgres_data:
