@@ -160,8 +160,7 @@ const Aside = () => {
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
           onClick={() => {
-            window.location.href =
-              "https://github.com/La-patrulla-AG/ARGY-reviews";
+            window.open('https://github.com/La-patrulla-AG/ARGY-reviews','_blank');
           }}
         >
           <Github className="w-4 h-4" />

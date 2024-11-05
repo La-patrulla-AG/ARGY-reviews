@@ -28,7 +28,7 @@ const HomePage = () => {
 
   return (
     // <div className="container mx-auto px-4 transition-all duration-200 ml-14">
-    <div className="container duration-200">
+    <div className="container mx-auto px-4 py-0 max-w-8xl">
       <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">
         LAS MEJORES RESEÑAS PARA LAS MEJORES DECISIONES
       </h2>

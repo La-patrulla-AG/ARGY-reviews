@@ -73,19 +73,19 @@ const PostSwiper = ({ posts }) => {
   const getBreakpoints = () => ({
     320: {
       slidesPerView: 1,
-      spaceBetween: 10,
+      spaceBetween: 2,
     },
     480: {
-      slidesPerView: asideIsOpen ? 2 : 3,
-      spaceBetween: 15,
+      slidesPerView: 2,
+      spaceBetween: 5,
     },
     768: {
-      slidesPerView: asideIsOpen ? 3 : 4,
-      spaceBetween: 15,
+      slidesPerView: 3,
+      spaceBetween: 10,
     },
     1024: {
-      slidesPerView: asideIsOpen ? 4 : 5,
-      spaceBetween: 20,
+      slidesPerView: 4,
+      spaceBetween: 15,
     },
     1280: {
       slidesPerView: 5,

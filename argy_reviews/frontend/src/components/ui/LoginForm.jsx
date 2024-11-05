@@ -4,7 +4,6 @@ import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [error, setError] = useState(null);
@@ -13,11 +12,12 @@ const LoginForm = ({ onClose }) => {
     password: "",
   });
 
-  const { loginAction , user} = useAuth();
+  const { loginAction } = useAuth();
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.username !== "" && formData.password !== "") {
-      loginAction(formData);
+      loginAction(formData, onClose);
       return;
     }
     alert("Credenciales inválidas");
@@ -57,7 +57,7 @@ const LoginForm = ({ onClose }) => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600" 
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           >
             INICIAR SESIÓN
           </button>

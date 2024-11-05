@@ -25,7 +25,7 @@ const RegisterForm = ({ onClose }) => {
       console.log("User registered successfully:", response.data);
 
       // Redirigir a la página de login
-      loginAction({ username:formData.username, password:formData.password});
+      loginAction({ username:formData.username, password:formData.password}, onClose);
     } catch (error) {
       console.error("Error:", error);
       setError("Registration failed.");

@@ -27,7 +27,7 @@ const AuthProvider = ({ children }) => {
     }
   }, [user, token, setItem, removeItem]);
 
-  const loginAction = async (data) => {
+  const loginAction = async (data, onSuccess) => {
     try {
       const response = await axios.post(
         "/login/",
@@ -46,7 +46,7 @@ const AuthProvider = ({ children }) => {
       if (res.user && res.token) {
         setUser(res.user);
         setToken(`Token ${res.token}`);
-        navigate("/");
+        if (onSuccess) onSuccess();
       } else {
         throw new Error("No se encontró el usuario.");
       }
@@ -73,4 +73,3 @@ export default AuthProvider;
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
