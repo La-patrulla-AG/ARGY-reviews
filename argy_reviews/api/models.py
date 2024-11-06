@@ -18,9 +18,9 @@ from django.contrib.contenttypes.models import ContentType
 # - [x] Create a relation between the Post and the PostState
 # - [x] Make a way to report a post, a review or a user
 # - [x] Make a ReportCategory model
-# - [] Solamente puede haber una review por usuario en un post
-# - [] Solamente puede haber un reporte por usuario en un post, review o usuario
-# - [] Se debe actualizar dinamicamente el avg_rating de los post cuando hay CUD
+# - [x] Solamente puede haber una review por usuario en un post
+# - [x] Solamente puede haber un reporte por usuario en un post, review o usuario
+# - [x] Se debe actualizar dinamicamente el avg_rating de los post cuando hay CUD
 
 """Funciones auxiliares"""
 # No se deben hacer consultas a la base de datos desde los modelos, 
@@ -60,10 +60,12 @@ class Post(models.Model):
         return Review.objects.filter(post=self)
     
     def update_avg_ratings(self):
-        ratings = self.get_ratings()
-        if ratings.exists():
-            self.avg_ratings = ratings.aggregate(models.Avg('value'))['value__avg']
-            self.save()
+        reviews = self.review_set.all()
+        if reviews.exists():
+            self.avg_ratings = reviews.aggregate(models.Avg('rating'))['rating__avg']
+        else:
+            self.avg_ratings = 0
+        self.save()
 
 # PostImage model
 # ---------------

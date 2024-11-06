@@ -53,8 +53,15 @@ def post_state_list(request):
     return Response(serializer.data)
 
 """Views de la aplicación"""
-VERIFIED_STATE = get_verified_post_state_id('verified')
-UNVERIFIED_STATE = get_verified_post_state_id('not_verified')
+if get_verified_post_state_id('verified') is None:
+    VERIFIED_STATE = None
+else:
+    VERIFIED_STATE = get_verified_post_state_id('verified')
+
+if get_verified_post_state_id('unverified') is None:
+    UNVERIFIED_STATE = None
+else:
+    UNVERIFIED_STATE = get_verified_post_state_id('unverified')
 
 # UserList 
 # --------
@@ -380,21 +387,38 @@ def report_detail(request, report_pk):
 
 # Image-List
 # ------------
-@api_view(['GET','POST'])
+@api_view(['GET','POST','PUT'])
 @permission_classes([AllowAny])
 def image_upload(request, post_pk):
     """
     Upload an image for a post.
     """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
     if request.method == 'GET':
-        images = PostImage.objects.filter(post_id=post_pk)
+        images = PostImage.objects.filter(post=post)
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data)
+    
     elif request.method == 'POST':
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'PUT':
+        # Eliminar todas las imágenes actuales del post
+        PostImage.objects.filter(post=post).delete()
+        
+        # Agregar las nuevas imágenes
+        serializer = ImageSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save(post=post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Image-Detail

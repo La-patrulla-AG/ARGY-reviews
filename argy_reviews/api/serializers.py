@@ -58,7 +58,6 @@ class UserSerializer(serializers.ModelSerializer):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
 
-
 # UserProfilePicture Serializer
 # ------------------------------
 class UserProfileSerializer(serializers.ModelSerializer):
