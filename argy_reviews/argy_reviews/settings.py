@@ -103,14 +103,20 @@ DATABASES = {
     #     'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
     #     'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+    #     'USER': os.getenv('DATABASE_USER', 'default_user'),
+    #     'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+    #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    #     'PORT': os.getenv('DATABASE_PORT', '5432'),
+    # }
+    
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
-        'USER': os.getenv('DATABASE_USER', 'default_user'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
-        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    
 }
 
 

@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage, UserProfile
+from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
 
 """Auxiliary functions"""
 def generate_code():
@@ -135,7 +135,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReportCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
 # ReportSerializer
 # -----------------
@@ -179,3 +179,28 @@ class ReportSerializer(serializers.ModelSerializer):
                 return None
         except content_type.DoesNotExist:
             return None
+        
+# ValorationSerializer
+# ---------------------
+class ValorationSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    
+    class Meta:
+        model = Valoration
+        fields = ['id', 'review', 'user', 'valoration']
+        read_only_fields = ['user']
+
+    def create(self, validated_data):
+        if Valoration.objects.filter(review=validated_data['review'], user=validated_data['user']).exists():
+            raise serializers.ValidationError('You have already valued this review')
+        
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        if instance.user != validated_data['user']:
+            raise serializers.ValidationError('You cannot modify the valoration of another user')
+        
+        return super().update(instance, validated_data)
+    
+# CategorySerializer
+# -------------------

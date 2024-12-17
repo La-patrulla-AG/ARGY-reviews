@@ -26,6 +26,8 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/', views.reviews_list, name='reviews-list'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
     
+    path('posts/<int:post_pk>/reviews/<int:review_pk>/ratings/', views.valorations_count, name='valorations-count'),
+    
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),
     

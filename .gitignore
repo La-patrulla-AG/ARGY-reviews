@@ -5,3 +5,4 @@ argy_reviews/api/__pycache__/
 images/
 argy_reviews/argy_reviews/__pycache__/
 argy_reviews/frontend/__pycache__/
+db.sqlite3

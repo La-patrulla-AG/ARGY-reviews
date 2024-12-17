@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -52,16 +52,16 @@ def post_state_list(request):
     serializer = PostStateSerializer(post_states, many=True)
     return Response(serializer.data)
 
-"""Views de la aplicación"""
-if get_verified_post_state_id('verified') is None:
-    VERIFIED_STATE = None
-else:
-    VERIFIED_STATE = get_verified_post_state_id('verified')
+# """Views de la aplicación"""
+# if get_verified_post_state_id('verified') is None:
+#     VERIFIED_STATE = None
+# else:
+#     VERIFIED_STATE = get_verified_post_state_id('verified')
 
-if get_verified_post_state_id('unverified') is None:
-    UNVERIFIED_STATE = None
-else:
-    UNVERIFIED_STATE = get_verified_post_state_id('unverified')
+# if get_verified_post_state_id('unverified') is None:
+#     UNVERIFIED_STATE = None
+# else:
+#     UNVERIFIED_STATE = get_verified_post_state_id('unverified')
 
 # UserList 
 # --------
@@ -114,13 +114,13 @@ def get_carousels_data(request):
     
     # 1. Posts recientes
     recent_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE
+        verification_state=get_verified_post_state_id('verified')
     ).order_by('-created_at')[:15]
 
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE,
+        verification_state=get_verified_post_state_id('unverified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')
@@ -128,7 +128,7 @@ def get_carousels_data(request):
 
     # 3. Recientemente reseñados
     recently_reviewed_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE,
+        verification_state=get_verified_post_state_id('verified'),
         review__isnull=False
     ).annotate(
         last_review=Max('review__created_at')
@@ -219,7 +219,7 @@ def reviews_list(request, post_pk):
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.filter(verification_state=VERIFIED_STATE).get(pk=post_pk)
+        post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -450,5 +450,30 @@ def image_detail(request, post_pk, image_pk):
             image.delete()
             return Response(status=status.HTTP_204_NO_CONTENT) 
 
+# Valorations-Count
+# -----------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def valorations_count(request, post_pk, review_pk):
+    """
+    Retrieve the count of likes and dislikes for a specific post.
+    """
+    if request.method == 'GET':
+        try:
+            post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
+            review = Review.objects.get(pk=review_pk, post=post)
+            
+            likes_count = Valoration.objects.filter(valoration=True, review=review).count()
+            dislikes_count = Valoration.objects.filter(valoration=False, review=review).count()
 
-#print(get_verified_post_state_id())
+            data = {
+                'likes': likes_count,
+                'dislikes': dislikes_count
+            }
+
+            return Response(data)
+        
+        except Review.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        

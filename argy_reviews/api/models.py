@@ -104,6 +104,19 @@ class Review(models.Model):
     def __str__(self):
         return self.owner.username
 
+# Valorations
+# -----------
+class Valoration(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    valoration = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ('review', 'user')
+        
+    def __str__(self):
+        return f"{self.user.username} valoration for {self.review.owner.username}"
+
 # Category model
 # --------------     
 class Category(models.Model):
@@ -139,7 +152,8 @@ class Report(models.Model):
 # ReportCategory model
 # ---------------------
 class ReportCategory(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30),
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
