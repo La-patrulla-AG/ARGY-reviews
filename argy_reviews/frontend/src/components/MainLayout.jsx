@@ -18,16 +18,21 @@ const MainLayout = ({ children }) => {
   }, [modoOscuro]);
 
   return (
-    <div className={`min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 `}>
-      <div className="flex">
-        <aside className={`${asideIsOpen ? "w-80" : "w-16"}`}><Aside></Aside></aside>
-        
-        <main className={`flex-1 p-4 transition-all duration-300` }>
-            
-          <Header />
-          {children}
-        </main>
-      </div>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-grow text-color">
+      <aside
+        className={`${
+          asideIsOpen ? "w-80" : "w-16"
+        } flex flex-col bg-accent h-screen md:h-full z-[7] lg:z-auto`}
+      >
+        <div className="lg:top-0 lg:sticky flex flex-col overflow-y-auto overscroll-contain h-screen">
+          <Aside></Aside>
+        </div>
+      </aside>
+
+      <main className={`flex-1 p-4 transition-all duration-300`}>
+        <Header />
+        {children}
+      </main>
 
       {/* Botón de modo oscuro */}
       <button
