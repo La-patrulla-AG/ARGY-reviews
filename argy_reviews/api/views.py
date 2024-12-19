@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -475,5 +475,13 @@ def valorations_count(request, post_pk, review_pk):
         
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        
+    
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def category_list(request):
+    """
+    List all report categories.
+    """
+    categories = PostCategory.objects.all()
+    serializer = PostCategorySerializer(categories, many=True)
+    return Response(serializer.data)

@@ -50,7 +50,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
-    categories = models.ManyToManyField('Category', related_name='posts', blank=True)
+    categories = models.ManyToManyField('PostCategory', related_name='posts', blank=True)
     verification_state = models.ForeignKey(PostState, on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
@@ -119,7 +119,7 @@ class Valoration(models.Model):
 
 # Category model
 # --------------     
-class Category(models.Model):
+class PostCategory(models.Model):
     name = models.CharField(max_length=30)
 
     def __str__(self):

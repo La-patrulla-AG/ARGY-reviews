@@ -11,6 +11,8 @@ urlpatterns = [
     path('posts/<int:post_pk>/images/', views.image_upload, name='post-images'),
     path('posts/<int:post_pk>/images/<int:image_pk>', views.image_detail, name='post-images'),
     
+    path('categories/', views.category_list, name='category-list'),
+    
     path('login/', views.login, name='login'),
     path('register/', views.register, name='register'),
     

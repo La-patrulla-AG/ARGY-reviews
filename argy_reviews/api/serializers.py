@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
 
 """Auxiliary functions"""
 def generate_code():
@@ -35,10 +35,17 @@ class ImageSerializer(serializers.ModelSerializer):
 # ----------------
 class UserSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
+    date_joined = serializers.ReadOnlyField()
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'token']
+        fields = [
+            'id', 
+            'username', 
+            'email', 
+            'token', 
+            'date_joined'
+            ]
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
@@ -77,7 +84,7 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state']
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state', 'categories']
         
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
@@ -204,3 +211,7 @@ class ValorationSerializer(serializers.ModelSerializer):
     
 # CategorySerializer
 # -------------------
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
