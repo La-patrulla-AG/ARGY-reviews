@@ -2,10 +2,8 @@ import "../../static/css/homePage.css";
 import React, { useState, useEffect } from "react";
 import PostSwiper from "./ui/PostSwiper";
 import axios from "axios";
-import { useAside } from "./context/AsideContext";
 
 const HomePage = () => {
-  const { asideIsOpen } = useAside();
   const [recentPosts, setRecentPosts] = useState([]);
   const [bestPosts, setBestPosts] = useState([]);
   const [recentlyReviewedPosts, setRecentlyReviewedPosts] = useState([]);

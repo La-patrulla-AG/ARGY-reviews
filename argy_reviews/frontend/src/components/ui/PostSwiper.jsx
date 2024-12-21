@@ -7,11 +7,9 @@ import "../../../static/css/homePage.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { useAside } from "../context/AsideContext";
 import axios from "axios";
 
 const PostSwiper = ({ posts }) => {
-  const { asideIsOpen } = useAside();
   const navigate = useNavigate();
   const [images, setImages] = useState({});
   const [reviews, setReviews] = useState({});
@@ -95,7 +93,6 @@ const PostSwiper = ({ posts }) => {
 
   return (
     <Swiper
-      key={asideIsOpen ? "aside-open" : "aside-closed"}
       spaceBetween={20}
       loop={true}
       pagination={{ clickable: true }}
