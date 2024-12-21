@@ -17,7 +17,7 @@ const MainLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-grow text-color">
       <Aside />
-      <main className={`flex-1 p-4 transition-all duration-300`}>
+      <main className={`flex-1 p-4 transition-all duration-300 ml-16`}>
         <Header />
         {children}
       </main>
