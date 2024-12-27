@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'frontend.apps.FrontendConfig',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'dj_rest_auth',
 ]
 
 REST_FRAMEWORK = {
@@ -162,3 +163,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'argy_reviews_jwt',
+    'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
+}
