@@ -170,7 +170,7 @@ const MyPost = ({ postId, setUpdatePosts }) => {
               </button>
             </div>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 mt-2.5 line-clamp-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2.5 line-clamp-1  ">
             {post.content}
           </p>
         </div>

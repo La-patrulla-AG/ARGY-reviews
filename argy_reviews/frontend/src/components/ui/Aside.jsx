@@ -1,6 +1,5 @@
 import "../../../static/css/homePage.css";
-import React, { useEffect } from "react";
-import { useAside } from "../context/AsideContext";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,48 +15,33 @@ import {
 } from "lucide-react";
 
 const Aside = () => {
-  const { asideIsOpen, setAsideIsOpen } = useAside();
+  const [isOpen, setIsOpen] = useState(true);
   const { user } = useAuth();
-  const handleResize = () => {
-    if (window.innerWidth <= 768) {
-      setAsideIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
   const navigate = useNavigate();
 
   return (
     <aside
       className={`${
-        asideIsOpen ? "w-64" : "w-16"
+        isOpen ? "w-64" : "w-16"
       } fixed top-0 left-0 h-full transition-all duration-200 bg-white dark:bg-gray-800 p-4 z-40`}
     >
       <div className="flex items-center justify-between mb-8">
-        <h1 className={`text-xl font-bold ${asideIsOpen ? "block" : "hidden"}`}>
+        <h1 className={`text-xl font-bold ${isOpen ? "block" : "hidden"}`}>
           ArgyReviews
         </h1>
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={() => {
-            setAsideIsOpen(!asideIsOpen);
+            setIsOpen(!isOpen);
           }}
         >
-          {asideIsOpen ? <ChevronLeft /> : <Logs />}
+          {isOpen ? <ChevronLeft /> : <Logs />}
         </button>
       </div>
       <nav>
         <ul
           className={`${
-            asideIsOpen ? "opacity-100 duration-1000" : "opacity-0 duration-500"
+            isOpen ? "opacity-100 duration-1000" : "opacity-0 duration-500"
           } space-y-2 `}
         >
           <li>
@@ -68,16 +52,16 @@ const Aside = () => {
               }}
             >
               <Home className="mr-2" />
-              {asideIsOpen && <span>Inicio</span>}
+              {isOpen && <span>Inicio</span>}
             </button>
           </li>
           {user ? (
             <li>
               <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
                 <Users className="mr-2" />
-                {asideIsOpen && <span>Perfil</span>}
+                {isOpen && <span>Perfil</span>}
               </div>
-              {asideIsOpen && (
+              {isOpen && (
                 <ul className="ml-6 mt-2 space-y-2">
                   <li>
                     <button
@@ -108,9 +92,9 @@ const Aside = () => {
           <li>
             <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
               <Star className="mr-2" />
-              {asideIsOpen && <span>Reseñas</span>}
+              {isOpen && <span>Reseñas</span>}
             </div>
-            {asideIsOpen && (
+            {isOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
@@ -123,9 +107,9 @@ const Aside = () => {
           <li>
             <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
               <Info className="mr-2" />
-              {asideIsOpen && <span>ArgyReviews</span>}
+              {isOpen && <span>ArgyReviews</span>}
             </div>
-            {asideIsOpen && (
+            {isOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
@@ -154,7 +138,7 @@ const Aside = () => {
       </nav>
       <div
         className={`${
-          asideIsOpen ? "opacity-100 duration-1000" : "opacity-0 duration-200"
+          isOpen ? "opacity-100 duration-1000" : "opacity-0 duration-200"
         } absolute bottom-4 left-4 flex space-x-2`}
       >
         <button

@@ -5,49 +5,6 @@ import axios from "axios";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
-const MOCK_POSTS = [
-  {
-    id: "1",
-    date: "15 de julio",
-    title: "Calculadora Científica Pro",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur quis diam vel est scelerisque suscipit vitae ut purus. Cras vel leo in augue rhoncus pharetra.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1574607383476-f517f260d30b?auto=format&fit=crop&q=80&w=240",
-    verified: true,
-  },
-  {
-    id: "2",
-    date: "17 de diciembre de 2023",
-    title: "Smartphone X12",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur quis diam vel est scelerisque suscipit vitae ut purus.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&q=80&w=240",
-    verified: true,
-  },
-  {
-    id: "3",
-    date: "30 de junio de 2023",
-    title: "Laptop Pro Max",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur quis diam vel est scelerisque suscipit vitae ut purus.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=240",
-    verified: true,
-  },
-  {
-    id: "4",
-    date: "6 de noviembre de 2022",
-    title: "Gaming Console Elite",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur quis diam vel est scelerisque suscipit vitae ut purus.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1486401899868-0e435ed85128?auto=format&fit=crop&q=80&w=240",
-    verified: true,
-  },
-];
-
 const FILTER_OPTIONS = [
   "Todas",
   "Este mes",
@@ -60,12 +17,13 @@ const FILTER_OPTIONS = [
 ];
 
 const MyPostsPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("Todas");
-  const [postsId, setPostsId] = useState([]);  
-  const [updatePosts, setUpdatePosts] = useState(false);
-  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState(""); //controla dinámicamente el estado de la barra de búsqueda
+  const [filterOpen, setFilterOpen] = useState(false); //Settea por default como cerrado el filtro y controla este aspecto
+  const [selectedFilter, setSelectedFilter] = useState("Todas"); //settea por default la opción Todas en el filtro y controla su estado
+  const [postsId, setPostsId] = useState([]); //para guardar los ids de los posts del usuario
+  const [updatePosts, setUpdatePosts] = useState(false); //Para actualizar los posts que se muestran si elimino un post
+  const { user } = useAuth(); //usuario guardado en localstorage
+  const [postsData, setPostsData] = useState({}); // Objeto para guardar titulos de los posts
 
   useEffect(() => {
     axios
@@ -82,17 +40,35 @@ const MyPostsPage = () => {
       });
   }, [user?.id, updatePosts]);
 
-  // const handleView = (id) => {
-  //   console.log("View post:", id);
-  // };
+  useEffect(() => {
+    // Función para cargar los titulos de los posts
+    const fetchPostsData = async () => {
+      try {
+        const posts = {};
 
-  // const handleDelete = (id) => {
-  //   console.log("Delete post:", id);
-  // };
+        // Hacer solicitudes para cada postId
+        await Promise.all(
+          postsId.map(async (id) => {
+            const response = await axios.get(`/posts/${id}/`);
+            posts[id] = response.data.title; // Guardar el título del post
+          })
+        );
 
-  // const handleEdit = (id) => {
-  //   console.log("Edit post:", id);
-  // };
+        // Actualizar el estado con los datos obtenidos
+        setPostsData(posts);
+      } catch (error) {
+        console.error("Error fetching post data:", error);
+      }
+    };
+
+    fetchPostsData();
+  }, [postsId]);
+
+  const filteredPosts = searchTerm
+    ? postsId.filter((id) =>
+        postsData[id]?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : postsId;
 
   return (
     <div className="container mx-auto px-4 py-0 max-w-8xl">
@@ -126,7 +102,7 @@ const MyPostsPage = () => {
             </button>
 
             {filterOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-800 z-10">
                 {FILTER_OPTIONS.map((option) => (
                   <button
                     key={option}
@@ -134,7 +110,7 @@ const MyPostsPage = () => {
                       setSelectedFilter(option);
                       setFilterOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-md last:rounded-b-md"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 bg-white hover:bg-gray-100 first:rounded-t-md last:rounded-b-md dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     {option}
                   </button>
@@ -150,7 +126,7 @@ const MyPostsPage = () => {
       </div>
 
       <div className="space-y-4">
-        {postsId.map((postId) => (
+        {filteredPosts.map((postId) => (
           <div key={postId}>
             <div>
               <MyPost postId={postId} setUpdatePosts={setUpdatePosts}></MyPost>

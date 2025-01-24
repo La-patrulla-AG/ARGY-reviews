@@ -7,10 +7,14 @@ import { useAuth } from "./context/AuthContext";
 const EditPostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [imageIndexes, setImageIndexes] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
   });
+
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
   const { user } = useAuth();
@@ -25,15 +29,24 @@ const EditPostPage = () => {
     setFiles((prev) => [...prev, ...files]);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
+    setNewImages((prev) => [...prev, ...imageUrls]);
   };
 
   const handleFileInput = (e) => {
     handleImageUpload(e.target.files);
   };
 
-  const handleDeleteImage = (indexToDelete) => {
+  const handleDeleteImage = (urlToDelete, indexToDelete) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToDelete));
     setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
+    if (urlToDelete.startsWith("blob")) {
+      setNewImages((prev) => prev.filter((img) => img !== urlToDelete));
+    } else {
+      setImagesToDelete((prev) => [...prev, imageIndexes[indexToDelete]]);
+      setImageIndexes((prev) =>
+        prev.filter((index) => index !== imageIndexes[indexToDelete])
+      );
+    }
   };
 
   const handleDragEnter = useCallback((e) => {
@@ -67,8 +80,9 @@ const EditPostPage = () => {
 
     // Si tienes imágenes, agrégalas a FormData
     try {
+      // Actualizar el post
       const postResponse = await axios.put(
-        "/posts/",
+        `/posts/${postId}/`,
         {
           title: formData.title,
           content: formData.content,
@@ -81,14 +95,12 @@ const EditPostPage = () => {
         }
       );
 
-      const postId = postResponse.data.id;
-
-      // Enviar cada imagen individualmente, asociándola con el `postId`
+      // Subir las imágenes nuevas
       const uploadPromises = files.map((file) => {
         const imageData = new FormData();
         imageData.append("image", file);
         imageData.append("post", postId);
-        axios.put(`/posts/${postId}/images/`, imageData, {
+        return axios.post(`/posts/${postId}/images/`, imageData, {
           headers: {
             Authorization: `Token ${user?.token}`,
             "Content-Type": "multipart/form-data",
@@ -96,9 +108,19 @@ const EditPostPage = () => {
         });
       });
 
-      await Promise.all(uploadPromises);
+      // Eliminar las imágenes marcadas para eliminar
+      const deletePromises = imagesToDelete.map((img) =>
+        axios.delete(`/posts/${postId}/images/${img}`, {
+          headers: { Authorization: `Token ${user?.token}` },
+        })
+      );
 
-      console.log("Post y sus imágenes actualizados exitosamente.");
+      // Esperar a que todas las operaciones se completen
+      await Promise.all([...uploadPromises, ...deletePromises]);
+
+      // Confirmación y navegación
+      alert("Post actualizado con éxito.");
+      navigate("/mis-publicaciones"); // Navegar solo después de completar todas las operaciones
     } catch (error) {
       console.error("Error al actualizar el post o las imágenes:", error);
       setError("Registration failed.");
@@ -124,10 +146,12 @@ const EditPostPage = () => {
     axios
       .get(`/posts/${postId}/images/`)
       .then((response) => {
+        const imageIndexes = response.data.map((img) => img.id);
         const imageUrls = response.data.map(
           (img) => `${window.location.origin}${img.image}`
         );
         setImages(imageUrls);
+        setImageIndexes(imageIndexes);
       })
       .catch((err) => {
         setError(err);
@@ -142,11 +166,11 @@ const EditPostPage = () => {
       </h1>
 
       <form
-        onSubmit={handleSubmit}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onSubmit={handleSubmit}
         className="space-y-6"
       >
         <div>
@@ -187,7 +211,7 @@ const EditPostPage = () => {
                 key={index}
                 image={img}
                 index={index}
-                onDelete={handleDeleteImage}
+                onDelete={() => handleDeleteImage(img, index)}
               />
             ))}
             <label
@@ -214,15 +238,16 @@ const EditPostPage = () => {
 
         <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
-            type="button"
-            onClick={() => navigate(-1)}
+            type="button" // Asegúrate de que este botón no actúe como submit
+            onClick={() => navigate("/mis-publicaciones")}
             className="px-4 py-2 rounded-md transition-colors border
-            hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
+        hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
             Cancelar
           </button>
           <button
-            type="submit"
+            type="submit" // Este botón envía el formulario
+            // onClick={() => navigate("/mis-publicaciones")}
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Guardar
