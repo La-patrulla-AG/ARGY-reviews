@@ -428,3 +428,14 @@ def image_detail(request, post_pk, image_pk):
 
 
 #print(get_verified_post_state_id())
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me(request):
+    user = request.user  # Obtenemos el usuario autenticado
+    data = {
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+    }
+    return Response(data)

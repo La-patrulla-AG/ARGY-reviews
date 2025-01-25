@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
-import axios from "axios";
+import api from "../../api/api";
 
 const Review = ({ review }) => {
   const [user, setUser] = useState({});
   useEffect(() => {
-    axios
+    api
       .get(`/users/${review.owner}/`)
       .then((response) => {
         setUser(response.data);

@@ -7,7 +7,7 @@ import "../../../static/css/homePage.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import axios from "axios";
+import api from "../../api/api";
 
 const PostSwiper = ({ posts }) => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const PostSwiper = ({ posts }) => {
   const [reviews, setReviews] = useState({});
 
   const getFirstImage = (postId) => {
-    return axios
+    return api
       .get(`/posts/${postId}/images/`)
       .then((response) => {
         const imageUrl =
@@ -29,7 +29,7 @@ const PostSwiper = ({ posts }) => {
   };
 
   const getReviews = (postId) => {
-    return axios
+    return api
       .get(`/posts/${postId}/reviews/`)
       .then((response) => {
         const reviewLength = response.data.length > 0 ? response.data.length : 0;
@@ -45,6 +45,7 @@ const PostSwiper = ({ posts }) => {
     const fetchData = async () => {
       const imageBatch = posts.map((post) => getFirstImage(post.id));
       const reviewBatch = posts.map((post) => getReviews(post.id));
+      
 
       const imageResults = await Promise.all(imageBatch);
       setImages((prevImages) => {

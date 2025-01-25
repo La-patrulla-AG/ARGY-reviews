@@ -1,8 +1,7 @@
-import axios from "axios";
+import { Bold, Code, Italic, Star, Underline } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import api from "../../api/api";
 import Review from "./Review";
-import { Star, Bold, Italic, Underline, Code } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
 
 const ReviewSection = ({ postId }) => {
   const [reviews, setReviews] = useState([]);
@@ -13,14 +12,12 @@ const ReviewSection = ({ postId }) => {
   const [reviewText, setReviewText] = useState("");
   const [updateReviews, setUpdateReviews] = useState(false);
 
-  const { user } = useAuth();
-
   useEffect(() => {
     getReviews(postId);
   }, [postId, updateReviews]);
 
   const getReviews = (postId) => {
-    axios
+    api
       .get(`/posts/${postId}/reviews/`)
       .then((response) => {
         setReviews(response.data);
@@ -40,19 +37,10 @@ const ReviewSection = ({ postId }) => {
     }
 
     try {
-      const response = await axios.post(
-        `/posts/${postId}/reviews/`,
-        {
-          rating,
-          comment: reviewText,
-        },
-        {
-          headers: {
-            Authorization: `Token ${user?.token}`,
-          },
-        }
-      );
-      console.log("Reseña publicada:", response.data);
+      const response = await api.post(`/posts/${postId}/reviews/`, {
+        rating,
+        comment: reviewText,
+      });
       setRating(0);
       setHover(0);
       setReviewText("");

@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
-import axios from "axios";
-import { useAuth } from "./context/AuthContext";
+import { useCreatePost } from "./hooks/useCreatePost";
 
 const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -13,9 +13,10 @@ const CreatePostPage = () => {
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
-  const { user } = useAuth();
 
   const navigate = useNavigate();
+
+  const { createPost } = useCreatePost()
 
   const handleImageUpload = (files) => {
     const imageFiles = Array.from(files).filter((file) =>
@@ -66,38 +67,12 @@ const CreatePostPage = () => {
 
     // Si tienes imágenes, agrégalas a FormData
     try {
-      const postResponse = await axios.post(
-        "/posts/",
-        {
-          title: formData.title,
-          content: formData.content,
-        },
-        {
-          headers: {
-            Authorization: `Token ${user?.token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      createPost({
+        files,
+        ...formData
+      })
 
-      const postId = postResponse.data.id;
-
-      // Enviar cada imagen individualmente, asociándola con el `postId`
-      const uploadPromises = files.map((file) => {
-        const imageData = new FormData();
-        imageData.append("image", file);
-        imageData.append("post", postId);
-        axios.post(`/posts/${postId}/images/`, imageData, {
-          headers: {
-            Authorization: `Token ${user?.token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      });
-
-      await Promise.all(uploadPromises);
-
-      navigate(`/post/${postResponse.data.id}`);
+      navigate(`/`);
 
       console.log("Post y sus imágenes creados exitosamente.");
     } catch (error) {

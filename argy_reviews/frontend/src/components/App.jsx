@@ -12,14 +12,17 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./ui/ProtectedRoute";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <div className="App">
       <Router>
-        <AuthProvider>
+        <QueryClientProvider client={queryClient}>
           <MainLayout>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -53,7 +56,8 @@ const App = () => {
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </MainLayout>
-        </AuthProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </Router>
     </div>
   );

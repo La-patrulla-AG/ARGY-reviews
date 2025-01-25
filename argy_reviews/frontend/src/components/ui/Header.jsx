@@ -1,16 +1,13 @@
+import { Search } from "lucide-react";
+import React, { useState } from "react";
 import "../../../static/css/homePage.css";
-import React, { useState, useEffect } from "react";
+import { logout } from "../../api/auth";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import { Search, Power } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 const Header = () => {
-  const [mostrarLogin, setMostrarLogin] = useState(false);
-  const [mostrarRegistro, setMostrarRegistro] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { logOut, user } = useAuth();
-
-  const token = user?.token;
+  const [view, setView] = useState(null);
+  const token = localStorage.getItem("token");
 
   return (
     <>
@@ -23,8 +20,6 @@ const Header = () => {
           <input
             type="text"
             placeholder="Buscar"
-            // value={searchTerm}
-            // onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-md border bg-gray-100 border-gray-300 focus:outline-none focus:ring-2  dark:border-gray-700 dark:bg-gray-800 focus:ring-blue-500"
           />
         </div>
@@ -32,13 +27,13 @@ const Header = () => {
           <div>
             <button
               className="mr-2 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
-              onClick={() => setMostrarLogin(true)}
+              onClick={() => setView("login")}
             >
               Acceder
             </button>
             <button
               className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600"
-              onClick={() => setMostrarRegistro(true)}
+              onClick={() => setView("register")}
             >
               Registrarse
             </button>
@@ -47,7 +42,7 @@ const Header = () => {
           <div>
             <button
               className="mr-2 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
-              onClick={logOut}
+              onClick={() => logout().then(() => (window.location.href = "/"))}
             >
               Cerrar Sesión
             </button>
@@ -55,10 +50,8 @@ const Header = () => {
         )}
       </header>
 
-      {mostrarLogin && <LoginForm onClose={() => setMostrarLogin(false)} />}
-      {mostrarRegistro && (
-        <RegisterForm onClose={() => setMostrarRegistro(false)} />
-      )}
+      {view === "login" && <LoginForm onClose={() => setView(null)} />}
+      {view === "register" && <RegisterForm onClose={() => setView(null)} />}
     </>
   );
 };

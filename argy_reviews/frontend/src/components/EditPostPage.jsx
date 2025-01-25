@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import ImagePreview from "./ui/ImagePreview";
 import axios from "axios";
-import { useAuth } from "./context/AuthContext";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../api/api";
+import ImagePreview from "./ui/ImagePreview";
 
 const EditPostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,7 +17,6 @@ const EditPostPage = () => {
 
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
-  const { user } = useAuth();
   const { postId } = useParams();
 
   const navigate = useNavigate();
@@ -80,19 +79,14 @@ const EditPostPage = () => {
 
     // Si tienes imágenes, agrégalas a FormData
     try {
+
       // Actualizar el post
-      const postResponse = await axios.put(
+      await api.put(
         `/posts/${postId}/`,
         {
           title: formData.title,
           content: formData.content,
         },
-        {
-          headers: {
-            Authorization: `Token ${user?.token}`,
-            "Content-Type": "application/json",
-          },
-        }
       );
 
       // Subir las imágenes nuevas
@@ -100,26 +94,19 @@ const EditPostPage = () => {
         const imageData = new FormData();
         imageData.append("image", file);
         imageData.append("post", postId);
-        return axios.post(`/posts/${postId}/images/`, imageData, {
-          headers: {
-            Authorization: `Token ${user?.token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        return api.post(`/posts/${postId}/images/`, imageData);
       });
 
       // Eliminar las imágenes marcadas para eliminar
       const deletePromises = imagesToDelete.map((img) =>
-        axios.delete(`/posts/${postId}/images/${img}`, {
-          headers: { Authorization: `Token ${user?.token}` },
-        })
+        api.delete(`/posts/${postId}/images/${img}`)
       );
 
       // Esperar a que todas las operaciones se completen
-      await Promise.all([...uploadPromises, ...deletePromises]);
+      await Promise.allSettled([...uploadPromises, ...deletePromises]);
 
       // Confirmación y navegación
-      alert("Post actualizado con éxito.");
+      console.log("Post actualizado con éxito.");
       navigate("/mis-publicaciones"); // Navegar solo después de completar todas las operaciones
     } catch (error) {
       console.error("Error al actualizar el post o las imágenes:", error);

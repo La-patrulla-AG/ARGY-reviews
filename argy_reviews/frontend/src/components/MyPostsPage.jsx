@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Search, Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import api from "../api/api.js";
+import { useMe } from "./hooks/useMe.js";
 import MyPost from "./ui/MyPost.jsx";
-import axios from "axios";
-import { useAuth } from "./context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
 
 const FILTER_OPTIONS = [
   "Todas",
@@ -22,23 +21,16 @@ const MyPostsPage = () => {
   const [selectedFilter, setSelectedFilter] = useState("Todas"); //settea por default la opción Todas en el filtro y controla su estado
   const [postsId, setPostsId] = useState([]); //para guardar los ids de los posts del usuario
   const [updatePosts, setUpdatePosts] = useState(false); //Para actualizar los posts que se muestran si elimino un post
-  const { user } = useAuth(); //usuario guardado en localstorage
   const [postsData, setPostsData] = useState({}); // Objeto para guardar titulos de los posts
 
+  const { me } = useMe()
+
   useEffect(() => {
-    axios
-      .get(`/profile/${user?.id}/`, {
-        headers: {
-          Authorization: `Token ${user?.token}`,
-        },
-      })
-      .then((response) => {
-        setPostsId(response.data.posts);
-      })
-      .catch((err) => {
-        console.log("Error loading data", err);
-      });
-  }, [user?.id, updatePosts]);
+    api
+      .get(`/profile/${me?.id}/`)
+      .then((response) => setPostsId(response.data.posts))
+      .catch((err) => console.log("Error loading data", err));
+  }, [me?.id, updatePosts]);
 
   useEffect(() => {
     // Función para cargar los titulos de los posts
@@ -47,9 +39,9 @@ const MyPostsPage = () => {
         const posts = {};
 
         // Hacer solicitudes para cada postId
-        await Promise.all(
+        await Promise.allSettled(
           postsId.map(async (id) => {
-            const response = await axios.get(`/posts/${id}/`);
+            const response = await api.get(`/posts/${id}/`);
             posts[id] = response.data.title; // Guardar el título del post
           })
         );

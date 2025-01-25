@@ -16,6 +16,7 @@ urlpatterns = [
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
+    path('users/me/', views.me, name='me'),
     path('profile/<int:user_pk>/', views.user_profile, name='profile'),
     
     path('post-states/', views.post_state_list, name='post-state-list'),

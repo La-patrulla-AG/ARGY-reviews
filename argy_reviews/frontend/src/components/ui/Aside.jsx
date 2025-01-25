@@ -1,22 +1,22 @@
-import "../../../static/css/homePage.css";
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import {
-  Home,
-  Users,
-  Star,
-  Info,
   ChevronLeft,
   Github,
-  Twitter,
-  Mail,
+  Home,
+  Info,
   Logs,
+  Mail,
+  Star,
+  Twitter,
+  Users,
 } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../../../static/css/homePage.css";
+import { useMe } from "../hooks/useMe";
 
 const Aside = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { user } = useAuth();
+  const { me } = useMe();
   const navigate = useNavigate();
 
   return (
@@ -55,7 +55,7 @@ const Aside = () => {
               {isOpen && <span>Inicio</span>}
             </button>
           </li>
-          {user ? (
+          {me ? (
             <li>
               <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
                 <Users className="mr-2" />
@@ -129,6 +129,11 @@ const Aside = () => {
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
                     Sé Parte de ArgyReviews
+                  </button>
+                </li>
+                <li>
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                    Documentación
                   </button>
                 </li>
               </ul>

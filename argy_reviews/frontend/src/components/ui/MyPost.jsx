@@ -1,20 +1,23 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+
+import { useDeletePost } from "../hooks/useDeletePost";
 
 //Íconos de lucide-react que voy a usar
-import { Check, Pencil, X, Ellipsis } from "lucide-react";
+import { Check, Ellipsis, Pencil, X } from "lucide-react";
 
 //date-fns lo utilizaré para dar formato a la fecha de creación de los posts
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import api from "../../api/api";
 
 const MyPost = ({ postId, setUpdatePosts }) => {
   const [image, setImage] = useState({});
   const [post, setPost] = useState({});
   const navigate = useNavigate();
-  const { user } = useAuth();
+
+  const { mutate: deletePost, isLoading } = useDeletePost(setUpdatePosts);
 
   const getPostData = () => {
     return axios
@@ -50,20 +53,11 @@ const MyPost = ({ postId, setUpdatePosts }) => {
   };
 
   const handleDeletePost = () => {
-    return axios
-      .delete(`/posts/${postId}/`, {
-        headers: {
-          Authorization: `Token ${user?.token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        console.log(response);
-        setUpdatePosts((prev) => !prev);
-      })
-      .catch((error) => {
-        console.error(`Error deleting post ${postId}:`, error);
-      });
+    deletePost(postId, {
+      onSuccess: () => {
+        console.log(`Post ${postId} eliminado exitosamente.`);
+      },
+    });
   };
 
   useEffect(() => {

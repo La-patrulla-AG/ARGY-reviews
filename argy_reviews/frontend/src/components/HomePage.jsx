@@ -1,28 +1,12 @@
+import React from "react";
 import "../../static/css/homePage.css";
-import React, { useState, useEffect } from "react";
+import { usePosts } from "./hooks/usePosts";
 import PostSwiper from "./ui/PostSwiper";
-import axios from "axios";
 
 const HomePage = () => {
-  const [recentPosts, setRecentPosts] = useState([]);
-  const [bestPosts, setBestPosts] = useState([]);
-  const [recentlyReviewedPosts, setRecentlyReviewedPosts] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get("/carousels/")
-      .then((response) => {
-        const { recent_posts, best_posts, recently_reviewed_posts } =
-          response.data;
-        setRecentPosts(recent_posts);
-        setBestPosts(best_posts);
-        setRecentlyReviewedPosts(recently_reviewed_posts);
-      })
-      .catch((error) => {
-        console.error("Error loading homepage posts:", error);
-      });
-  }, []);
-
+  const { recent_posts, best_posts, recently_reviewed_posts, isLoading } = usePosts(); 
+  
+  if (isLoading) return <p>Cargando...</p>;
 
   return (
     <div className="container mx-auto px-4 py-0 max-w-8xl">
@@ -33,19 +17,19 @@ const HomePage = () => {
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300 ">
           Recientemente Reseñados
         </h3>
-        <PostSwiper posts={recentlyReviewedPosts} />
+        <PostSwiper posts={recently_reviewed_posts} />
       </section>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">
           Mejores del Mes
         </h3>
-        <PostSwiper posts={bestPosts} />
+        <PostSwiper posts={best_posts} />
       </section>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">
           Recientemente Añadidos
         </h3>
-        <PostSwiper posts={recentPosts} />
+        <PostSwiper posts={recent_posts} />
       </section>
     </div>
   );

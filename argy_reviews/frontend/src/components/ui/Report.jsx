@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import api from "../../api/api";
 
 const ReportModal = ({ isOpen, onClose, objectType }) => {
   const [options, setOptions] = useState([]);
@@ -15,7 +15,7 @@ const ReportModal = ({ isOpen, onClose, objectType }) => {
     };
 
     // Enviar reporte al backend
-    axios.post("/reports/", reportData)
+    api.post("/reports/", reportData)
       .then(response => {
         console.log("Reporte enviado:", response.data);
         onClose();

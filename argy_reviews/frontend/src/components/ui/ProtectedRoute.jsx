@@ -1,26 +1,17 @@
-import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useMe } from "../hooks/useMe";
 
 function ProtectedRoute({ children }) {
-  const [isAuthorized, setIsAuthorized] = useState(null);
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { me, isLoading } = useMe();
 
-  useEffect(() => {
-    auth().catch(() => setIsAuthorized(false));
-  }, []);
-
-  const auth = async () => {
-    if (!user) {
-      setIsAuthorized(false);
-      return;
-    }
-    setIsAuthorized(true);
-  };
-  if (isAuthorized === null) {
+  if (isLoading)
     return <div>Loading...</div>;
-  }
-  return isAuthorized ? children : navigate("/");
+  
+  if (!me)
+    return <Navigate to="/" />
+
+  return children
 }
+
 export default ProtectedRoute;
