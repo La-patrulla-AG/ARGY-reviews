@@ -152,8 +152,8 @@ class Report(models.Model):
 # ReportCategory model
 # ---------------------
 class ReportCategory(models.Model):
-    name = models.CharField(max_length=30),
-    description = models.TextField(blank=True, null=True)
+    name = models.CharField(default="ALGo",max_length=30)
+    description = models.CharField(max_length=200,blank=True, null=True)
 
     def __str__(self):
         return self.name

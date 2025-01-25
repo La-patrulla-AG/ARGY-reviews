@@ -17,7 +17,7 @@ from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -152,9 +152,9 @@ def get_carousels_data(request):
 # Post-List
 # ---------
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-# @permission_classes([AllowAny])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def post_list(request):
     """
     List all posts or create a new post.
@@ -329,8 +329,8 @@ def user_profile(request, user_pk):
 # -----------
 @api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAdminUser])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAdminUser, IsAuthenticated])
+@permission_classes([AllowAny])
 def report_list(request):
     """
     List all reports or create a new report.
@@ -341,6 +341,8 @@ def report_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        data = request.data.copy()
+        data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(reporter=request.user)
@@ -350,7 +352,8 @@ def report_list(request):
 # Report-Detail
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAdminUser, IsAuthenticated])
+#@permission_classes([IsAdminUser, IsAuthenticated])
+@permission_classes([AllowAny])
 def report_detail(request, report_pk):
     """
     Retrieve, update or delete a report.
@@ -384,6 +387,26 @@ def report_detail(request, report_pk):
         elif request.method == 'DELETE':
             report.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Report-Category-List
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def report_category_list(request):
+    """
+    List all report categories.
+    """
+    if request.method == 'GET':
+        categories = ReportCategory.objects.all()
+        serializer = ReportCategorySerializer(categories, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = ReportCategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Image-List
 # ------------
@@ -484,4 +507,16 @@ def category_list(request):
     """
     categories = PostCategory.objects.all()
     serializer = PostCategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+# ContentTypes
+# ------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def content_type_list(request):
+    """
+    List all content types.
+    """
+    content_types = ContentType.objects.all()
+    serializer = ContentTypeSerializer(content_types, many=True)
     return Response(serializer.data)

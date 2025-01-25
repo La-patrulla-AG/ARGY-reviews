@@ -90,10 +90,10 @@ class PostSerializer(serializers.ModelSerializer):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = generate_code()
         
-        if 'verification_state' not in validated_data:
-            validated_data['verification_state'] = PostState.objects.get(name='verified')
-        else:
-            validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
+        # if 'verification_state' not in validated_data:
+        #     validated_data['verification_state'] = PostState.objects.get(name='verified')
+        # else:
+        #     validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
             
         return super().create(validated_data)
     
@@ -142,7 +142,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReportCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportCategory
-        fields = ['id', 'name', 'description']
+        fields = '__all__'
 
 # ReportSerializer
 # -----------------
@@ -215,3 +215,8 @@ class PostCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PostCategory
         fields = ['id', 'name']
+        
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ['id', 'app_label', 'model']
