@@ -11,6 +11,8 @@ urlpatterns = [
     path('posts/<int:post_pk>/images/', views.image_upload, name='post-images'),
     path('posts/<int:post_pk>/images/<int:image_pk>', views.image_detail, name='post-images'),
     
+    path('categories/', views.category_list, name='category-list'),
+    
     path('login/', views.login, name='login'),
     path('register/', views.register, name='register'),
     
@@ -27,8 +29,13 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/', views.reviews_list, name='reviews-list'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
     
+    path('posts/<int:post_pk>/reviews/<int:review_pk>/ratings/', views.valorations_count, name='valorations-count'),
+    
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),
+    path('report_categories/', views.report_category_list, name='report-category-list'),
+    
+    path('content/', views.content_type_list, name='content-list'),
     
     # API DOCS
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

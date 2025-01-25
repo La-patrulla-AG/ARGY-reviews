@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders'
+    'dj_rest_auth',
 ]
 
 REST_FRAMEWORK = {
@@ -113,14 +114,20 @@ DATABASES = {
     #     'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
     #     'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+    #     'USER': os.getenv('DATABASE_USER', 'default_user'),
+    #     'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+    #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    #     'PORT': os.getenv('DATABASE_PORT', '5432'),
+    # }
+    
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
-        'USER': os.getenv('DATABASE_USER', 'default_user'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
-        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-        'PORT': os.getenv('DATABASE_PORT', '5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    
 }
 
 
@@ -166,3 +173,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'argy_reviews_jwt',
+    'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
+}

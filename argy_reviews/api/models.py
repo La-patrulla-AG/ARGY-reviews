@@ -18,9 +18,9 @@ from django.contrib.contenttypes.models import ContentType
 # - [x] Create a relation between the Post and the PostState
 # - [x] Make a way to report a post, a review or a user
 # - [x] Make a ReportCategory model
-# - [] Solamente puede haber una review por usuario en un post
-# - [] Solamente puede haber un reporte por usuario en un post, review o usuario
-# - [] Se debe actualizar dinamicamente el avg_rating de los post cuando hay CUD
+# - [x] Solamente puede haber una review por usuario en un post
+# - [x] Solamente puede haber un reporte por usuario en un post, review o usuario
+# - [x] Se debe actualizar dinamicamente el avg_rating de los post cuando hay CUD
 
 """Funciones auxiliares"""
 # No se deben hacer consultas a la base de datos desde los modelos, 
@@ -50,7 +50,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     avg_ratings = models.FloatField(default=0, blank=True)
     owner = models.ForeignKey('auth.User', related_name='posts', on_delete=models.CASCADE,blank=True, null=True)
-    categories = models.ManyToManyField('Category', related_name='posts', blank=True)
+    categories = models.ManyToManyField('PostCategory', related_name='posts', blank=True)
     verification_state = models.ForeignKey(PostState, on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
@@ -60,10 +60,12 @@ class Post(models.Model):
         return Review.objects.filter(post=self)
     
     def update_avg_ratings(self):
-        ratings = self.get_ratings()
-        if ratings.exists():
-            self.avg_ratings = ratings.aggregate(models.Avg('value'))['value__avg']
-            self.save()
+        reviews = self.review_set.all()
+        if reviews.exists():
+            self.avg_ratings = reviews.aggregate(models.Avg('rating'))['rating__avg']
+        else:
+            self.avg_ratings = 0
+        self.save()
 
 # PostImage model
 # ---------------
@@ -102,9 +104,22 @@ class Review(models.Model):
     def __str__(self):
         return self.owner.username
 
+# Valorations
+# -----------
+class Valoration(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    valoration = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ('review', 'user')
+        
+    def __str__(self):
+        return f"{self.user.username} valoration for {self.review.owner.username}"
+
 # Category model
 # --------------     
-class Category(models.Model):
+class PostCategory(models.Model):
     name = models.CharField(max_length=30)
 
     def __str__(self):
@@ -137,7 +152,8 @@ class Report(models.Model):
 # ReportCategory model
 # ---------------------
 class ReportCategory(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(default="ALGo",max_length=30)
+    description = models.CharField(max_length=200,blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
+from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -52,9 +52,16 @@ def post_state_list(request):
     serializer = PostStateSerializer(post_states, many=True)
     return Response(serializer.data)
 
-"""Views de la aplicación"""
-VERIFIED_STATE = get_verified_post_state_id('verified')
-UNVERIFIED_STATE = get_verified_post_state_id('not_verified')
+# """Views de la aplicación"""
+# if get_verified_post_state_id('verified') is None:
+#     VERIFIED_STATE = None
+# else:
+#     VERIFIED_STATE = get_verified_post_state_id('verified')
+
+# if get_verified_post_state_id('unverified') is None:
+#     UNVERIFIED_STATE = None
+# else:
+#     UNVERIFIED_STATE = get_verified_post_state_id('unverified')
 
 # UserList 
 # --------
@@ -107,13 +114,13 @@ def get_carousels_data(request):
     
     # 1. Posts recientes
     recent_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE
+        verification_state=get_verified_post_state_id('verified')
     ).order_by('-created_at')[:15]
 
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE,
+        verification_state=get_verified_post_state_id('unverified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')
@@ -121,7 +128,7 @@ def get_carousels_data(request):
 
     # 3. Recientemente reseñados
     recently_reviewed_posts = Post.objects.filter(
-        verification_state=VERIFIED_STATE,
+        verification_state=get_verified_post_state_id('verified'),
         review__isnull=False
     ).annotate(
         last_review=Max('review__created_at')
@@ -145,9 +152,9 @@ def get_carousels_data(request):
 # Post-List
 # ---------
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-# @permission_classes([AllowAny])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def post_list(request):
     """
     List all posts or create a new post.
@@ -212,7 +219,7 @@ def reviews_list(request, post_pk):
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.filter(verification_state=VERIFIED_STATE).get(pk=post_pk)
+        post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -322,8 +329,8 @@ def user_profile(request, user_pk):
 # -----------
 @api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAdminUser])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAdminUser, IsAuthenticated])
+@permission_classes([AllowAny])
 def report_list(request):
     """
     List all reports or create a new report.
@@ -334,6 +341,8 @@ def report_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        data = request.data.copy()
+        data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(reporter=request.user)
@@ -343,7 +352,8 @@ def report_list(request):
 # Report-Detail
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAdminUser, IsAuthenticated])
+#@permission_classes([IsAdminUser, IsAuthenticated])
+@permission_classes([AllowAny])
 def report_detail(request, report_pk):
     """
     Retrieve, update or delete a report.
@@ -378,23 +388,60 @@ def report_detail(request, report_pk):
             report.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+# Report-Category-List
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def report_category_list(request):
+    """
+    List all report categories.
+    """
+    if request.method == 'GET':
+        categories = ReportCategory.objects.all()
+        serializer = ReportCategorySerializer(categories, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = ReportCategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # Image-List
 # ------------
-@api_view(['GET','POST'])
+@api_view(['GET','POST','PUT'])
 @permission_classes([AllowAny])
 def image_upload(request, post_pk):
     """
     Upload an image for a post.
     """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
     if request.method == 'GET':
-        images = PostImage.objects.filter(post_id=post_pk)
+        images = PostImage.objects.filter(post=post)
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data)
+    
     elif request.method == 'POST':
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'PUT':
+        # Eliminar todas las imágenes actuales del post
+        PostImage.objects.filter(post=post).delete()
+        
+        # Agregar las nuevas imágenes
+        serializer = ImageSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save(post=post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Image-Detail
@@ -426,6 +473,31 @@ def image_detail(request, post_pk, image_pk):
             image.delete()
             return Response(status=status.HTTP_204_NO_CONTENT) 
 
+# Valorations-Count
+# -----------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def valorations_count(request, post_pk, review_pk):
+    """
+    Retrieve the count of likes and dislikes for a specific post.
+    """
+    if request.method == 'GET':
+        try:
+            post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
+            review = Review.objects.get(pk=review_pk, post=post)
+            
+            likes_count = Valoration.objects.filter(valoration=True, review=review).count()
+            dislikes_count = Valoration.objects.filter(valoration=False, review=review).count()
+
+            data = {
+                'likes': likes_count,
+                'dislikes': dislikes_count
+            }
+
+            return Response(data)
+        
+        except Review.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 #print(get_verified_post_state_id())
 
@@ -439,3 +511,25 @@ def me(request):
         'email': user.email,
     }
     return Response(data)
+    
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def category_list(request):
+    """
+    List all report categories.
+    """
+    categories = PostCategory.objects.all()
+    serializer = PostCategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+# ContentTypes
+# ------------
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def content_type_list(request):
+    """
+    List all content types.
+    """
+    content_types = ContentType.objects.all()
+    serializer = ContentTypeSerializer(content_types, many=True)
+    return Response(serializer.data)
