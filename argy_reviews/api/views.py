@@ -26,7 +26,7 @@ from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostS
 # - Hacer que el motodo POST de post_list sea solo accesible por autenticacion.
 
 """Funciones auxiliares"""
-def get_verified_post_state_id(state) -> int:
+def get_post_state_id(state) -> int:
     try:
         return PostState.objects.get(name=state).id
     except PostState.DoesNotExist:
@@ -51,17 +51,6 @@ def post_state_list(request):
     post_states = PostState.objects.all()
     serializer = PostStateSerializer(post_states, many=True)
     return Response(serializer.data)
-
-# """Views de la aplicación"""
-# if get_verified_post_state_id('verified') is None:
-#     VERIFIED_STATE = None
-# else:
-#     VERIFIED_STATE = get_verified_post_state_id('verified')
-
-# if get_verified_post_state_id('unverified') is None:
-#     UNVERIFIED_STATE = None
-# else:
-#     UNVERIFIED_STATE = get_verified_post_state_id('unverified')
 
 # UserList 
 # --------
@@ -114,13 +103,13 @@ def get_carousels_data(request):
     
     # 1. Posts recientes
     recent_posts = Post.objects.filter(
-        verification_state=get_verified_post_state_id('verified')
+        verification_state=get_post_state_id('verified')
     ).order_by('-created_at')[:15]
 
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=get_verified_post_state_id('not_verified'),
+        verification_state=get_post_state_id('not_verified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')
@@ -128,7 +117,7 @@ def get_carousels_data(request):
 
     # 3. Recientemente reseñados
     recently_reviewed_posts = Post.objects.filter(
-        verification_state=get_verified_post_state_id('verified'),
+        verification_state=get_post_state_id('verified'),
         review__isnull=False
     ).annotate(
         last_review=Max('review__created_at')
@@ -151,9 +140,9 @@ def get_carousels_data(request):
 
 # Post-List
 # ---------
-@api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAuthenticated])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def post_list(request):
     """
@@ -168,7 +157,7 @@ def post_list(request):
     elif request.method == 'POST':
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner=request.user)
+            serializer.save(verification_state=PostState.objects.get(name='verified'), owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
 
@@ -219,7 +208,7 @@ def reviews_list(request, post_pk):
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
+        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -483,7 +472,7 @@ def valorations_count(request, post_pk, review_pk):
     """
     if request.method == 'GET':
         try:
-            post = Post.objects.filter(verification_state=get_verified_post_state_id('verified')).get(pk=post_pk)
+            post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
             
             likes_count = Valoration.objects.filter(valoration=True, review=review).count()
@@ -499,7 +488,7 @@ def valorations_count(request, post_pk, review_pk):
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-#print(get_verified_post_state_id())
+#print(get_post_state_id())
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
