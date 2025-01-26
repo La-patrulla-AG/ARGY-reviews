@@ -26,9 +26,9 @@ from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostS
 # - Hacer que el motodo POST de post_list sea solo accesible por autenticacion.
 
 """Funciones auxiliares"""
-def get_verified_post_state_id(estate) -> int:
+def get_verified_post_state_id(state) -> int:
     try:
-        return PostState.objects.get(name=estate).id
+        return PostState.objects.get(name=state).id
     except PostState.DoesNotExist:
         return Response({"error": "Verified state not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -120,7 +120,7 @@ def get_carousels_data(request):
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=get_verified_post_state_id('unverified'),
+        verification_state=get_verified_post_state_id('not_verified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')

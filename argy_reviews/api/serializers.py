@@ -34,6 +34,7 @@ class ImageSerializer(serializers.ModelSerializer):
 # UserSerializer
 # ----------------
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
     token = serializers.SerializerMethodField()
     date_joined = serializers.ReadOnlyField()
     
@@ -43,27 +44,31 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 
             'username', 
             'email', 
+            'password',  # Incluir el campo aquí
             'token', 
             'date_joined'
-            ]
+        ]
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
-        # Remove posts and reviews from validated_data if they exist
-        validated_data.pop('posts', None)
-        validated_data.pop('reviews', None)
+        # Extraer la contraseña antes de crear el usuario
+        password = validated_data.pop('password', None)
+        if not password:
+            raise serializers.ValidationError({"password": "This field is required."})
         
+        # Crear el usuario utilizando create_user para manejar el hashing
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            password=password  # Pasar la contraseña extraída
         )
-        Token.objects.create(user=user)
+        Token.objects.create(user=user)  # Crear un token asociado al usuario
         return user
     
     def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
+
 
 # UserProfilePicture Serializer
 # ------------------------------
