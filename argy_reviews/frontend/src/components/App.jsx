@@ -6,6 +6,10 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
+import ReglasPage from "./ReglasPage"
+import TermsAndConditionsPage from "./TermsAndConditionsPage"
+import PrivacyPage from "./PrivacyPage"
+import WorkWithUsFormPage from "./WorkWithUsFormPage"
 import {
   BrowserRouter as Router,
   Routes,
@@ -27,6 +31,12 @@ const App = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/post/:postId" element={<PostPage />} />
+
+              <Route path="/reglas" element={<ReglasPage />} />
+              <Route path="/terminos-condiciones" element={<TermsAndConditionsPage />} />
+              <Route path="/privacidad" element={<PrivacyPage />} />
+              <Route path="/trabaja-con-nosotros" element={<WorkWithUsFormPage />} />
+
 
               <Route
                 path="/crear-post"
