@@ -34,6 +34,7 @@ urlpatterns = [
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),
     path('report_categories/', views.report_category_list, name='report-category-list'),
+    path('report_categories/<str:type_categorie>/', views.report_category_type_list, name='report-category-type-list'),
     
     path('content/', views.content_type_list, name='content-list'),
     
