@@ -26,7 +26,7 @@ __Se intuye que Python esta instalado localmente.__
 
 Para poder utilizar Django y levantar el servidor con todos los servicios que este ofrece primero debemos tener `Django` instalado localmente y todas la dependencias que este incluye tales como `rest-framework`. Afortunadamente esto esta facilitado a traves de el `venv`, que nos permiten virtualizar todas las dependencias necesarias solamente para este proyecto.
 
-> [!DANGER] venv y .gitignore
+> [!WARNING] venv y .gitignore
 >La carpeta de `venv` es __solamente__ propia del desarrollador; por nada deben commitearse los cambios dentro de esta carpeta o pushearse al repositorio remoto.
 >Por esta razon existe un `.gitignore` que evita que los cambios en esta area sea agregen a stage (o se deban estar excluyendo y seleccionando uno por uno).
 
