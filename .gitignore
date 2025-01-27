@@ -5,3 +5,4 @@ images/
 argy_reviews/argy_reviews/__pycache__/
 argy_reviews/frontend/__pycache__/
 db.sqlite3
+frontend/static/frontend/

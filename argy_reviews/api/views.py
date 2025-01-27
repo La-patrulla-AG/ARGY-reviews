@@ -522,3 +522,14 @@ def content_type_list(request):
     content_types = ContentType.objects.all()
     serializer = ContentTypeSerializer(content_types, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def report_category_type_list(request, type_categorie):
+    """
+    List all report categories.
+    """
+    if request.method == 'GET':
+        categories = ReportCategory.objects.filter(type_categorie=type_categorie)
+        serializer = ReportCategorySerializer(categories, many=True)
+        return Response(serializer.data)

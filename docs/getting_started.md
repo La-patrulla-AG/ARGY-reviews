@@ -1,17 +1,28 @@
 # Getting started
-El proposito general de esta documentacion es guiar al desarrollador para pode levantar la aplicacion de Argy Reviews.
+El proposito general de esta documentacion es guiar al desarrollador para poder levantar la aplicacion web de Argy Reviews. A continuacion se otorgaran varios metodos para poder realizar esto con exito.
 
-Primero y principal clone el repositorio.
+Antes que nada se debe clonar la rama principal del repositorio de Argy Reviews.
 ```bash
 git clone https://github.com/La-patrulla-AG/ARGY-reviews.git
 ```
-## Build dependencies
-Ejecuta el siguiente comando en la raíz del proyecto (donde se encuentra el archivo docker-compose.yml):
+
+## Levantar con docker-compose
+La forma mas sencilla y rapida de levantar el proyecto es a traves de Docker. Las configuraciones necesarias fueron hechas de ante mano para que el proyecto sea funcional con tan solo un solo comando de la consola. 
+
+El unico requerimiento para procede es tener instalado [Docker desktop](https://www.docker.com/products/docker-desktop/) o algun motor de Docker en la pc.Una ves que Docker exista en su computadora, este debera estar encendido y corriendo. 
+
+Ejecutando el siguiente comando en la raíz del proyecto (donde se encuentra el archivo `docker-compose.yml`) se crearan las imagenes con todas las dependencias correspondientes y se levantaran un contendor con estas corriendo.
 ```bash
 docker-compose up --build
 ```
-## Virtual invorement
-Se intuye que Python esta instalado localmente.
+![Si tiene Docker desktop deberia verse asi:](https://i.imgur.com/za2mOgv.png)
+
+## Dependencias locales
+Si desea instalar todos los requerimientos de manera local estos son los pasos a seguir.
+
+
+### Django
+__Se intuye que Python esta instalado localmente.__
 
 Para poder utilizar Django y levantar el servidor con todos los servicios que este ofrece primero debemos tener `Django` instalado localmente y todas la dependencias que este incluye tales como `rest-framework`. Afortunadamente esto esta facilitado a traves de el `venv`, que nos permiten virtualizar todas las dependencias necesarias solamente para este proyecto.
 
@@ -49,10 +60,9 @@ pip freeze > requirements.txt
 >   Set-ExecutionPolicy RemoteSigned
 >   ```
 
-## Django
 
-## Frontend setup
-### Instalacion de npm
+
+### Frontend setup
 ```PowerShell
 winget install Schniz.fnm
 fnm env --use-on-cd | Out-String | Invoke-Expression 
@@ -72,4 +82,3 @@ npm init -y
 npm install
 npm run dev
 ```
-#

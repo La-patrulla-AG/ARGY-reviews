@@ -155,8 +155,18 @@ class Report(models.Model):
 # ReportCategory model
 # ---------------------
 class ReportCategory(models.Model):
-    name = models.CharField(default="ALGo",max_length=30)
-    description = models.CharField(max_length=200,blank=True, null=True)
+    TYPE_CHOICES = [
+        ('reviews', 'Reviews'),
+        ('posts', 'Posts'),
+        ('users', 'Users'),
+    ]
+
+    name = models.CharField(max_length=50)
+    type_categorie = models.CharField(
+        max_length=20, 
+        choices=TYPE_CHOICES  # Opcional: puedes establecer un valor predeterminado
+    )
+    description = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.name
