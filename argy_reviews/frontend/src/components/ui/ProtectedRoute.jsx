@@ -1,12 +1,17 @@
 import React from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Navigate } from "react-router-dom";
+import { useMe } from "../hooks/useMe";
 
-const PrivateRoute = () => {
-    const navigate = useNavigate();
-  const user = useAuth();
-  if (!user.token) return navigate("/");
-  return <Outlet />;
-};
+function ProtectedRoute({ children }) {
+  const { me, isLoading } = useMe();
 
-export default PrivateRoute;
+  if (isLoading)
+    return <div>Loading...</div>;
+  
+  if (!me)
+    return <Navigate to="/" />
+
+  return children
+}
+
+export default ProtectedRoute;

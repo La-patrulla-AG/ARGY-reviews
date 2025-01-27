@@ -2,25 +2,22 @@ import "../../../static/css/homePage.css";
 import React from "react";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-
+import { login } from "../../api/auth";
 
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
-  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
 
-  const auth = useAuth();
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.username !== "" && formData.password !== "") {
-      auth.loginAction(formData);
-      return;
-    }
-    alert("Credenciales inválidas");
+    
+    if (Object.values(formData).some(item => !item))
+      return alert("Rellene todos los campos")
+
+    login(formData).then(onClose)
   };
 
   return (
@@ -30,6 +27,7 @@ const LoginForm = ({ onClose }) => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"
+            required
             placeholder="Usuario"
             value={formData.username}
             onChange={(e) =>
@@ -40,6 +38,7 @@ const LoginForm = ({ onClose }) => {
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
+              required
               placeholder="Contraseña"
               value={formData.password}
               onChange={(e) =>
@@ -56,7 +55,6 @@ const LoginForm = ({ onClose }) => {
             </button>
           </div>
           <button
-            type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
           >
             INICIAR SESIÓN

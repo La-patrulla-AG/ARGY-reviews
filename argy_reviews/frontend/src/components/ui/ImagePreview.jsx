@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const ImagePreview = ({ image, onDelete, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -11,9 +11,10 @@ const ImagePreview = ({ image, onDelete, index }) => {
           alt={`Upload ${index + 1}`}
           className="w-full h-full object-cover border rounded-md"
         />
-        
+
         {/* Preview Button */}
         <button
+          type="button"
           onClick={() => setIsExpanded(true)}
           className="absolute inset-0 m-auto w-8 h-8 opacity-0 group-hover:opacity-75 transition-opacity duration-200 bg-gray-800 rounded-full flex items-center justify-center"
           aria-label="Preview image"
@@ -42,7 +43,8 @@ const ImagePreview = ({ image, onDelete, index }) => {
 
         {/* Delete Button */}
         <button
-          onClick={() => onDelete(index)}
+          type="button"
+          onClick={() => onDelete(image, index)}
           className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-75 transition-opacity duration-200"
           aria-label="Delete image"
         >
@@ -76,8 +78,9 @@ const ImagePreview = ({ image, onDelete, index }) => {
               className="max-w-full max-h-[90vh] object-contain"
             />
             <button
+              type="button"
               onClick={() => setIsExpanded(false)}
-              className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"
+              className="absolute -top-4 -right-4 w-8 h-8 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-lg"
               aria-label="Close preview"
             >
               <svg

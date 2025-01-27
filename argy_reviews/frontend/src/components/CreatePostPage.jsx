@@ -1,19 +1,28 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
-import axios from "axios";
+import { useCreatePost } from "./hooks/useCreatePost";
 
-const CreatePost = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+  });
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+
+  const { createPost } = useCreatePost()
 
   const handleImageUpload = (files) => {
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/")
     );
+    setFiles((prev) => [...prev, ...files]);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
   };
@@ -24,6 +33,7 @@ const CreatePost = () => {
 
   const handleDeleteImage = (indexToDelete) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToDelete));
+    setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
   };
 
   const handleDragEnter = useCallback((e) => {
@@ -54,26 +64,20 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
 
-    images.forEach((image, index) => {
-      formData.append(`image_${index}`, image);
-    });
-
+    // Si tienes imágenes, agrégalas a FormData
     try {
-      const response = await axios.post("/posts/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      if (response.status === 201) {
-        console.log("Post creado exitosamente", response.data);
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      console.error("Error al crear el post", err);
+      createPost({
+        files,
+        ...formData
+      })
+
+      navigate(`/`);
+
+      console.log("Post y sus imágenes creados exitosamente.");
+    } catch (error) {
+      console.error("Error al crear el post o las imágenes:", error);
+      setError("Registration failed.");
     }
   };
 
@@ -97,8 +101,10 @@ const CreatePost = () => {
           </label>
           <input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
           />
         </div>
@@ -108,8 +114,10 @@ const CreatePost = () => {
             Descripción
           </label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={formData.content}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
+            }
             className="w-full p-2 borde rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
             placeholder="Escribe tu descripción aquí..."
           />
@@ -171,4 +179,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+export default CreatePostPage;

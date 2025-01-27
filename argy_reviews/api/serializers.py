@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, Category, Review, Report, ReportCategory , PostImage, UserProfile
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
 
 """Auxiliary functions"""
 def generate_code():
@@ -23,12 +23,6 @@ def generate_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
 """Serializers"""
-# UserProfileSerializer
-# ----------------------
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ['id', 'user', 'profile_pic']
 
 # ImageSerializer
 # ----------------
@@ -40,29 +34,53 @@ class ImageSerializer(serializers.ModelSerializer):
 # UserSerializer
 # ----------------
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
     token = serializers.SerializerMethodField()
+    date_joined = serializers.ReadOnlyField()
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'token']
+        fields = [
+            'id', 
+            'username', 
+            'email', 
+            'password',  # Incluir el campo aquí
+            'token', 
+            'date_joined'
+        ]
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
-        # Remove posts and reviews from validated_data if they exist
-        validated_data.pop('posts', None)
-        validated_data.pop('reviews', None)
+        # Extraer la contraseña antes de crear el usuario
+        password = validated_data.pop('password', None)
+        if not password:
+            raise serializers.ValidationError({"password": "This field is required."})
         
+        # Crear el usuario utilizando create_user para manejar el hashing
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            password=password  # Pasar la contraseña extraída
         )
-        Token.objects.create(user=user)
+        Token.objects.create(user=user)  # Crear un token asociado al usuario
         return user
     
     def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
+
+
+# UserProfilePicture Serializer
+# ------------------------------
+class UserProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'posts']
+    
+    def get_posts(self, obj):
+        posts = Post.objects.filter(owner=obj).order_by('-created_at')
+        return PostSerializer(posts, many=True).data
 
 # PostSerializer
 # -------------------
@@ -71,16 +89,16 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state']
+        fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state', 'categories']
         
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = generate_code()
         
-        if 'verification_state' not in validated_data:
-            validated_data['verification_state'] = PostState.objects.get(name='not_verified')
-        else:
-            validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
+        # if 'verification_state' not in validated_data:
+        #     validated_data['verification_state'] = PostState.objects.get(name='verified')
+        # else:
+        #     validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
             
         return super().create(validated_data)
     
@@ -129,7 +147,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReportCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportCategory
-        fields = ['id', 'name']
+        fields = '__all__'
 
 # ReportSerializer
 # -----------------
@@ -173,3 +191,37 @@ class ReportSerializer(serializers.ModelSerializer):
                 return None
         except content_type.DoesNotExist:
             return None
+        
+# ValorationSerializer
+# ---------------------
+class ValorationSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    
+    class Meta:
+        model = Valoration
+        fields = ['id', 'review', 'user', 'valoration']
+        read_only_fields = ['user']
+
+    def create(self, validated_data):
+        if Valoration.objects.filter(review=validated_data['review'], user=validated_data['user']).exists():
+            raise serializers.ValidationError('You have already valued this review')
+        
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        if instance.user != validated_data['user']:
+            raise serializers.ValidationError('You cannot modify the valoration of another user')
+        
+        return super().update(instance, validated_data)
+    
+# CategorySerializer
+# -------------------
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
+        
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ['id', 'app_label', 'model']

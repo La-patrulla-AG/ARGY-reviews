@@ -3,38 +3,61 @@ import React from "react";
 import MainLayout from "./MainLayout";
 import HomePage from "./HomePage";
 import PostPage from "./PostPage";
-import CreatePost from "./CreatePost";
+import CreatePostPage from "./CreatePostPage";
+import EditPostPage from "./EditPostPage";
+import MyPostsPage from "./MyPostsPage";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
 } from "react-router-dom";
-import AsideProvider from "./context/AsideContext";
-import AuthProvider from "./context/AuthContext";
-import PrivateRoute from "./ui/ProtectedRoute";
+import ProtectedRoute from "./ui/ProtectedRoute";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <div className="App">
       <Router>
-        <AuthProvider>
-          <AsideProvider>
-            <MainLayout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/post/:id" element={<PostPage />} />
-                <Route path="/crear-post" element={<CreatePost />} />
-                <Route element={<PrivateRoute />}>
-                  
-                </Route>
-                {/* Redirige a la página principal si la ruta no existe */}
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </MainLayout>
-          </AsideProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/post/:postId" element={<PostPage />} />
+
+              <Route
+                path="/crear-post"
+                element={
+                  <ProtectedRoute>
+                    <CreatePostPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mis-publicaciones"
+                element={
+                  <ProtectedRoute>
+                    <MyPostsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/editar-post/:postId"
+                element={
+                  <ProtectedRoute>
+                    <EditPostPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </MainLayout>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </Router>
     </div>
   );

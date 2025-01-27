@@ -21,12 +21,13 @@ SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,7 +37,9 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'frontend.apps.FrontendConfig',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'corsheaders',
+    'dj_rest_auth',
 ]
 
 REST_FRAMEWORK = {
@@ -47,9 +50,24 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-#LOGIN_URL = '/login/'
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API de ArgyReviews',
+    'DESCRIPTION': 'Argy reviews permite al usuario realizar reseñas de productos y servicios.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",  # Frontend en React
+    "http://localhost:3000", 
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,7 +76,9 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',    
 ]
 
 ROOT_URLCONF = 'argy_reviews.urls'
@@ -86,23 +106,28 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ArgyReviews',
-        'USER': 'grupo11',
-        'PASSWORD': 'meestanqueseando',
-        'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
-        'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
-    }
-    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'argyreviewsDB', 
-    #     'USER': 'postgres',
+    #     'NAME': 'ArgyReviews',
+    #     'USER': 'grupo11',
     #     'PASSWORD': 'meestanqueseando',
-    #     'HOST': '186.137.212.214',
-    #     'PORT': '5432',
+    #     'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
+    #     'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
     # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+    #     'USER': os.getenv('DATABASE_USER', 'default_user'),
+    #     'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+    #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    #     'PORT': os.getenv('DATABASE_PORT', '5432'),
+    # }
+    
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    
 }
 
 
@@ -148,3 +173,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'argy_reviews_jwt',
+    'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
+}

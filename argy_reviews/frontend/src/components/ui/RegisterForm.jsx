@@ -1,26 +1,27 @@
-import "../../../static/css/homePage.css";
 import { Eye, EyeOff, X } from "lucide-react";
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import "../../../static/css/homePage.css";
+import api from "../../api/api";
+import { login } from "../../api/auth";
 
 const RegisterForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
+    email:"",
     username: "",
     password: "",
   });
-  const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const response = await axios.post("/register/", formData);
-      console.log("User registered successfully:", response.data);
+      await api.post("/register/", formData);
 
       // Redirigir a la página de login
-      navigate("/login");
+      login(formData).then(onClose);
     } catch (error) {
       console.error("Error:", error);
       setError("Registration failed.");

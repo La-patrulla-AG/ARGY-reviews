@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
@@ -7,38 +7,93 @@ import "../../../static/css/homePage.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { useAside } from "../context/AsideContext";
+import api from "../../api/api";
 
 const PostSwiper = ({ posts }) => {
-  const { asideIsOpen } = useAside();
   const navigate = useNavigate();
+  const [images, setImages] = useState({});
+  const [reviews, setReviews] = useState({});
+
+  const getFirstImage = (postId) => {
+    return api
+      .get(`/posts/${postId}/images/`)
+      .then((response) => {
+        const imageUrl =
+          response.data.length > 0 ? response.data[0].image : null;
+        return { postId, imageUrl };
+      })
+      .catch((error) => {
+        console.error(`Error loading image for post ${postId}:`, error);
+        return { postId, imageUrl: null };
+      });
+  };
+
+  const getReviews = (postId) => {
+    return api
+      .get(`/posts/${postId}/reviews/`)
+      .then((response) => {
+        const reviewLength = response.data.length > 0 ? response.data.length : 0;
+        return { postId, reviewLength };
+      })
+      .catch((error) => {
+        console.error(`Error loading reviews for post ${postId}:`, error);
+        return { postId, reviewLength: null };
+      });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const imageBatch = posts.map((post) => getFirstImage(post.id));
+      const reviewBatch = posts.map((post) => getReviews(post.id));
+      
+
+      const imageResults = await Promise.all(imageBatch);
+      setImages((prevImages) => {
+        const newImages = {};
+        imageResults.forEach(({ postId, imageUrl }) => {
+          newImages[postId] = imageUrl;
+        });
+        return { ...prevImages, ...newImages };
+      });
+
+      const reviewResults = await Promise.all(reviewBatch);
+      setReviews((prevReviews) => {
+        const newReviews = {};
+        reviewResults.forEach(({ postId, reviewLength }) => {
+          newReviews[postId] = reviewLength;
+        });
+        return { ...prevReviews, ...newReviews };
+      });
+    };
+
+    fetchData();
+  }, [posts]);
 
   const getBreakpoints = () => ({
     320: {
       slidesPerView: 1,
-      spaceBetween: 10,
+      spaceBetween: 2,
     },
     480: {
-      slidesPerView: asideIsOpen ? 2 : 1,
-      spaceBetween: 15,
+      slidesPerView: 2,
+      spaceBetween: 5,
     },
     768: {
-      slidesPerView: asideIsOpen ? 3 : 2,
-      spaceBetween: 15,
+      slidesPerView: 3,
+      spaceBetween: 10,
     },
     1024: {
-      slidesPerView: asideIsOpen ? 4 : 3,
-      spaceBetween: 20,
+      slidesPerView: 4,
+      spaceBetween: 15,
     },
     1280: {
-      slidesPerView: asideIsOpen ? 4 : 5,
+      slidesPerView: 5,
       spaceBetween: 20,
     },
   });
 
   return (
     <Swiper
-      key={asideIsOpen ? "aside-open" : "aside-closed"}
       spaceBetween={20}
       loop={true}
       pagination={{ clickable: true }}
@@ -60,11 +115,11 @@ const PostSwiper = ({ posts }) => {
               }}
             >
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
-                {post.imagen_url ? (
+                {images[post.id] ? (
                   <img
-                    src={post.imagen_url}
-                    alt={post.title}
-                    className="w-16 md:w-32 lg:w-48 h-12 object-cover rounded mb-2"
+                    src={images[post.id]}
+                    alt={`Imagen de ${post.title}`}
+                    className="w-full max-h-32 object-cover rounded mb-2"
                   />
                 ) : (
                   <div className="w-full h-32 bg-gray-200 dark:bg-gray-700 rounded mb-2 flex items-center justify-center">
@@ -87,8 +142,11 @@ const PostSwiper = ({ posts }) => {
                 <h3 className="font-semibold text-sm mb-1 truncate dark:text-white text-black">
                   {post.title}
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start">
                   <StarValue valoracion={post.avg_ratings} />
+                  <span className="text-gray-500 dark:text-gray-300 ml-2">
+                    ({reviews[post.id]})
+                  </span>
                 </div>
               </div>
             </div>
