@@ -85,7 +85,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 # PostSerializer
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
         model = Post
