@@ -23,6 +23,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'serrafacundo2004@gmail.com'
+EMAIL_HOST_PASSWORD = 'vnwf sqvy saum pofn'
 
 # Application definition
 
@@ -178,3 +184,5 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'argy_reviews_jwt',
     'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
 }
+
+LOGIN_URL = 'http://localhost:8000'  # Cambia esto por la ruta correcta
