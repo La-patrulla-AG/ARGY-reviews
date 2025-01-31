@@ -1,82 +1,119 @@
-import React from "react";
-import axios from "axios";
+import React, { useRef } from "react";
+import api from "../../api/api";
 import { Star, User } from "lucide-react";
 import "../../../static/css/homePage.css";
 import { useState, useEffect } from "react";
 import ImageSwiper from "./ImageSwiper";
+import ReportModal from "./ReportModal";
+import { EllipsisVertical } from "lucide-react";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
   const [images, setImages] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [showReportModal, setShowReportModal] = useState(false);
+
+  const [report, setReport] = useState({
+    reported_content_type: "", // Valor inicial para el tipo de contenido
+    reported_object_id: "",
+    category: "",
+  });
+
+  const ReportContentType = {
+    POST: 9,
+    USER: 10,
+  };
+
+  const menuRef = useRef(null);
+
+  const toggleMenu = (id) => {
+    setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  const fetchData = async (url, setData, field = null) => {
+    try {
+      const response = await api.get(url);
+      // Si 'field' es proporcionado, actualiza solo ese campo del estado
+      if (field) {
+        setData((prev) => ({ ...prev, [field]: response.data }));
+      } else {
+        // Si no hay 'field', actualiza el estado directamente con la data
+        setData(response.data);
+      }
+    } catch (error) {
+      console.error(`Error loading data from ${url}:`, error);
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get(`/posts/${postId}/`)
-      .then((response) => {
-        setPost(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
-  }, [postId]);
+    fetchData(`/posts/${postId}/`, setPost);
+    fetchData(`/posts/${postId}/images/`, setImages);
+    fetchData(`/posts/${postId}/reviews/`, setReviews);
+  }, []);
+
+  const openReportModal = (contentType, objectId) => {
+    setReport({
+      reported_content_type: contentType,
+      reported_object_id: objectId,
+      category: "",
+    });
+    setShowReportModal(true);
+  };
+
+  //manejo el clcik por fuera del menú de reportes
+
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setOpenMenuId(null); // Cerrar el menú si se hace clic fuera
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get(`/posts/${postId}/images/`)
-      .then((response) => {
-        setImages(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
-  }, [postId]);
-
-  useEffect(() => {
-    axios
-      .get(`/posts/${postId}/reviews/`)
-      .then((response) => {
-        setReviews(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
-  }, [postId]);
+    document.addEventListener("mousedown", handleClickOutside); // Detectar clics fuera
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Limpiar evento
+    };
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
       <div className="flex">
-        {/* {images==[] ? ( */}
         <ImageSwiper images={images}></ImageSwiper>
-        {/* ) : (
-          <svg
-            className="w-16 md:w-32 lg:w-48 h-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-        )} */}
         <div className="w-1/2 pl-4">
-          <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
+          <div className="flex justify-between items-start">
+            <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => toggleMenu(postId)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150"
+              >
+                <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              </button>
+
+              {openMenuId === postId && (
+                <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-50 w-48">
+                  <button
+                    onClick={() =>
+                      openReportModal(ReportContentType.POST, postId)
+                    }
+                    className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
+                  >
+                    Reportar publicación
+                  </button>
+                  <button
+                    onClick={() => {
+                      openReportModal(ReportContentType.USER, post.owner);
+                    }}
+                    className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
+                  >
+                    Reportar usuario
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="flex items-center mb-2">
             <div className="flex text-yellow-400 mr-2">
               {[...Array(5)].map((_, i) => (
@@ -119,6 +156,15 @@ const ProductDetails = ({ postId }) => {
           </div>
         </div>
       </div>
+
+      {showReportModal && (
+        <ReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          report={report}
+          setReport={setReport}
+        />
+      )}
     </div>
   );
 };

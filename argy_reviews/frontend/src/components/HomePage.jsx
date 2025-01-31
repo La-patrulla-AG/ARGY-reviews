@@ -6,8 +6,6 @@ import PostSwiper from "./ui/PostSwiper";
 const HomePage = () => {
   const { recent_posts, best_posts, recently_reviewed_posts, isLoading } = usePosts(); 
   
-  console.log(recent_posts)
-
   if (isLoading) return <p>Cargando...</p>;
 
   return (

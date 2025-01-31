@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import { EllipsisVertical, X, Star } from "lucide-react";
+import { EllipsisVertical, Star } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import api from "../../api/api";
+import ReportModal from "./ReportModal";
+
 
 const Review = ({ review }) => {
   const [user, setUser] = useState({});
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [reportType, setReportType] = useState(null);
-  const [reportCategories, setReportCategories] = useState([]);
+
+  const stars = Array.from({ length: 5 });
 
   const [report, setReport] = useState({
     reported_content_type: "", // Valor inicial para el tipo de contenido
@@ -16,65 +18,52 @@ const Review = ({ review }) => {
     category: "",
   });
 
+  const ReportContentType = {
+    REVIEW: 11,
+    USER: 10,
+  };
+
   const menuRef = useRef(null); // Referencia para detectar clics fuera del menú
 
   const toggleMenu = (id) => {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
-  useEffect(() => {
-    api
-      .get(`/users/${review.owner}/`)
-      .then((response) => {
-        setUser(response.data);
-      })
-      .catch((err) => {
-        console.log("Error loading data", err);
-      });
+  const fetchData = async (url, setData, field = null) => {
+    try {
+      const response = await api.get(url);
 
-    api
-      .get("/report_categories/")
-      .then((response) => {
-        setReportCategories(response.data);
-      })
-      .catch((err) => {
-        console.log("Error loading data", err);
-      });
+      // Si 'field' es proporcionado, actualiza solo ese campo del estado
+      if (field) {
+        setData((prev) => ({ ...prev, [field]: response.data }));
+      } else {
+        // Si no hay 'field', actualiza el estado directamente con la data
+        setData(response.data);
+      }
+    } catch (error) {
+      console.error(`Error loading data from ${url}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(`/users/${review.owner}/`, setUser);
   }, []);
 
-  // Función para manejar cambios en el formulario
-  const handleSelection = (e) => {
-    // Obtenemos el nombre y valor del input
+  const openReportModal = (contentType, objectId) => {
     setReport({
-      ...report, // Mantenemos los valores actuales
-      category: e.target.value, // Actualizamos solo la propiedad que cambió
+      reported_content_type: contentType,
+      reported_object_id: objectId,
+      category: "",
     });
+    setShowReportModal(true);
   };
 
-  // Función para enviar el POST con la opción seleccionada
-  const handleReportSubmit = (e) => {
-    e.preventDefault(); // Prevenimos el comportamiento por defecto del formulario
-
-    api
-      .post("/reports/", report)
-      .then((response) => {
-        console.log("reporte creado!", response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(
-        setReport({
-          reported_content_type: "", // Valor inicial para el tipo de contenido
-          reported_object_id: "",
-          category: "",
-        }),
-        setShowReportModal(false));
-  };
-
+  //Obtengo la primera letra para el comentario
   const firstLetter = user?.username
     ? user.username.charAt(0).toUpperCase()
     : "";
+
+  //manejo el clcik por fuera del menú de reportes
 
   const handleClickOutside = (event) => {
     if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -106,7 +95,7 @@ const Review = ({ review }) => {
             </span>
           </div>
           <div className="flex items-center mb-2">
-            {[...Array(5)].map((_, index) => (
+            {stars.map((_, index) => (
               <Star
                 key={index}
                 className={`w-4 h-4 ${
@@ -167,31 +156,17 @@ const Review = ({ review }) => {
           {openMenuId === review.id && (
             <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-50 w-48">
               <button
-                onClick={() => {
-                  setReportType("comentario");
-                  setReport({
-                    ...report, // Mantenemos los valores actuales
-                    reported_content_type: 11, // Actualizamos solo la propiedad que cambió
-                    reported_object_id: review.id,
-                  });
-                  setShowReportModal(true);
-                  setOpenMenuId(null);
-                }}
+                onClick={() =>
+                  openReportModal(ReportContentType.REVIEW, review.id)
+                }
                 className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
               >
                 Reportar comentario
               </button>
               <button
-                onClick={() => {
-                  setReportType("usuario");
-                  setReport((prev) => ({
-                    ...prev, // Mantenemos los valores actuales
-                    reported_content_type: 10, // Actualizamos solo la propiedad que cambió
-                    reported_object_id: review.owner,
-                  }));
-                  setShowReportModal(true);
-                  setOpenMenuId(null);
-                }}
+                onClick={() =>
+                  openReportModal(ReportContentType.USER, review.owner)
+                }
                 className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
               >
                 Reportar usuario
@@ -202,69 +177,12 @@ const Review = ({ review }) => {
       </div>
       {/* Modal de reporte */}
       {showReportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-96 max-w-md mx-4">
-            <div className="flex justify-between items-center pr-4 pl-4 pt-4 pb-5">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                {`Denunciar ${reportType}`}
-              </h2>
-
-              <button
-                onClick={() => {
-                  setReport({
-                    reported_content_type: "", // Valor inicial para el tipo de contenido
-                    reported_object_id: "",
-                    category: "",
-                  });
-                  setShowReportModal(false);
-                }}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleReportSubmit}>
-              <div className="pl-4 pr-4 max-h-[50vh] overflow-y-auto">
-                <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  ¿Qué sucede?
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Comprobaremos que se cumplan todos los Lineamientos de la
-                  Comunidad, así que no te preocupes por hacer la elección
-                  perfecta.
-                </p>
-                <div className="space-y-2">
-                  {reportCategories.map((reportCategory) => (
-                    <label
-                      key={reportCategory.id}
-                      className="flex items-center space-x-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name="report-reason"
-                        onChange={handleSelection}
-                        value={reportCategory.id}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                      />
-                      <span className="text-base text-gray-700 dark:text-gray-300">
-                        {reportCategory.name}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="pl-4 pr-4 pb-4">
-                <button
-                  className="w-full mt-4 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:dark:bg-blue-800 dark:hover:bg-blue-800 transition-colors "
-                  disabled={!report.category}
-                  type="submit"
-                >
-                  Denunciar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <ReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          report={report}
+          setReport={setReport}
+        />
       )}
     </div>
   );
