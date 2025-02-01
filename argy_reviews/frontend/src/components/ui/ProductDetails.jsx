@@ -11,6 +11,7 @@ const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
   const [images, setImages] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [user, setUser] = useState({});
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -52,6 +53,10 @@ const ProductDetails = ({ postId }) => {
     fetchData(`/posts/${postId}/images/`, setImages);
     fetchData(`/posts/${postId}/reviews/`, setReviews);
   }, []);
+
+  useEffect(() => {
+    fetchData(`/users/${post.owner}/`, setUser);
+  }, [post.owner]);
 
   const openReportModal = (contentType, objectId) => {
     setReport({
@@ -136,7 +141,7 @@ const ProductDetails = ({ postId }) => {
             <p className="text-gray-600 dark:text-gray-100">Publicado por:</p>
             <div className="flex items-center">
               <User className="w-5 h-5 mr-2" />
-              <span>{post.owner}</span>
+              <span>{user.username}</span>
             </div>
           </div>
           <div>

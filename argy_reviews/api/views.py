@@ -464,8 +464,8 @@ def image_detail(request, post_pk, image_pk):
 
 # Valorations-Count
 # -----------------
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def valorations_count(request, post_pk, review_pk):
     """
     Retrieve the count of likes and dislikes for a specific post.
@@ -477,7 +477,6 @@ def valorations_count(request, post_pk, review_pk):
             
             likes_count = Valoration.objects.filter(valoration=True, review=review).count()
             dislikes_count = Valoration.objects.filter(valoration=False, review=review).count()
-
             data = {
                 'likes': likes_count,
                 'dislikes': dislikes_count
@@ -487,8 +486,61 @@ def valorations_count(request, post_pk, review_pk):
         
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    elif request.method == 'POST':
+        try:
+            post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+            review = Review.objects.get(pk=review_pk, post=post)
+            
+            data = request.data.copy()
+            data['review'] = review_pk
+            
+            serializer = ValorationSerializer(data=data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Valoration created successfully'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Review.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-#print(get_post_state_id())
+
+@api_view(['GET', 'DELETE', 'PUT'])
+@permission_classes([IsAuthenticated])
+def valorations_count_detail(request, post_pk, review_pk, user_pk):
+    """
+    Retrieve the count of likes and dislikes for a specific post.
+    """
+    try:
+        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+        review = Review.objects.get(pk=review_pk, post=post)
+        valoration = Valoration.objects.get(user=user_pk, review=review)
+        
+        if request.method == 'GET':
+            serializer = ValorationSerializer(valoration)
+            return Response(serializer.data)
+        
+        elif request.method == 'PUT':
+            data = request.data.copy()
+            data['review'] = review_pk
+            
+            serializer = ValorationSerializer(valoration, data=data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        
+        elif request.method == 'DELETE':
+            valoration.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    except Review.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

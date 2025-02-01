@@ -203,12 +203,20 @@ class ValorationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['user'] = request.user
+        
         if Valoration.objects.filter(review=validated_data['review'], user=validated_data['user']).exists():
             raise serializers.ValidationError('You have already valued this review')
         
         return super().create(validated_data)
     
     def update(self, instance, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['user'] = request.user
+            
         if instance.user != validated_data['user']:
             raise serializers.ValidationError('You cannot modify the valoration of another user')
         
