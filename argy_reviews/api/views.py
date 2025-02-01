@@ -576,6 +576,7 @@ def me(request):
         'id': user.id,
         'username': user.username,
         'email': user.email,
+        'is_superuser': user.is_superuser
     }
     return Response(data)
     

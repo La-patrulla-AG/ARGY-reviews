@@ -46,7 +46,8 @@ class UserSerializer(serializers.ModelSerializer):
             'email', 
             'password',  # Incluir el campo aquí
             'token', 
-            'date_joined'
+            'date_joined',
+            'is_superuser'
         ]
         extra_kwargs = {'password': {'write_only': True}}
         
