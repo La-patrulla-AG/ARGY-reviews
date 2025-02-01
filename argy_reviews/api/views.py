@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
-from django.db.models import Avg, Max
+from django.db.models import Avg, Max, Count, F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -31,6 +31,18 @@ def get_post_state_id(state) -> int:
         return PostState.objects.get(name=state).id
     except PostState.DoesNotExist:
         return Response({"error": "Verified state not found"}, status=status.HTTP_404_NOT_FOUND)
+
+def bayesian_rating(post_rating: float, post_votes: int, global_avg: float, min_votes: int) -> float:
+    """
+    Calcula la puntuación bayesiana de una publicación.
+
+    :param post_rating: Promedio de calificación del post
+    :param post_votes: Número de votos del post
+    :param global_avg: Calificación promedio global de todas las publicaciones
+    :param min_votes: Número mínimo de votos para considerar un post confiable
+    :return: Puntuación ajustada para ranking
+    """
+    return (post_rating * post_votes + global_avg * min_votes) / (post_votes + min_votes)
 
 
 """Views auxiliares"""
@@ -123,16 +135,30 @@ def get_carousels_data(request):
         last_review=Max('review__created_at')
     ).order_by('-last_review')[:15]
 
+    # 4. Promedio de los promedios
+    average_of_averages = Post.objects.aggregate(average_of_averages=Avg('avg_ratings'))['average_of_averages']
+    
+    # 5. Mejores puntuados según el ranking bayesiano
+    min_votes = 3  # Número mínimo de votos para considerar un post confiable
+    one_week_ago = timezone.now() - timedelta(days=7)
+    posts_with_bayesian_ranking = Post.objects.annotate(
+        review_count=Count('review'),
+        bayesian_rating=(F('avg_ratings') * F('review_count') + average_of_averages * min_votes) / (F('review_count') + min_votes)
+    ).filter(review_count__gte=min_votes, created_at__gte=one_week_ago).order_by('-bayesian_rating')[:15]
+    
     # Serializa los datos usando PostSerializer
     recent_posts_serialized = PostSerializer(recent_posts, many=True)
     best_posts_serialized = PostSerializer(best_posts, many=True)
     recently_reviewed_serialized = PostSerializer(recently_reviewed_posts, many=True)
+    bayesian_ranked_posts_serialized = PostSerializer(posts_with_bayesian_ranking, many=True)
+
 
     # Estructura los datos en un diccionario para responder
     data = {
         'recent_posts': recent_posts_serialized.data,
         'best_posts': best_posts_serialized.data,
         'recently_reviewed_posts': recently_reviewed_serialized.data,
+        'bayesian_ranked_posts': bayesian_ranked_posts_serialized.data,
     }
 
     # Devuelve los datos como una respuesta JSON
