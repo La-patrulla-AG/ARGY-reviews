@@ -83,6 +83,20 @@ const Aside = () => {
                       Nueva publicación
                     </button>
                   </li>
+                  {me.is_superuser ? (
+                    <li>
+                      <button
+                        className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                        onClick={() => {
+                          window.location.href = "http://localhost:8000/admin/";
+                        }}
+                      >
+                        Panel de administrador
+                      </button>
+                    </li>
+                  ) : (
+                    <></>
+                  )}
                 </ul>
               )}
             </li>
@@ -149,7 +163,10 @@ const Aside = () => {
         <button
           className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
           onClick={() => {
-            window.open('https://github.com/La-patrulla-AG/ARGY-reviews','_blank');
+            window.open(
+              "https://github.com/La-patrulla-AG/ARGY-reviews",
+              "_blank"
+            );
           }}
         >
           <Github className="w-4 h-4" />
