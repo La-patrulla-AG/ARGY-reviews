@@ -54,7 +54,7 @@ const RegisterForm = () => {
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-md">
       <h2 className="text-xl font-bold mb-4">Registro</h2>
-      <form onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         <input
           type="text"
           name="name"

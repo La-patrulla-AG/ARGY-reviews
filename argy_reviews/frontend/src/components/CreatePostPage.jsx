@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
 import { useCreatePost } from "./hooks/useCreatePost";
+import { toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -16,7 +18,7 @@ const CreatePostPage = () => {
 
   const navigate = useNavigate();
 
-  const { createPost } = useCreatePost()
+  const { createPost } = useCreatePost();
 
   const handleImageUpload = (files) => {
     const imageFiles = Array.from(files).filter((file) =>
@@ -69,8 +71,10 @@ const CreatePostPage = () => {
     try {
       createPost({
         files,
-        ...formData
-      })
+        ...formData,
+      });
+
+      await notify("Post creado exitosamente.", "success");
 
       navigate(`/`);
 
@@ -81,6 +85,19 @@ const CreatePostPage = () => {
     }
   };
 
+  const notify = (message, type = "success", position = "bottom-right") => {
+    toast[type](message, {
+      position: position,
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      transition: Bounce,
+    });
+  }
+
   return (
     <div className="container mx-auto px-4 py-0 max-w-8xl">
       <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
@@ -88,6 +105,7 @@ const CreatePostPage = () => {
       </h1>
 
       <form
+        noValidate
         onSubmit={handleSubmit}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}

@@ -74,7 +74,7 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <form onSubmit={handleReportSubmit}>
+        <form noValidate onSubmit={handleReportSubmit}>
           <div className="pl-4 pr-4 max-h-[50vh] overflow-y-auto">
             <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
               ¿Qué sucede?

@@ -3,6 +3,7 @@ import React from "react";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
 import { login } from "../../api/auth";
+import { toast, Bounce } from "react-toastify";
 
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -10,25 +11,57 @@ const LoginForm = ({ onClose }) => {
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (Object.values(formData).some(item => !item))
-      return alert("Rellene todos los campos")
 
-    login(formData).then(onClose)
+    if (Object.values(formData).some((item) => !item)) {
+      setError("Rellene todos los campos");
+      return;
+    }
+
+    setError("");
+    login(formData)
+      .then(() => {
+        notify("Inicio de sesión exitoso ✅", "success");
+        onClose();
+      })
+      .catch(() => {
+        notify("Error en el inicio de sesión ❌", "error");
+      });
+
+    if (Object.values(formData).some((item) => !item))
+      return alert("Rellene todos los campos");
+    try {
+      login(formData).then(onClose);
+    } catch (err) {
+      setError("Usuario o contraseña incorrectos");
+    }
+  };
+
+  const notify = (message, type = "success", position = "bottom-right") => {
+    toast[type](message, {
+      position: position,
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      transition: Bounce,
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-96 relative">
         <h2 className="text-2xl font-bold mb-6 text-center">INICIAR SESIÓN</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form noValidate className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"
             required
-            placeholder="Usuario"
+            placeholder="Usuario o email"
             value={formData.username}
             onChange={(e) =>
               setFormData({ ...formData, username: e.target.value })
@@ -54,9 +87,12 @@ const LoginForm = ({ onClose }) => {
               {mostrarContrasena ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
-          <button
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
+          {error && (
+            <p className="text-red-500 font-medium text-sm text-center">
+              {error}
+            </p>
+          )}
+          <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             INICIAR SESIÓN
           </button>
         </form>

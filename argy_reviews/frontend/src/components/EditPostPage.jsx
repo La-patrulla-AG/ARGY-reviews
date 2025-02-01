@@ -153,6 +153,7 @@ const EditPostPage = () => {
       </h1>
 
       <form
+        noValidate
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
