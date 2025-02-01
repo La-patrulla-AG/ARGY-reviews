@@ -17,7 +17,7 @@ const HomePage = () => {
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300">
           Mejores Puntuados
         </h3>
-        <PostSwiper posts={bayesian_ranked_posts}/>
+        <PostSwiper posts={bayesian_ranked_posts} />
       </section>
       <section className="mb-12">
         <h3 className="text-2xl font-semibold mb-6 text-gray-700 dark:text-gray-300 ">
