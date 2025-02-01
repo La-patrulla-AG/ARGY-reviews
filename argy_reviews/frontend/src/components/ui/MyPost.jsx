@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,24 +10,41 @@ import { Check, Ellipsis, Pencil, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import api from "../../api/api";
+import Modal from "./Modal";
+
+import { toast, Bounce } from "react-toastify";
 
 const MyPost = ({ postId, setUpdatePosts }) => {
   const [image, setImage] = useState({});
   const [post, setPost] = useState({});
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
 
   const { mutate: deletePost, isLoading } = useDeletePost(setUpdatePosts);
 
+  const openModal = (mode) => {
+    setActiveModal(mode);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsModalOpen(false);
+  };
+
   const getPostData = () => {
-    return axios
+    return api
       .get(`/posts/${postId}/`)
       .then((response) => {
         const { title, content, created_at, verification_state } =
           response.data;
         return { title, content, created_at, verification_state };
       })
-      .catch((error) => {
-        console.error(`Error loading post ${postId}:`, error);
+      .catch(() => {
+        notify("Ha ocurrido un error inesperado", "error").then(
+          () => (window.location.href = "/")
+        );
         return {
           title: null,
           content: null,
@@ -39,25 +55,26 @@ const MyPost = ({ postId, setUpdatePosts }) => {
   };
 
   const getFirstImage = () => {
-    return axios
+    return api
       .get(`/posts/${postId}/images/`)
       .then((response) => {
         const imageUrl =
           response.data.length > 0 ? response.data[0].image : null;
         return { imageUrl };
       })
-      .catch((error) => {
-        console.error(`Error loading image for post ${postId}:`, error);
-        return { imageUrl: null };
+      .catch(() => {
+        notify("Ha ocurrido un error inesperado", "error").then(
+          () => (window.location.href = "/")
+        );
       });
   };
 
   const handleDeletePost = () => {
-    deletePost(postId, {
-      onSuccess: () => {
-        console.log(`Post ${postId} eliminado exitosamente.`);
-      },
-    });
+    try {
+      deletePost(postId);
+    } catch {
+      notify("Ha ocurrido un error inesperado al eliminar el post", "error");
+    }
   };
 
   useEffect(() => {
@@ -71,8 +88,10 @@ const MyPost = ({ postId, setUpdatePosts }) => {
 
         setPost(postResults);
         setImage(imageResults);
-      } catch (error) {
-        console.error("Error fetching post or image data:", error);
+      } catch {
+        notify("Ha ocurrido un error inesperado", "error").then(
+          () => (window.location.href = "/")
+        );
       }
     };
 
@@ -88,6 +107,12 @@ const MyPost = ({ postId, setUpdatePosts }) => {
         ? "d 'de' MMMM"
         : "d 'de' MMMM 'de' yyyy";
     return format(date, formatString, { locale: es });
+  };
+
+  const notify = (message, type = "success", position = "bottom-right") => {
+    toast[type](message, {
+      position: position,
+    });
   };
 
   return (
@@ -149,7 +174,7 @@ const MyPost = ({ postId, setUpdatePosts }) => {
               <button
                 className="px-4 py-1.5 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-600 transition-colors"
                 onClick={() => {
-                  handleDeletePost();
+                  openModal("delete");
                 }}
               >
                 Eliminar
@@ -169,6 +194,15 @@ const MyPost = ({ postId, setUpdatePosts }) => {
           </p>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={activeModal}
+        onButtonBClick={() => {
+          handleDeletePost();
+          closeModal;
+        }}
+      />
     </div>
   );
 };

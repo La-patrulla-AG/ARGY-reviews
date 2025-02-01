@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import Header from "./ui/Header";
 
 //toast
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MainLayout = ({ children }) => {
@@ -30,9 +30,19 @@ const MainLayout = ({ children }) => {
         </main>
         <ThemeSelector theme={theme} setTheme={setTheme} />
       </div>
-      
+
       {/* Pasamos el tema dinámico */}
-      <ToastContainer theme={theme} />
+      <ToastContainer
+        theme={theme}
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        pauseOnHover={false}
+        pauseOnFocusLoss
+        draggable
+        transition={Bounce}
+      />
     </>
   );
 };

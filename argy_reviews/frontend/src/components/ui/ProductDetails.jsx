@@ -55,7 +55,9 @@ const ProductDetails = ({ postId }) => {
   }, []);
 
   useEffect(() => {
-    fetchData(`/users/${post.owner}/`, setUser);
+    if (post.owner) {
+      fetchData(`/users/${post.owner}/`, setUser);
+    }
   }, [post.owner]);
 
   const openReportModal = (contentType, objectId) => {
