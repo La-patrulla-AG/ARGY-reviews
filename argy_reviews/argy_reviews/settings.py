@@ -22,7 +22,7 @@ SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'ARGY-reviews.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'argy-reviews-argy-reviews.up.railway.app']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
@@ -72,6 +72,7 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
+    'argy-reviews-argy-reviews.up.railway.app'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
