@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'argy-reviews-argy-reviews.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'https://argy-reviews-production.up.railway.app']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
