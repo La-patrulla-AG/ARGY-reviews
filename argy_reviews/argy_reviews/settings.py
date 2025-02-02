@@ -5,6 +5,9 @@ Django settings for argy_reviews project.
 import os
 from pathlib import Path
 import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +23,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG=False
+DEBUG=True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'argy-reviews-argy-reviews.up.railway.app']
 
@@ -72,8 +75,10 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
-    'argy-reviews-argy-reviews.up.railway.app'
+    'https://argy-reviews-argy-reviews.up.railway.app'
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-argy-reviews.up.railway.app']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -138,7 +143,16 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
     
-    'default': dj_database_url.config(default=os.getenv(''))
+    #'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
+        'USER': os.getenv('DATABASE_USER', 'default_user'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
+    }
     
 }
 
