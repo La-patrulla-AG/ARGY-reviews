@@ -75,10 +75,11 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
-    'https://argy-reviews-argy-reviews.up.railway.app'
+    'https://argy-reviews-production.up.railway.app',
+    'argy-reviews-production.up.railway.app'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-argy-reviews.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-production.up.railway.app','argy-reviews-production.up.railway.app']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -145,7 +146,7 @@ DATABASES = {
 
 POSTGRES_LOCALLY = True
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
 
 
 # Password validation
