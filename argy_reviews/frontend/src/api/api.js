@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000", // Ajusta esto según tu base URL
+  baseURL: "https://argy-reviews-production.up.railway.app", // Ajusta esto según tu base URL
   
 });
 
