@@ -20,7 +20,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=True
@@ -119,6 +119,11 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'ArgyReviews',
@@ -135,18 +140,12 @@ DATABASES = {
     #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
     #     'PORT': os.getenv('DATABASE_PORT', '5432'),
     # }
-    
-    
-    
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    
-    'default': dj_database_url.config(default='postgresql://postgres:eWDupcxRLnVOVakBtALBwWbabfTHlCpd@postgres.railway.internal:5432/railway')
-    
 }
 
+
+POSTGRES_LOCALLY = True
+if POSTGRES_LOCALLY == True:
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
 
 # Password validation
