@@ -76,10 +76,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
     'https://argy-reviews-production.up.railway.app',
-    'argy-reviews-production.up.railway.app'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-production.up.railway.app','argy-reviews-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-production.up.railway.app']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
