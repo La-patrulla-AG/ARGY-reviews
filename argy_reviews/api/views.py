@@ -17,7 +17,7 @@ from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
+from .serializers import PostSerializer, ReviewSerializer, AdminUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -67,11 +67,11 @@ def post_state_list(request):
 # UserList 
 # --------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def user_list(request):
      if request.method == 'GET':
         users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = AdminUserSerializer(users, many=True)
         return Response(serializer.data)
 
 # UserProfile 
@@ -93,7 +93,7 @@ def user_profile(request):
 # User-Detail
 # -----------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def user_detail(request, user_pk):
     """
     Retrieve a user instance.
@@ -302,7 +302,7 @@ def login(request):
         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
 
     token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializer(instance=user)
+    serializer = AdminUserSerializer(instance=user)
 
     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
@@ -317,7 +317,7 @@ def register(request):
     """
     
     if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
+        serializer = AdminUserSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 user = serializer.save()
