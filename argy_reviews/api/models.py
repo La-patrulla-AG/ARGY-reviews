@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model  # This is the default user model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from uuid import uuid4
 
 # TODO 
 # - [x] Create a model for the Report
@@ -30,10 +31,11 @@ from django.utils import timezone
 """Modelos de la aplicación"""
 
 #UserProfile model
-class BanStatus(models.Model):
+class UserProfile(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)
     banned_until = models.DateTimeField(null=True, blank=True)
+    is_email_confirmed = models.BooleanField(default=False)
 
     def is_currently_banned(self):
         if self.is_banned:
@@ -177,3 +179,10 @@ class ReportCategory(models.Model):
     def __str__(self):
         return self.name
 
+class EmailConfirmationToken(models.Model):
+    id= models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"Email confirmation for {self.user.username}"

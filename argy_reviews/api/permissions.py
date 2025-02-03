@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .models import BanStatus
+from .models import UserProfile
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -18,7 +18,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class IsNotBanned(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
-            profile = BanStatus.objects.filter(user=request.user).first()
+            profile = UserProfile.objects.filter(user=request.user).first()
             if profile and profile.is_currently_banned():
                 return False
         return True

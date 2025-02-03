@@ -53,6 +53,7 @@ urlpatterns = [
     path('ban/permanent/<int:user_id>/', views.ban_user_permanently, name='ban_user_permanently'),
     path('ban/temporary/<int:user_id>/', views.ban_user_temporarily, name='ban_user_temporarily'),
     path('unban/<int:user_id>/', views.unban_user, name='unban_user'),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
