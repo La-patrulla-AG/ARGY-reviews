@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, BanStatus, Valoration
 
 """Auxiliary functions"""
 def generate_code():
@@ -31,12 +31,18 @@ class ImageSerializer(serializers.ModelSerializer):
         model = PostImage
         fields = ['id','image','post']
 
+class BanStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BanStatus
+        fields = ['is_banned', 'banned_until']
+
 # UserSerializer
 # ----------------
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
     token = serializers.SerializerMethodField()
     date_joined = serializers.ReadOnlyField()
+    ban_status = BanStatusSerializer(read_only=True)
     
     class Meta:
         model = User
@@ -47,6 +53,7 @@ class UserSerializer(serializers.ModelSerializer):
             'password',  # Incluir el campo aquí
             'token', 
             'date_joined',
+            'ban_status',
             'is_superuser'
         ]
         extra_kwargs = {'password': {'write_only': True}}

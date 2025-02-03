@@ -85,6 +85,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',    
+    'api.middleware.BanCheckMiddleware',
 ]
 
 ROOT_URLCONF = 'argy_reviews.urls'

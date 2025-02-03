@@ -16,9 +16,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, BanStatus, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
 
+from .permissions import IsNotBanned
 # TODO
 # - [x] Crear una view para listar todos los reportes
 # - [x] Hacer que la view de los reportes sea solo accesible por los administradores
@@ -80,7 +81,7 @@ def user_list(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     if request.method == 'GET':
-        profile = UserProfile.objects.get(user=request.user)
+        profile = BanStatus.objects.get(user=request.user)
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -181,6 +182,10 @@ def post_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(verification_state=PostState.objects.get(name='verified'), owner=request.user)
@@ -335,7 +340,7 @@ def user_profile(request, user_pk):
     if request.method == 'GET':
         try:
             user = User.objects.get(pk=user_pk)
-        except UserProfile.DoesNotExist:
+        except BanStatus.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
@@ -355,7 +360,11 @@ def report_list(request):
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
     
+    
     elif request.method == 'POST':
+        
+        
+        
         data = request.data.copy()
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
@@ -612,3 +621,43 @@ def report_category_type_list(request, type_categorie):
         categories = ReportCategory.objects.filter(type_categorie=type_categorie)
         serializer = ReportCategorySerializer(categories, many=True)
         return Response(serializer.data)
+    
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_permanently(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = BanStatus.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User banned permanently'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_temporarily(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = BanStatus.objects.get_or_create(user=user)
+        days = request.data.get('days', 7)  # Por defecto 7 días
+        profile.is_banned = True
+        profile.banned_until = timezone.now() + timedelta(days=days)
+        profile.save()
+        return Response({'status': f'User banned temporarily for {days} days'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def unban_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = BanStatus.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User unbanned'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

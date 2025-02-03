@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth import get_user_model  # This is the default user model provided by Django
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 # TODO 
 # - [x] Create a model for the Report
@@ -29,12 +30,17 @@ from django.contrib.contenttypes.models import ContentType
 """Modelos de la aplicación"""
 
 #UserProfile model
-class UserProfile(models.Model):
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    
-    def __str__(self):
-        return self.user.username
+class BanStatus(models.Model):
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    is_banned = models.BooleanField(default=False)
+    banned_until = models.DateTimeField(null=True, blank=True)
+
+    def is_currently_banned(self):
+        if self.is_banned:
+            return True
+        if self.banned_until and self.banned_until > timezone.now():
+            return True
+        return False
 
 # PostState model
 # ---------------

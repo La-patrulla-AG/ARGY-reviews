@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from .models import BanStatus
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -13,3 +14,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         return obj.owner == request.user
+    
+class IsNotBanned(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            profile = BanStatus.objects.filter(user=request.user).first()
+            if profile and profile.is_currently_banned():
+                return False
+        return True
