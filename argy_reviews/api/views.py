@@ -20,6 +20,9 @@ from .models import Post, PostState, Report, Review, PostImage, ReportCategory, 
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
 from .permissions import IsStaffUser    
 
+from .permissions import IsNotBanned
+
+
 # TODO
 # - [x] Crear una view para listar todos los reportes
 # - [x] Hacer que la view de los reportes sea solo accesible por los administradores
@@ -182,6 +185,10 @@ def post_list(request):
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
@@ -376,7 +383,11 @@ def report_list(request):
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
     
+    
     elif request.method == 'POST':
+        
+        
+        
         data = request.data.copy()
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
@@ -646,3 +657,53 @@ def report_category_type_list(request, type_categorie):
         categories = ReportCategory.objects.filter(type_categorie=type_categorie)
         serializer = ReportCategorySerializer(categories, many=True)
         return Response(serializer.data)
+    
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_permanently(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User banned permanently'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_temporarily(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        days = request.data.get('days', 7)  # Por defecto 7 días
+        profile.is_banned = True
+        profile.banned_until = timezone.now() + timedelta(days=days)
+        profile.save()
+        return Response({'status': f'User banned temporarily for {days} days'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def unban_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User unbanned'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email_confirmation_token(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user.profile.send_confirmation_email()
+        return Response({'status': 'Email confirmation token sent'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
