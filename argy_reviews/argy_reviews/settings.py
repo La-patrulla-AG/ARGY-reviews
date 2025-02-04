@@ -201,4 +201,4 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
 }
 
-LOGIN_URL = 'http://localhost:8000'  # Cambia esto por la ruta correcta
+LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
