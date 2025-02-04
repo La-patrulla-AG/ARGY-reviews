@@ -49,6 +49,11 @@ urlpatterns = [
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    
+    path('ban/permanent/<int:user_id>/', views.ban_user_permanently, name='ban_user_permanently'),
+    path('ban/temporary/<int:user_id>/', views.ban_user_temporarily, name='ban_user_temporarily'),
+    path('unban/<int:user_id>/', views.unban_user, name='unban_user'),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
