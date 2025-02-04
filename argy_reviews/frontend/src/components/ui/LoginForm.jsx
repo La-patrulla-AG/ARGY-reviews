@@ -3,7 +3,7 @@ import React from "react";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
 import { login } from "../../api/auth";
-import { toast, Bounce } from "react-toastify";
+import { toast } from "react-toastify";
 
 const LoginForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -24,32 +24,18 @@ const LoginForm = ({ onClose }) => {
     setError("");
     login(formData)
       .then(() => {
-        notify("Inicio de sesión exitoso ✅", "success");
+        notify("Inicio de sesión exitoso.", "success");
         onClose();
       })
       .catch(() => {
-        notify("Error en el inicio de sesión ❌", "error");
+        setError("Usuario o contraseña incorrectos");
+        console.clear();
       });
-
-    if (Object.values(formData).some((item) => !item))
-      return alert("Rellene todos los campos");
-    try {
-      login(formData).then(onClose);
-    } catch (err) {
-      setError("Usuario o contraseña incorrectos");
-    }
   };
 
   const notify = (message, type = "success", position = "bottom-right") => {
     toast[type](message, {
       position: position,
-      autoClose: 4000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      transition: Bounce,
     });
   };
 

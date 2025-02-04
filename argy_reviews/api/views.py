@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
-from django.db.models import Avg, Max
+from django.db.models import Avg, Max, Count, F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -19,6 +19,10 @@ from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
 
+from .permissions import IsNotBanned
+
+from users.models import EmailConfirmationToken
+
 # TODO
 # - [x] Crear una view para listar todos los reportes
 # - [x] Hacer que la view de los reportes sea solo accesible por los administradores
@@ -31,6 +35,18 @@ def get_post_state_id(state) -> int:
         return PostState.objects.get(name=state).id
     except PostState.DoesNotExist:
         return Response({"error": "Verified state not found"}, status=status.HTTP_404_NOT_FOUND)
+
+def bayesian_rating(post_rating: float, post_votes: int, global_avg: float, min_votes: int) -> float:
+    """
+    Calcula la puntuación bayesiana de una publicación.
+
+    :param post_rating: Promedio de calificación del post
+    :param post_votes: Número de votos del post
+    :param global_avg: Calificación promedio global de todas las publicaciones
+    :param min_votes: Número mínimo de votos para considerar un post confiable
+    :return: Puntuación ajustada para ranking
+    """
+    return (post_rating * post_votes + global_avg * min_votes) / (post_votes + min_votes)
 
 
 """Views auxiliares"""
@@ -123,16 +139,30 @@ def get_carousels_data(request):
         last_review=Max('review__created_at')
     ).order_by('-last_review')[:15]
 
+    # 4. Promedio de los promedios
+    average_of_averages = Post.objects.aggregate(average_of_averages=Avg('avg_ratings'))['average_of_averages']
+    
+    # 5. Mejores puntuados según el ranking bayesiano
+    min_votes = 3  # Número mínimo de votos para considerar un post confiable
+    one_week_ago = timezone.now() - timedelta(days=7)
+    posts_with_bayesian_ranking = Post.objects.annotate(
+        review_count=Count('review'),
+        bayesian_rating=(F('avg_ratings') * F('review_count') + average_of_averages * min_votes) / (F('review_count') + min_votes)
+    ).filter(review_count__gte=min_votes, created_at__gte=one_week_ago).order_by('-bayesian_rating')[:15]
+    
     # Serializa los datos usando PostSerializer
     recent_posts_serialized = PostSerializer(recent_posts, many=True)
     best_posts_serialized = PostSerializer(best_posts, many=True)
     recently_reviewed_serialized = PostSerializer(recently_reviewed_posts, many=True)
+    bayesian_ranked_posts_serialized = PostSerializer(posts_with_bayesian_ranking, many=True)
+
 
     # Estructura los datos en un diccionario para responder
     data = {
         'recent_posts': recent_posts_serialized.data,
         'best_posts': best_posts_serialized.data,
         'recently_reviewed_posts': recently_reviewed_serialized.data,
+        'bayesian_ranked_posts': bayesian_ranked_posts_serialized.data,
     }
 
     # Devuelve los datos como una respuesta JSON
@@ -155,6 +185,10 @@ def post_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(verification_state=PostState.objects.get(name='verified'), owner=request.user)
@@ -329,7 +363,11 @@ def report_list(request):
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
     
+    
     elif request.method == 'POST':
+        
+        
+        
         data = request.data.copy()
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
@@ -550,6 +588,7 @@ def me(request):
         'id': user.id,
         'username': user.username,
         'email': user.email,
+        'is_superuser': user.is_superuser
     }
     return Response(data)
     
@@ -585,3 +624,53 @@ def report_category_type_list(request, type_categorie):
         categories = ReportCategory.objects.filter(type_categorie=type_categorie)
         serializer = ReportCategorySerializer(categories, many=True)
         return Response(serializer.data)
+    
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_permanently(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User banned permanently'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_temporarily(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        days = request.data.get('days', 7)  # Por defecto 7 días
+        profile.is_banned = True
+        profile.banned_until = timezone.now() + timedelta(days=days)
+        profile.save()
+        return Response({'status': f'User banned temporarily for {days} days'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def unban_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User unbanned'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email_confirmation_token(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user.profile.send_confirmation_email()
+        return Response({'status': 'Email confirmation token sent'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

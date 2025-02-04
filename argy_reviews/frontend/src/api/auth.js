@@ -11,5 +11,4 @@ export const login = ({ username, password }) =>
       return data;
     });
 
-export const logout = async () =>
-    setNewToken(false)
+export const logout = async () => setNewToken(false);
