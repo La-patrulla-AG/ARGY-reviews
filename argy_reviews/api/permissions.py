@@ -13,3 +13,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         return obj.owner == request.user
+
+class IsStaffUser(permissions.BasePermission):
+    """
+    Custom permission to only allow staff users to access the view.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff

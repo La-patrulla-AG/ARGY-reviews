@@ -12,12 +12,13 @@ from rest_framework import generics, status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, IsStaffUser
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
+from .permissions import IsStaffUser    
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
