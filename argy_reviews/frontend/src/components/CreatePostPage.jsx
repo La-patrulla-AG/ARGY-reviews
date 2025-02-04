@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
 import { useCreatePost } from "./hooks/useCreatePost";
-import { toast, Bounce } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const CreatePostPage = () => {
@@ -24,6 +23,7 @@ const CreatePostPage = () => {
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/")
     );
+
     setFiles((prev) => [...prev, ...files]);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
@@ -67,6 +67,11 @@ const CreatePostPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (Object.values(formData).some((item) => !item)) {
+      setError("Rellene todos los campos");
+      return;
+    }
+
     // Si tienes imágenes, agrégalas a FormData
     try {
       createPost({
@@ -74,32 +79,32 @@ const CreatePostPage = () => {
         ...formData,
       });
 
-      await notify("Post creado exitosamente.", "success");
-
-      navigate(`/`);
-
-      console.log("Post y sus imágenes creados exitosamente.");
+      notify("Post creado exitosamente.", "success", "bottom-right", 1000);
     } catch (error) {
-      console.error("Error al crear el post o las imágenes:", error);
-      setError("Registration failed.");
+      notify("Ocurrió un error inesperado", "error", "bottom-right", 4000);
     }
   };
 
-  const notify = (message, type = "success", position = "bottom-right") => {
+  const notify = (
+    message,
+    type = "success",
+    position = "bottom-right",
+    autoClose = 4000
+  ) => {
     toast[type](message, {
       position: position,
-      autoClose: 4000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      transition: Bounce,
+      autoClose: autoClose,
     });
-  }
+  };
+
+  toast.onChange((payload) => {
+    if (payload.status === "removed" && payload.type === "success") {
+      navigate("/");
+    }
+  });
 
   return (
-    <div className="container mx-auto px-4 py-0 max-w-8xl">
+    <>
       <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
         Crear Post
       </h1>
@@ -139,6 +144,11 @@ const CreatePostPage = () => {
             className="w-full p-2 borde rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
             placeholder="Escribe tu descripción aquí..."
           />
+          {error && (
+            <p className="text-red-500 font-medium text-sm text-start">
+              {error}
+            </p>
+          )}
         </div>
 
         <div>
@@ -193,7 +203,7 @@ const CreatePostPage = () => {
           </button>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 

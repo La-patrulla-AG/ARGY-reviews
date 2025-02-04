@@ -25,8 +25,10 @@ const MainLayout = ({ children }) => {
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-grow">
         <Aside />
         <main className="flex-1 p-4 transition-all duration-300 ml-16">
-          <Header />
-          {children}
+          <div className="container mx-auto px-16 py-0 max-w-8xl">
+            <Header />
+            {children}
+          </div>
         </main>
         <ThemeSelector theme={theme} setTheme={setTheme} />
       </div>

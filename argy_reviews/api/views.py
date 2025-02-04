@@ -121,7 +121,7 @@ def get_carousels_data(request):
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=get_post_state_id('not_verified'),
+        verification_state=get_post_state_id('verified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')

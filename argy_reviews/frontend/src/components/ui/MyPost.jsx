@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useDeletePost } from "../hooks/useDeletePost";
@@ -12,7 +12,7 @@ import { es } from "date-fns/locale";
 import api from "../../api/api";
 import Modal from "./Modal";
 
-import { toast, Bounce } from "react-toastify";
+import { toast } from "react-toastify";
 
 const MyPost = ({ postId, setUpdatePosts }) => {
   const [image, setImage] = useState({});
@@ -20,6 +20,8 @@ const MyPost = ({ postId, setUpdatePosts }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState("");
   const [activeModal, setActiveModal] = useState(null);
+
+  const errorNotified = useRef(false);
 
   const { mutate: deletePost, isLoading } = useDeletePost(setUpdatePosts);
 
@@ -42,15 +44,16 @@ const MyPost = ({ postId, setUpdatePosts }) => {
         return { title, content, created_at, verification_state };
       })
       .catch(() => {
-        notify("Ha ocurrido un error inesperado", "error").then(
-          () => (window.location.href = "/")
-        );
-        return {
-          title: null,
-          content: null,
-          created_at: null,
-          verification_state: null,
-        };
+        if (!errorNotified.current) {
+          notify("Ha ocurrido un error inesperado", "error");
+          errorNotified.current = true;
+          return {
+            title: null,
+            content: null,
+            created_at: null,
+            verification_state: null,
+          };
+        }
       });
   };
 
@@ -63,17 +66,22 @@ const MyPost = ({ postId, setUpdatePosts }) => {
         return { imageUrl };
       })
       .catch(() => {
-        notify("Ha ocurrido un error inesperado", "error").then(
-          () => (window.location.href = "/")
-        );
+        if (!errorNotified.current) {
+          notify("Ha ocurrido un error inesperado", "error");
+          errorNotified.current = true;
+        }
       });
   };
 
-  const handleDeletePost = () => {
+  const handleDeletePost = async () => {
     try {
-      deletePost(postId);
+      await deletePost(postId);
+      notify("Pubilicación eliminada exitosamente", "success");
     } catch {
-      notify("Ha ocurrido un error inesperado al eliminar el post", "error");
+      if (!errorNotified.current) {
+        notify("Ha ocurrido un error inesperado", "error");
+        errorNotified.current = true;
+      }
     }
   };
 
@@ -89,9 +97,10 @@ const MyPost = ({ postId, setUpdatePosts }) => {
         setPost(postResults);
         setImage(imageResults);
       } catch {
-        notify("Ha ocurrido un error inesperado", "error").then(
-          () => (window.location.href = "/")
-        );
+        if (!errorNotified.current) {
+          notify("Ha ocurrido un error inesperado", "error");
+          errorNotified.current = true;
+        }
       }
     };
 
@@ -114,6 +123,11 @@ const MyPost = ({ postId, setUpdatePosts }) => {
       position: position,
     });
   };
+
+  toast.onChange((payload) => {
+    if (payload.status === "removed" && payload.type === "success") {
+    }
+  });
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-4 hover:shadow-md transition-shadow">
@@ -202,6 +216,8 @@ const MyPost = ({ postId, setUpdatePosts }) => {
           handleDeletePost();
           closeModal;
         }}
+        message="Quieres eliminar esta publicación? Esta acción es irreversible"
+        buttonB="Sí, deseo eliminarla"
       />
     </div>
   );
