@@ -149,6 +149,9 @@ class Report(models.Model):
     content = models.TextField(blank=True, null=True)
     resolved = models.BooleanField(default=False)
     
+    class Meta:
+        unique_together = ('reporter', 'reported_content_type', 'reported_object_id')
+        
     def __str__(self):
         return f"Report by {self.reporter} on {self.reported_object}"  
 

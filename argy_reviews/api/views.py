@@ -396,8 +396,13 @@ def report_list(request):
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(reporter=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save(reporter=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {"message": "Ya has reportado este contenido."},
+                    status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Report-Detail
