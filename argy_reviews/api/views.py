@@ -18,9 +18,9 @@ from rest_framework.response import Response
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
-from .permissions import IsStaffUser    
+  
 
-from .permissions import IsNotBanned
+from .permissions import IsNotBanned, IsStaffUser
 
 
 # TODO

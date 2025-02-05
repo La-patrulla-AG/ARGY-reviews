@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from argy_reviews.models import UserProfile
+from .models import UserProfile
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
