@@ -141,6 +141,8 @@ def get_carousels_data(request):
 
     # 4. Promedio de los promedios
     average_of_averages = Post.objects.aggregate(average_of_averages=Avg('avg_ratings'))['average_of_averages']
+    if average_of_averages is None:
+        average_of_averages = 0
     
     # 5. Mejores puntuados según el ranking bayesiano
     min_votes = 3  # Número mínimo de votos para considerar un post confiable

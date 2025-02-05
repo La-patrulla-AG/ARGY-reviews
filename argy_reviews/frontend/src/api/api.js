@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://argy-reviews-production.up.railway.app", // Ajusta esto según tu base URL
-  
+  baseURL: 'http://localhost:8000',
 });
 
 const token = localStorage.getItem("token");

@@ -20,14 +20,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-
+SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=True
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
+    'http://localhost:8000',
     'https://argy-reviews-production.up.railway.app', 
     'argy-reviews-production.up.railway.app'
 ]
@@ -36,8 +36,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = 'serrafacundo2004@gmail.com'
+EMAIL_HOST_PASSWORD = 'iluf pryp oaxc govm'
 
 # Application definition
 
@@ -149,9 +149,9 @@ DATABASES = {
 }
 
 
-POSTGRES_LOCALLY = True
+POSTGRES_LOCALLY = False
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
 
 
 # Password validation
@@ -201,4 +201,5 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
 }
 
-LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
+LOGIN_URL = 'http://localhost:8000'
+#LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
