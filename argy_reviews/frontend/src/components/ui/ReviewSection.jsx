@@ -164,7 +164,7 @@ const ReviewSection = ({ postId }) => {
         {reviews.map((review) => (
           <div key={review.id}>
             <div>
-              <Review review={review}></Review>
+              <Review review={review} postId={postId}></Review>
             </div>
           </div>
         ))}

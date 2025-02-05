@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ImagePreview from "./ui/ImagePreview";
 import { useCreatePost } from "./hooks/useCreatePost";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Modal from "./ui/Modal";
 
 const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -14,6 +15,20 @@ const CreatePostPage = () => {
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
+
+  const openModal = (mode) => {
+    setActiveModal(mode);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsModalOpen(false);
+  };
+
+  const errorNotified = useRef(false);
 
   const navigate = useNavigate();
 
@@ -79,9 +94,12 @@ const CreatePostPage = () => {
         ...formData,
       });
 
-      notify("Post creado exitosamente.", "success", "bottom-right", 1000);
-    } catch (error) {
-      notify("Ocurrió un error inesperado", "error", "bottom-right", 4000);
+      notify("Post creado exitosamente.", "success", "bottom-right", 1700);
+    } catch {
+      if (!errorNotified.current) {
+        notify("Ha ocurrido un error inesperado", "error");
+        errorNotified.current = true;
+      }
     }
   };
 
@@ -99,7 +117,7 @@ const CreatePostPage = () => {
 
   toast.onChange((payload) => {
     if (payload.status === "removed" && payload.type === "success") {
-      navigate("/");
+      navigate("/mis-publicaciones");
     }
   });
 
@@ -189,7 +207,9 @@ const CreatePostPage = () => {
         <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              openModal("warning");
+            }}
             className="px-4 py-2 rounded-md transition-colors border
             hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
@@ -203,6 +223,18 @@ const CreatePostPage = () => {
           </button>
         </div>
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={activeModal}
+        onButtonBClick={() => {
+          navigate("/mis-publicaciones");
+          closeModal;
+        }}
+        message="Perderás todos tus cambios"
+        buttonB="Descartar cambios"
+        buttonA="Seguir editando"
+      />
     </>
   );
 };
