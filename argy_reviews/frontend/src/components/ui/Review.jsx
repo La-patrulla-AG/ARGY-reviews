@@ -3,13 +3,15 @@ import { EllipsisVertical, Star } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import api from "../../api/api";
 import ReportModal from "./ReportModal";
-
+import { useMe } from "../hooks/useMe"
 
 const Review = ({ review }) => {
   const [user, setUser] = useState({});
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
 
+  const { me } = useMe();
+  
   const stars = Array.from({ length: 5 });
 
   const [report, setReport] = useState({
