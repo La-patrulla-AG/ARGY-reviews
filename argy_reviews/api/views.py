@@ -316,6 +316,9 @@ def login(request):
     """
     Login a user.
     """
+    if request.user.is_authenticated:
+        return Response({"error": "You are already logged in."}, status=status.HTTP_400_BAD_REQUEST)
+    
     username_or_email = request.data.get('username_or_email')
     password = request.data.get('password')
 
@@ -342,6 +345,9 @@ def register(request):
     """
     Register a user.
     """
+    
+    if request.user.is_authenticated:
+        return Response({"error": "You are already registered and logged in."}, status=status.HTTP_400_BAD_REQUEST)
     
     if request.method == 'POST':
         serializer = SensibleUserSerializer(data=request.data)
