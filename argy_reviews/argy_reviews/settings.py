@@ -4,6 +4,10 @@ Django settings for argy_reviews project.
 
 import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,9 +23,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG=True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'localhost', 
+    'https://argy-reviews-production.up.railway.app', 
+    'argy-reviews-production.up.railway.app'
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
@@ -71,7 +80,10 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
+    'https://argy-reviews-production.up.railway.app',
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-production.up.railway.app']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -113,6 +125,11 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'ArgyReviews',
@@ -129,14 +146,12 @@ DATABASES = {
     #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
     #     'PORT': os.getenv('DATABASE_PORT', '5432'),
     # }
-    
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-    
 }
 
+
+POSTGRES_LOCALLY = True
+if POSTGRES_LOCALLY == True:
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
 
 
 # Password validation
@@ -186,4 +201,4 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
 }
 
-LOGIN_URL = 'http://localhost:8000'  # Cambia esto por la ruta correcta
+LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
