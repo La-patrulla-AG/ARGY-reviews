@@ -17,7 +17,11 @@ from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
-from .serializers import PostSerializer, ReviewSerializer, UserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer
+from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
+from .permissions import IsStaffUser    
+
+from .permissions import IsNotBanned
+
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -67,11 +71,11 @@ def post_state_list(request):
 # UserList 
 # --------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def user_list(request):
      if request.method == 'GET':
         users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = SensibleUserSerializer(users, many=True)
         return Response(serializer.data)
 
 # UserProfile 
@@ -93,7 +97,7 @@ def user_profile(request):
 # User-Detail
 # -----------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def user_detail(request, user_pk):
     """
     Retrieve a user instance.
@@ -168,8 +172,6 @@ def get_carousels_data(request):
 
 # Post-List
 # ---------
-#@authentication_classes([TokenAuthentication])
-#@permission_classes([IsAuthenticated])
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def post_list(request):
@@ -183,11 +185,18 @@ def post_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(verification_state=PostState.objects.get(name='verified'), owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Post-Detail   
 # ------------
@@ -244,10 +253,13 @@ def reviews_list(request, post_pk):
         reviews = Review.objects.filter(post=post)
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
-
+    
     elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         if Review.objects.filter(post=post, owner=request.user).exists():
-            return Response({"error": "You have already reviewed this post. Please edit or delete your existing review."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Ya has reseñado esta publicacion. Por favor edita o elimina tu reseña existente."}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
@@ -258,6 +270,7 @@ def reviews_list(request, post_pk):
 # Review-Detail
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])
 def review_detail(request, post_pk, review_pk):
     """
     Retrieve, update or delete a review instance.
@@ -272,6 +285,12 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        if review.owner != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
         serializer = ReviewSerializer(review, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -279,6 +298,12 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
+        if review.owner != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -304,7 +329,7 @@ def login(request):
         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
 
     token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializer(instance=user)
+    serializer = SensibleUserSerializer(instance=user)
 
     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
@@ -319,7 +344,7 @@ def register(request):
     """
     
     if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
+        serializer = SensibleUserSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 user = serializer.save()
@@ -332,7 +357,7 @@ def register(request):
 # UserProfile 
 # -----------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def user_profile(request, user_pk):
     if request.method == 'GET':
         try:
@@ -347,12 +372,15 @@ def user_profile(request, user_pk):
 @api_view(['GET', 'POST'])
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAdminUser, IsAuthenticated])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def report_list(request):
     """
     List all reports or create a new report.
     """
     if request.method == 'GET':
+        if not request.user.is_staff:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
         reports = Report.objects.all()
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
@@ -370,7 +398,7 @@ def report_list(request):
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
 #@permission_classes([IsAdminUser, IsAuthenticated])
-@permission_classes([AllowAny])
+@permission_classes([IsStaffUser, IsAuthenticated])
 def report_detail(request, report_pk):
     """
     Retrieve, update or delete a report.
@@ -385,14 +413,8 @@ def report_detail(request, report_pk):
         serializer = ReportSerializer(report)
         return Response(serializer.data)
 
-    elif request.method in ['PUT', 'DELETE']:
-        # Requerires atutentication to update and delete a post
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
+    elif request.method in ['PUT', 'DELETE']:       
         # Verifies if the user is the owner of the post
-        if report.owner != request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
 
         if request.method == 'PUT':
             serializer = ReportSerializer(report, data=request.data)
@@ -407,7 +429,7 @@ def report_detail(request, report_pk):
 
 # Report-Category-List
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def report_category_list(request):
     """
     List all report categories.
@@ -418,6 +440,9 @@ def report_category_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        if not request.user.is_staff:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
         serializer = ReportCategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -444,6 +469,9 @@ def image_upload(request, post_pk):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -451,6 +479,12 @@ def image_upload(request, post_pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        if post.owner != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
         # Eliminar todas las imágenes actuales del post
         PostImage.objects.filter(post=post).delete()
         
@@ -470,6 +504,7 @@ def image_detail(request, post_pk, image_pk):
     Retrieve, update or delete an image.
     """
     try:
+        post = Post.objects.get(pk=post_pk)
         image = PostImage.objects.get(pk=image_pk, post_id=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -478,7 +513,10 @@ def image_detail(request, post_pk, image_pk):
         serializer = ImageSerializer(image)
         return Response(serializer.data)
 
-    elif request.method in ['PUT', 'DELETE']:
+    elif request.method in ['PUT', 'DELETE']:   
+        if post.owner != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
         if request.method == 'PUT':
             serializer = ImageSerializer(image, data=request.data)
             if serializer.is_valid():
@@ -493,7 +531,7 @@ def image_detail(request, post_pk, image_pk):
 # Valorations-Count
 # -----------------
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def valorations_count(request, post_pk, review_pk):
     """
     Retrieve the count of likes and dislikes for a specific post.
@@ -516,6 +554,9 @@ def valorations_count(request, post_pk, review_pk):
             return Response(status=status.HTTP_404_NOT_FOUND)
     
     elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
@@ -595,7 +636,7 @@ def category_list(request):
 # ContentTypes
 # ------------
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsStaffUser])
 def content_type_list(request):
     """
     List all content types.

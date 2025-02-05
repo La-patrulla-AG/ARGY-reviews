@@ -1,5 +1,5 @@
 from rest_framework import permissions
-
+from argy_reviews.models import UserProfile
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
@@ -13,3 +13,18 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         return obj.owner == request.user
+
+class IsStaffUser(permissions.BasePermission):
+    """
+    Custom permission to only allow staff users to access the view.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff
+    
+class IsNotBanned(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            profile = UserProfile.objects.filter(user=request.user).first()
+            if profile and profile.is_currently_banned():
+                return False
+        return True
