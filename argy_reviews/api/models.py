@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 from django.db import models
@@ -31,7 +32,15 @@ from django.contrib.contenttypes.models import ContentType
 #UserProfile model
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    is_banned = models.BooleanField(default=False)
+    banned_until = models.DateTimeField(null=True, blank=True)
+    
+    def is_currently_banned(self):
+        if self.is_banned:
+            return True
+        if self.banned_until and self.banned_until > timezone.now():
+            return True
+        return False
     
     def __str__(self):
         return self.user.username

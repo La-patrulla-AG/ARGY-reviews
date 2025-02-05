@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8000
 
 # Comando para ejecutar el servidor de desarrollo de Django
-CMD ["sh", "-c", "python argy_reviews/manage.py migrate && python argy_reviews/manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python argy_reviews/manage.py makemigrations && python argy_reviews/manage.py migrate && python argy_reviews/manage.py runserver 0.0.0.0:8000"]
