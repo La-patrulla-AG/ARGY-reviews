@@ -1,8 +1,10 @@
 venv/
 node_modules/
-argy_reviews/api/__pycache__/
-images/
-argy_reviews/argy_reviews/__pycache__/
-argy_reviews/frontend/__pycache__/
+argy_reviews/api/pycache/
+argy_reviews/api/migrations/pycache/
+argy_reviews/argy_reviews/pycache/
+argy_reviews/frontend/pycache/
+argy_reviews/frontend/migrations/pycache/
 db.sqlite3
-frontend/static/frontend/
+argy_reviews/frontend/static/frontend/
+images/

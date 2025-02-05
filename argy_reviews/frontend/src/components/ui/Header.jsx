@@ -5,14 +5,15 @@ import { logout } from "../../api/auth";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { useNavigate } from "react-router-dom";
+import { useMe } from "../hooks/useMe";
 const Header = () => {
   const [view, setView] = useState(null);
-  const token = localStorage.getItem("token");
+  const { me } = useMe();
 
   return (
     <>
       <div className="flex mb-16 justify-between items-center gap-6">
-        <div className="relative flex-1 max-w-2xl">
+        <div className="relative flex-1 max-w-4xl">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             size={20}
@@ -24,7 +25,7 @@ const Header = () => {
           />
         </div>
         <div className="flex-shrink-0">
-          {!token ? (
+          {!me ? (
             <div>
               <button
                 className="mr-3 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -42,7 +43,7 @@ const Header = () => {
           ) : (
             <div>
               <button
-                className="mr-2 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
                 onClick={() =>
                   logout().then(() => (window.location.href = "/"))
                 }

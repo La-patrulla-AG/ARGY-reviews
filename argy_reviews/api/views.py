@@ -517,11 +517,12 @@ def valorations_count(request, post_pk, review_pk):
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
+            user= request.user
             
             data = request.data.copy()
             data['review'] = review_pk
             
-            serializer = ValorationSerializer(data=data, context={'request': request})
+            serializer = ValorationSerializer(data=data, context={'request': request,"user":user})
             if serializer.is_valid():
                 serializer.save()
                 return Response({'message': 'Valoration created successfully'}, status=status.HTTP_201_CREATED)
