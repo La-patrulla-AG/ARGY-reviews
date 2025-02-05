@@ -87,7 +87,26 @@ const ProductDetails = ({ postId }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
       <div className="flex">
-        <ImageSwiper images={images}></ImageSwiper>
+        {images.length > 0 ? (
+          <ImageSwiper images={images} />
+        ) : (
+          <div className="flex items-center justify-center w-1/2 bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
+            <svg
+              className="w-16 md:w-32 lg:w-48 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+        )}
         <div className="w-1/2 pl-4">
           <div className="flex justify-between items-start">
             <h2 className="text-2xl font-bold mb-2">{post.title}</h2>

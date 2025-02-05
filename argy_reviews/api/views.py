@@ -247,7 +247,8 @@ def reviews_list(request, post_pk):
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+        # post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk) 
+        post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -553,7 +554,7 @@ def valorations_count(request, post_pk, review_pk):
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
-            
+
             likes_count = Valoration.objects.filter(valoration=True, review=review).count()
             dislikes_count = Valoration.objects.filter(valoration=False, review=review).count()
             data = {
@@ -562,36 +563,47 @@ def valorations_count(request, post_pk, review_pk):
             }
 
             return Response(data)
-        
+
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-    
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
+
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
-            user= request.user
-            
+            user = request.user
+
+            # Verificar si el usuario ya tiene una valoración en esa review
+            existing_valoration = Valoration.objects.filter(user=user, review=review).first()
+
+            if existing_valoration:
+                return Response(
+                    {"error": "El usuario ya ha valorado esta reseña"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Si no existe, permitimos crear una nueva valoración
             data = request.data.copy()
             data['review'] = review_pk
-            
-            serializer = ValorationSerializer(data=data, context={'request': request,"user":user})
+            data['user'] = user.id  # Aseguramos que el usuario autenticado es el dueño
+
+            serializer = ValorationSerializer(data=data, context={'request': request, "user": user})
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Valoration created successfully'}, status=status.HTTP_201_CREATED)
+                return Response({'message': 'Valoración creada exitosamente'}, status=status.HTTP_201_CREATED)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
 
 @api_view(['GET', 'DELETE', 'PUT'])
 @permission_classes([IsAuthenticated])
@@ -627,6 +639,8 @@ def valorations_count_detail(request, post_pk, review_pk, user_pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    except Valoration.DoesNotExist:
+        return Response({ "valoration": null })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

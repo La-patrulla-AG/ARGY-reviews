@@ -31,7 +31,7 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
     
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/', views.valorations_count, name='valorations-count'),
-    path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>', views.valorations_count_detail, name='valorations-count'),
+    path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>/', views.valorations_count_detail, name='valorations-count'),
     
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),

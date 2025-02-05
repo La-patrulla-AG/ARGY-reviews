@@ -1,10 +1,10 @@
 import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
-import Modal from "./ui/Modal"
-import {toast} from "react-toastify"
+import Modal from "./ui/Modal";
+import { toast } from "react-toastify";
 
 const EditPostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,6 +17,20 @@ const EditPostPage = () => {
     content: "",
   });
 
+  const [isModalOpen, setIsModalOpen] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
+
+  const openModal = (mode) => {
+    setActiveModal(mode);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsModalOpen(false);
+  };
+
+  const errorNotified = useRef(false);
 
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
@@ -110,9 +124,12 @@ const EditPostPage = () => {
       await Promise.allSettled([...uploadPromises, ...deletePromises]);
 
       // Confirmación y navegación
-      notify("Post creado exitosamente.", "success", "bottom-right", 1000);
+      notify("Post creado exitosamente.", "success", "bottom-right", 1700);
     } catch (error) {
-      notify("Ocurrió un error inesperado", "error", "bottom-right", 4000);
+      if (!errorNotified.current) {
+        notify("Ha ocurrido un error inesperado", "error");
+        errorNotified.current = true;
+      }
     }
   };
 
@@ -160,7 +177,7 @@ const EditPostPage = () => {
 
   toast.onChange((payload) => {
     if (payload.status === "removed" && payload.type === "success") {
-      navigate("/");
+      navigate("/mis-publicaciones");
     }
   });
 
@@ -250,7 +267,7 @@ const EditPostPage = () => {
         <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
             type="button" // Asegúrate de que este botón no actúe como submit
-            onClick={() => navigate("/mis-publicaciones")}
+            onClick={() => openModal("warning")}
             className="px-4 py-2 rounded-md transition-colors border
         hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
@@ -265,6 +282,18 @@ const EditPostPage = () => {
           </button>
         </div>
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={activeModal}
+        onButtonBClick={() => {
+          navigate("/mis-publicaciones");
+          closeModal;
+        }}
+        message="Perderás todos tus cambios"
+        buttonB="Descartar cambios"
+        buttonA="Seguir editando"
+      />
     </>
   );
 };
