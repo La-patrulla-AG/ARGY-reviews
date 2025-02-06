@@ -11,14 +11,65 @@ const ReviewSection = ({ postId }) => {
   const [hover, setHover] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [updateReviews, setUpdateReviews] = useState(false);
+  const [reviewType, setReviewType] = useState("default");
 
   useEffect(() => {
-    getReviews(postId);
-  }, [postId, updateReviews]);
+    if (reviewType === "default") {
+      getReviews(postId);
+    } else if (reviewType === "newest") {
+      getNewestReviews(postId);
+    } else if (reviewType === "oldest") {
+      getOldestReviews(postId);
+    } else if (reviewType === "best") {
+      getBestReviews(postId);
+    }
+  }, [postId, updateReviews, reviewType]);
 
   const getReviews = (postId) => {
     api
       .get(`/posts/${postId}/reviews/`)
+      .then((response) => {
+        setReviews(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+        console.log("Error loading data", err);
+      });
+  };
+
+  const getNewestReviews = (postId) => {
+    api
+      .get(`/posts/${postId}/reviews/newest/`)
+      .then((response) => {
+        setReviews(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+        console.log("Error loading data", err);
+      });
+  };
+
+  const getOldestReviews = (postId) => {
+    api
+      .get(`/posts/${postId}/reviews/oldest/`)
+      .then((response) => {
+        setReviews(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+        console.log("Error loading data", err);
+      });
+  };
+
+  const getBestReviews = (postId) => {
+    api
+      .get(`/posts/${postId}/reviews/best/`)
       .then((response) => {
         setReviews(response.data);
         setLoading(false);
@@ -150,13 +201,22 @@ const ReviewSection = ({ postId }) => {
             {reviews.length === 1 ? "comentario" : "comentarios"}
           </span>
           <div className="space-x-2">
-            <button className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300">
+            <button
+              className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
+              onClick={() => setReviewType("best")}
+            >
               Mejor
             </button>
-            <button className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300">
+            <button
+              className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
+              onClick={() => setReviewType("newest")}
+            >
               Nuevo
             </button>
-            <button className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300">
+            <button
+              className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
+              onClick={() => setReviewType("oldest")}
+            >
               Viejo
             </button>
           </div>
