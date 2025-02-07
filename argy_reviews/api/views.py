@@ -612,7 +612,7 @@ def valorations_count_detail(request, post_pk, review_pk, user_pk):
     Retrieve the count of likes and dislikes for a specific post.
     """
     try:
-        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+        post = Post.objects.get(pk=post_pk)
         review = Review.objects.get(pk=review_pk, post=post)
         valoration = Valoration.objects.get(user=user_pk, review=review)
         
