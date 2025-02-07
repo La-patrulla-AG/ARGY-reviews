@@ -31,9 +31,16 @@ class ImageSerializer(serializers.ModelSerializer):
         model = PostImage
         fields = ['id','image','post']
 
-# UserSerializer
+# UserProfileSerializer
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['is_banned', 'banned_until']
+
+
+# SensibleUserSerializer
 # ----------------
-class UserSerializer(serializers.ModelSerializer):
+class SensibleUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
     token = serializers.SerializerMethodField()
     date_joined = serializers.ReadOnlyField()
@@ -46,7 +53,8 @@ class UserSerializer(serializers.ModelSerializer):
             'email', 
             'password',  # Incluir el campo aquí
             'token', 
-            'date_joined'
+            'date_joined',
+            'is_superuser'
         ]
         extra_kwargs = {'password': {'write_only': True}}
         
@@ -69,6 +77,11 @@ class UserSerializer(serializers.ModelSerializer):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'is_superuser']
+
 
 # UserProfilePicture Serializer
 # ------------------------------
@@ -76,7 +89,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'posts']
+        fields = ['id', 'username', 'posts', 'is_banned', 'banned_until']
     
     def get_posts(self, obj):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')
@@ -85,7 +98,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 # PostSerializer
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
         model = Post
@@ -186,7 +199,7 @@ class ReportSerializer(serializers.ModelSerializer):
             elif isinstance(reported_object, Review):
                 return ReviewSerializer(reported_object).data
             elif isinstance(reported_object, User):
-                return UserSerializer(reported_object).data
+                return SensibleUserSerializer(reported_object).data
             else:
                 return None
         except content_type.DoesNotExist:
@@ -203,12 +216,20 @@ class ValorationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['user'] = request.user
+        
         if Valoration.objects.filter(review=validated_data['review'], user=validated_data['user']).exists():
             raise serializers.ValidationError('You have already valued this review')
         
         return super().create(validated_data)
     
     def update(self, instance, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['user'] = request.user
+            
         if instance.user != validated_data['user']:
             raise serializers.ValidationError('You cannot modify the valoration of another user')
         

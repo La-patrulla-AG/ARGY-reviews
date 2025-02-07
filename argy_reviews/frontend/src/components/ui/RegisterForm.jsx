@@ -3,36 +3,77 @@ import React, { useState } from "react";
 import "../../../static/css/homePage.css";
 import api from "../../api/api";
 import { login } from "../../api/auth";
+import { toast } from "react-toastify";
 
 const RegisterForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
-  const [error, setError] = useState(null);
+
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
-    email:"",
+    email: "",
     username: "",
     password: "",
+    confirmPassword: "",
   });
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (Object.values(formData).some((item) => !item)) {
+      setError("Rellene todos los campos");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError("Ingrese un correo electrónico válido");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    if (!/[!@#$%?¿¡\^&*()<>,."]/.test(formData.password)) {
+      setError("La contraseña debe contener al menos un carácter especial");
+      return;
+    }
+    if (!/[A-Z]/.test(formData.password)) {
+      setError("La contraseña debe contener al menos una letra mayúscula");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    setError("");
 
     try {
       await api.post("/register/", formData);
 
       // Redirigir a la página de login
-      login(formData).then(onClose);
-    } catch (error) {
-      console.error("Error:", error);
-      setError("Registration failed.");
+      login(formData).then(() => {
+        notify("Registro de usuario exitoso", "success");
+        onClose();
+      });
+    } catch {
+      setError("Error al registrar");
     }
+  };
+
+  const notify = (message, type = "success", position = "bottom-right") => {
+    toast[type](message, {
+      position: position,
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-96 relative">
         <h2 className="text-2xl font-bold mb-6 text-center">REGISTRARSE</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <input
             type="email"
             value={formData.email}
@@ -72,6 +113,10 @@ const RegisterForm = ({ onClose }) => {
           <div className="relative">
             <input
               type={mostrarContrasena ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
               placeholder="Confirmar Contraseña"
               className="w-full p-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-200"
             />
@@ -83,6 +128,11 @@ const RegisterForm = ({ onClose }) => {
               {mostrarContrasena ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
+          {error && (
+            <p className="text-red-500 font-medium text-sm text-center">
+              {error}
+            </p>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"

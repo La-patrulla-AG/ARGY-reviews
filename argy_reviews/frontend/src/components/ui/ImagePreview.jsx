@@ -44,7 +44,7 @@ const ImagePreview = ({ image, onDelete, index }) => {
         {/* Delete Button */}
         <button
           type="button"
-          onClick={() => onDelete(image, index)}
+          onClick={() => onDelete(index)}
           className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-75 transition-opacity duration-200"
           aria-label="Delete image"
         >

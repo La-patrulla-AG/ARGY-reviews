@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 from django.db import models
@@ -31,7 +32,15 @@ from django.contrib.contenttypes.models import ContentType
 #UserProfile model
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    is_banned = models.BooleanField(default=False)
+    banned_until = models.DateTimeField(null=True, blank=True)
+    
+    def is_currently_banned(self):
+        if self.is_banned:
+            return True
+        if self.banned_until and self.banned_until > timezone.now():
+            return True
+        return False
     
     def __str__(self):
         return self.user.username
@@ -40,6 +49,9 @@ class UserProfile(models.Model):
 # ---------------
 class PostState(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    
+    def __str__(self):
+        return self.name  # Devuelve el nombre del estado
 
 # Post model
 # ----------
@@ -146,14 +158,27 @@ class Report(models.Model):
     content = models.TextField(blank=True, null=True)
     resolved = models.BooleanField(default=False)
     
+    class Meta:
+        unique_together = ('reporter', 'reported_content_type', 'reported_object_id')
+        
     def __str__(self):
         return f"Report by {self.reporter} on {self.reported_object}"  
 
 # ReportCategory model
 # ---------------------
 class ReportCategory(models.Model):
-    name = models.CharField(default="ALGo",max_length=30)
-    description = models.CharField(max_length=200,blank=True, null=True)
+    TYPE_CHOICES = [
+        ('reviews', 'Reviews'),
+        ('posts', 'Posts'),
+        ('users', 'Users'),
+    ]
+
+    name = models.CharField(max_length=50)
+    type_categorie = models.CharField(
+        max_length=20, 
+        choices=TYPE_CHOICES  # Opcional: puedes establecer un valor predeterminado
+    )
+    description = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
 import { useCreatePost } from "./hooks/useCreatePost";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Modal from "./ui/Modal";
 
 const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -13,15 +15,30 @@ const CreatePostPage = () => {
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
+
+  const openModal = (mode) => {
+    setActiveModal(mode);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsModalOpen(false);
+  };
+
+  const errorNotified = useRef(false);
 
   const navigate = useNavigate();
 
-  const { createPost } = useCreatePost()
+  const { createPost } = useCreatePost();
 
   const handleImageUpload = (files) => {
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/")
     );
+
     setFiles((prev) => [...prev, ...files]);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
@@ -65,29 +82,53 @@ const CreatePostPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (Object.values(formData).some((item) => !item)) {
+      setError("Rellene todos los campos");
+      return;
+    }
+
     // Si tienes imágenes, agrégalas a FormData
     try {
       createPost({
         files,
-        ...formData
-      })
+        ...formData,
+      });
 
-      navigate(`/`);
-
-      console.log("Post y sus imágenes creados exitosamente.");
-    } catch (error) {
-      console.error("Error al crear el post o las imágenes:", error);
-      setError("Registration failed.");
+      notify("Post creado exitosamente.", "success", "bottom-right", 1700);
+    } catch {
+      if (!errorNotified.current) {
+        notify("Ha ocurrido un error inesperado", "error");
+        errorNotified.current = true;
+      }
     }
   };
 
+  const notify = (
+    message,
+    type = "success",
+    position = "bottom-right",
+    autoClose = 4000
+  ) => {
+    toast[type](message, {
+      position: position,
+      autoClose: autoClose,
+    });
+  };
+
+  toast.onChange((payload) => {
+    if (payload.status === "removed" && payload.type === "success") {
+      navigate("/mis-publicaciones");
+    }
+  });
+
   return (
-    <div className="container mx-auto px-4 py-0 max-w-8xl">
+    <>
       <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
         Crear Post
       </h1>
 
       <form
+        noValidate
         onSubmit={handleSubmit}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
@@ -121,6 +162,11 @@ const CreatePostPage = () => {
             className="w-full p-2 borde rounded-md h-40 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
             placeholder="Escribe tu descripción aquí..."
           />
+          {error && (
+            <p className="text-red-500 font-medium text-sm text-start">
+              {error}
+            </p>
+          )}
         </div>
 
         <div>
@@ -161,7 +207,9 @@ const CreatePostPage = () => {
         <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              openModal("warning");
+            }}
             className="px-4 py-2 rounded-md transition-colors border
             hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
@@ -175,7 +223,19 @@ const CreatePostPage = () => {
           </button>
         </div>
       </form>
-    </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={activeModal}
+        onButtonBClick={() => {
+          navigate("/mis-publicaciones");
+          closeModal;
+        }}
+        message="Perderás todos tus cambios"
+        buttonB="Descartar cambios"
+        buttonA="Seguir editando"
+      />
+    </>
   );
 };
 

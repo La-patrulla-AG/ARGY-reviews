@@ -4,6 +4,10 @@ Django settings for argy_reviews project.
 
 import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,12 +21,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG=True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'localhost', 
+    'http://localhost:8000',
+    'https://argy-reviews-production.up.railway.app', 
+    'argy-reviews-production.up.railway.app'
+]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'serrafacundo2004@gmail.com'
+EMAIL_HOST_PASSWORD = 'iluf pryp oaxc govm'
 
 # Application definition
 
@@ -65,7 +80,10 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Frontend en React
     "http://localhost:3000", 
+    'https://argy-reviews-production.up.railway.app',
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://argy-reviews-production.up.railway.app']
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -106,6 +124,11 @@ WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+    
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'ArgyReviews',
@@ -122,14 +145,12 @@ DATABASES = {
     #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
     #     'PORT': os.getenv('DATABASE_PORT', '5432'),
     # }
-    
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-    
 }
 
+
+POSTGRES_LOCALLY = False
+if POSTGRES_LOCALLY == True:
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
 
 
 # Password validation
@@ -178,3 +199,6 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'argy_reviews_jwt',
     'JWT_AUTH_REFRESH_COOKIE': 'argy_reviews_jwt_refresh'
 }
+
+LOGIN_URL = 'http://localhost:8000'
+#LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
