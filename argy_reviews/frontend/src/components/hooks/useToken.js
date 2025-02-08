@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 
 export const useToken = () => {
-  const [token, setToken] = useState(() => localStorage.getItem("access_token"));
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
 
   useEffect(() => {
-    const onChange = () => setToken(localStorage.getItem("access_token"));
+    const onChange = () => setToken(localStorage.getItem("token"));
     window.addEventListener("localStorageChange", onChange);
 
     return () => {
