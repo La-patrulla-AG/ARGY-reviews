@@ -4,22 +4,22 @@ const api = axios.create({
   baseURL: "http://localhost:8000",
 });
 
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("access_token");
 if (token) {
-  api.defaults.headers.Authorization = `Token ${token}`;
+  api.defaults.headers.Authorization = `Bearer ${token}`;
 }
 
 export const setNewToken = (token) => {
   token ??= false;
 
-  api.defaults.headers.Authorization = token ? `Token ${token}` : token;
+  api.defaults.headers.Authorization = token ? `Bearer ${token}` : token;
   token
-    ? localStorage.setItem("token", token)
-    : localStorage.removeItem("token");
+    ? localStorage.setItem("access_token", token)
+    : localStorage.removeItem("access_token");
 };
-// 📌 Interceptor de respuestas para manejo global de errores
+
 api.interceptors.response.use(
-  (response) => response, // Si la respuesta es exitosa, la retornamos tal cual
+  (response) => response,
   (error) => {
     if (error.response) {
       const { status } = error.response;
@@ -30,7 +30,7 @@ api.interceptors.response.use(
         console.error("Error 403: Acceso prohibido.");
       } else if (status === 404) {
         console.warn("Error 404: Recurso no encontrado.");
-        return Promise.resolve({ data: [] }); // Evita devolver `undefined` en `404`
+        return Promise.resolve({ data: [] });
       } else {
         console.error(`Error ${status}: ${error.message}`);
       }
