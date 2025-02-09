@@ -2,15 +2,19 @@ import { Bold, Code, Italic, Star, Underline } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import api from "../../api/api";
 import Review from "./Review";
+import { useReviewPost } from "../hooks/useReviewPost";
 
-const ReviewSection = ({ postId }) => {
+const ReviewSection = ({ postId, updatePost }) => {
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
-  const [reviewText, setReviewText] = useState("");
   const [updateReviews, setUpdateReviews] = useState(false);
+  const { reviewPost } = useReviewPost();
+
+  const [formData, setFormData] = useState({
+    rating: "",
+    comment: "",
+  });
 
   useEffect(() => {
     getReviews(postId);
@@ -21,30 +25,26 @@ const ReviewSection = ({ postId }) => {
       .get(`/posts/${postId}/reviews/`)
       .then((response) => {
         setReviews(response.data);
-        setLoading(false);
       })
       .catch((err) => {
         setError(err);
-        setLoading(false);
         console.log("Error loading data", err);
       });
   };
 
   const handleSubmit = async () => {
-    if (rating === 0) {
-      alert("Por favor, selecciona una calificación.");
+    if (formData.rating === "") {
+      setError("Por favor, seleccione una calificación");
       return;
     }
 
     try {
-      const response = await api.post(`/posts/${postId}/reviews/`, {
-        rating,
-        comment: reviewText,
-      });
-      setRating(0);
+      await reviewPost({ postId, formData });
       setHover(0);
-      setReviewText("");
+      setFormData({ rating: "", comment: "" });
+      setError(null);
       setUpdateReviews((prev) => !prev);
+      updatePost();
     } catch (error) {
       console.error("Error al publicar la reseña:", error);
     }
@@ -55,22 +55,22 @@ const ReviewSection = ({ postId }) => {
     const end = document.getSelection().focusOffset;
 
     if (start === end) {
-      setReviewText((prev) => `${prev}${format.start}${format.end}`);
+      setFormData({
+        ...formData,
+        comment: `${formData.comment}${format.start}${format.end}`,
+      });
     } else {
-      const selectedText = reviewText.slice(start, end);
+      const selectedText = formData.comment.slice(start, end);
       const formattedText = `${format.start}${selectedText}${format.end}`;
-      setReviewText(
-        reviewText.slice(0, start) + formattedText + reviewText.slice(end)
-      );
+      setFormData({
+        ...formData,
+        comment:
+          formData.comment.slice(0, start) +
+          formattedText +
+          formData.comment.slice(end),
+      });
     }
   };
-
-  if (loading)
-    return <div className="text-md font-semibold mb-4">Loading reviews...</div>;
-  if (error)
-    return (
-      <div className="text-md font-semibold mb-4">Error loading reviews</div>
-    );
 
   return (
     <>
@@ -85,12 +85,14 @@ const ReviewSection = ({ postId }) => {
                   type="radio"
                   name="rating"
                   value={ratingValue}
-                  onClick={() => setRating(ratingValue)}
+                  onClick={() => {
+                    setFormData({ ...formData, rating: ratingValue });
+                  }}
                   className="hidden"
                 />
                 <Star
                   className={`w-8 h-8 cursor-pointer transition-colors duration-200 ${
-                    ratingValue <= (hover || rating)
+                    ratingValue <= (hover || formData.rating)
                       ? "text-yellow-400"
                       : "text-gray-300 dark:text-gray-400"
                   }`}
@@ -103,12 +105,19 @@ const ReviewSection = ({ postId }) => {
         </div>
         <div className="mb-4">
           <textarea
-            value={reviewText}
-            onChange={(e) => setReviewText(e.target.value)}
+            value={formData.comment}
+            onChange={(e) =>
+              setFormData({ ...formData, comment: e.target.value })
+            }
             className="w-full p-2 border bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-600 rounded-md resize-none"
             rows={4}
             placeholder="Escriba su reseña..."
           ></textarea>
+          {error && (
+            <p className="text-red-500 font-medium text-sm text-start">
+              {error}
+            </p>
+          )}
         </div>
         <div className="flex justify-between items-center mb-4">
           <div className="flex space-x-2">
