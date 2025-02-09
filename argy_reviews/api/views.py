@@ -150,7 +150,11 @@ def get_carousels_data(request):
     posts_with_bayesian_ranking = Post.objects.annotate(
         review_count=Count('review'),
         bayesian_rating=(F('avg_ratings') * F('review_count') + average_of_averages * min_votes) / (F('review_count') + min_votes)
-    ).filter(review_count__gte=min_votes, created_at__gte=one_week_ago).order_by('-bayesian_rating')[:15]
+    ).filter(
+        verification_state=get_post_state_id('verified'),
+        review_count__gte=min_votes, 
+        created_at__gte=one_week_ago
+    ).order_by('-bayesian_rating')[:15]
     
     # Serializa los datos usando PostSerializer
     recent_posts_serialized = PostSerializer(recent_posts, many=True)
@@ -217,11 +221,9 @@ def post_detail(request, post_pk):
         return Response(serializer.data)
 
     elif request.method in ['PUT', 'DELETE']:
-        # Requerires atutentication to update and delete a post
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
-        # Verifies if the user is the owner of the post
         if post.owner != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -317,6 +319,9 @@ def login(request):
     """
     Login a user.
     """
+    #if request.user.is_authenticated:
+        #return Response({"error": "You are already logged in."}, status=status.HTTP_400_BAD_REQUEST)
+    
     username_or_email = request.data.get('username_or_email')
     password = request.data.get('password')
 
@@ -343,6 +348,9 @@ def register(request):
     """
     Register a user.
     """
+    
+    #if request.user.is_authenticated:
+        #return Response({"error": "You are already registered and logged in."}, status=status.#HTTP_400_BAD_REQUEST)
     
     if request.method == 'POST':
         serializer = SensibleUserSerializer(data=request.data)
@@ -391,8 +399,13 @@ def report_list(request):
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(reporter=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save(reporter=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {"message": "Ya has reportado este contenido."},
+                    status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Report-Detail
@@ -553,7 +566,10 @@ def valorations_count(request, post_pk, review_pk):
 
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -670,3 +686,43 @@ def report_category_type_list(request, type_categorie):
         categories = ReportCategory.objects.filter(type_categorie=type_categorie)
         serializer = ReportCategorySerializer(categories, many=True)
         return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_permanently(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User banned permanently'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def ban_user_temporarily(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        days = request.data.get('days', 7)  # Por defecto 7 días
+        profile.is_banned = True
+        profile.banned_until = timezone.now() + timedelta(days=days)
+        profile.save()
+        return Response({'status': f'User banned temporarily for {days} days'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def unban_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.banned_until = None
+        profile.save()
+        return Response({'status': 'User unbanned'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
