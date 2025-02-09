@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('types/', views.content_types, name='type-list'),
@@ -14,8 +15,10 @@ urlpatterns = [
     
     path('categories/', views.category_list, name='category-list'),
     
-    path('login/', views.login, name='login'),
-    path('register/', views.register, name='register'),
+    #path('login/', views.login, name='login'),
+    path('register/', views.CreateUserView.as_view(), name='register'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),

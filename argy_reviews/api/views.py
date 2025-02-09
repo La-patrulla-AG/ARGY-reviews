@@ -18,7 +18,6 @@ from rest_framework.response import Response
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
-  
 
 from .permissions import IsNotBanned, IsStaffUser
 
@@ -190,7 +189,7 @@ def post_list(request):
 
     elif request.method == 'POST':
         if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_401_UNAUTHORIZED,)
         
         permission = IsNotBanned()
         if not permission.has_permission(request, None):
@@ -312,56 +311,56 @@ def review_detail(request, post_pk, review_pk):
 
 # Login
 # -----
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
-def login(request):
-    """
-    Login a user.
-    """
-    #if request.user.is_authenticated:
-        #return Response({"error": "You are already logged in."}, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# @authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
+# def login(request):
+#     """
+#     Login a user.
+#     """
+#     #if request.user.is_authenticated:
+#         #return Response({"error": "You are already logged in."}, status=status.HTTP_400_BAD_REQUEST)
     
-    username_or_email = request.data.get('username_or_email')
-    password = request.data.get('password')
+#     username_or_email = request.data.get('username_or_email')
+#     password = request.data.get('password')
 
-    # Buscar usuario por username o email
-    user = User.objects.filter(username=username_or_email).first() or User.objects.filter(email=username_or_email).first()
+#     # Buscar usuario por username o email
+#     user = User.objects.filter(username=username_or_email).first() or User.objects.filter(email=username_or_email).first()
 
-    if user is None:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+#     if user is None:
+#         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if not user.check_password(password):
-        return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
+#     if not user.check_password(password):
+#         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
 
-    token, created = Token.objects.get_or_create(user=user)
-    serializer = SensibleUserSerializer(instance=user)
+#     token, created = Token.objects.get_or_create(user=user)
+#     serializer = SensibleUserSerializer(instance=user)
 
-    return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
+#     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
 
-# Register
-# --------
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
-def register(request):
-    """
-    Register a user.
-    """
+# # Register
+# # --------
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# @authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
+# def register(request):
+#     """
+#     Register a user.
+#     """
     
-    #if request.user.is_authenticated:
-        #return Response({"error": "You are already registered and logged in."}, status=status.#HTTP_400_BAD_REQUEST)
+#     #if request.user.is_authenticated:
+#         #return Response({"error": "You are already registered and logged in."}, status=status.#HTTP_400_BAD_REQUEST)
     
-    if request.method == 'POST':
-        serializer = SensibleUserSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                user = serializer.save()
-                token, created = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
-            except IntegrityError:
-                return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     if request.method == 'POST':
+#         serializer = SensibleUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             try:
+#                 user = serializer.save()
+#                 token, created = Token.objects.get_or_create(user=user)
+#                 return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
+#             except IntegrityError:
+#                 return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # UserProfile 
 # -----------
@@ -640,7 +639,7 @@ def valorations_count_detail(request, post_pk, review_pk, user_pk):
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Valoration.DoesNotExist:
-        return Response({ "valoration": null })
+        return Response({ "valoration": None })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -774,3 +773,8 @@ def newest_reviews(request, post_pk):
     reviews = Review.objects.filter(post=post).order_by('-created_at')
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
+
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = SensibleUserSerializer
+    permission_classes = [AllowAny]

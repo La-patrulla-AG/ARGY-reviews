@@ -32,30 +32,20 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id','image','post']
 
 # UserProfileSerializer
-class UserProfileSerializer(serializers.ModelSerializer):
+class BanStatus(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['is_banned', 'banned_until']
 
-
 # SensibleUserSerializer
 # ----------------
 class SensibleUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
-    token = serializers.SerializerMethodField()
+    password = serializers.CharField(write_only=True, required=True)
     date_joined = serializers.ReadOnlyField()
     
     class Meta:
         model = User
-        fields = [
-            'id', 
-            'username', 
-            'email', 
-            'password',  # Incluir el campo aquí
-            'token', 
-            'date_joined',
-            'is_superuser'
-        ]
+        fields = ['id', 'username', 'password', 'email', 'date_joined']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
@@ -70,18 +60,13 @@ class SensibleUserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=password  # Pasar la contraseña extraída
         )
-        Token.objects.create(user=user)  # Crear un token asociado al usuario
+        
         return user
-    
-    def get_token(self, obj):
-        token, created = Token.objects.get_or_create(user=obj)
-        return token.key
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'is_superuser']
-
 
 # UserProfilePicture Serializer
 # ------------------------------
@@ -89,7 +74,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'posts', 'is_banned', 'banned_until']
+        fields = ['id', 'username', 'posts']
     
     def get_posts(self, obj):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')
@@ -241,7 +226,7 @@ class PostCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PostCategory
         fields = ['id', 'name']
-        
+       
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType

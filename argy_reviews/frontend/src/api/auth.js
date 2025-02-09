@@ -1,14 +1,19 @@
 import api, { setNewToken } from "./api";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 export const login = ({ username, password }) =>
   api
-    .post("/login/", {
-      username_or_email: username,
+    .post("/token/", {
+      username: username,
       password,
     })
     .then(({ data }) => {
-      setNewToken(data.token);
+      localStorage.setItem(ACCESS_TOKEN, data.access);
+      localStorage.setItem(REFRESH_TOKEN, data.refresh);
       return data;
     });
 
-export const logout = async () => setNewToken(false);
+export const logout = async () => {
+  localStorage.removeItem(ACCESS_TOKEN);
+  localStorage.removeItem(REFRESH_TOKEN);
+}
