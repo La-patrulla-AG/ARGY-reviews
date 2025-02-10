@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
-from django.db.models import Avg, Max, Count, F
+from django.db.models import Avg, Max, Count, F, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -726,3 +726,54 @@ def unban_user(request, user_id):
         return Response({'status': 'User unbanned'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def best_reviews_by_likes(request, post_pk):
+    """
+    List the best reviews for a specific post by likes.
+    """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).annotate(
+        likes_count=Count('valoration', filter=Q(valoration__valoration=True))
+    ).order_by('-likes_count')  # Ordenar en orden descendente
+
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def oldest_reviews(request, post_pk):
+    """
+    List the oldest reviews for a specific post.
+    """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).order_by('created_at')
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def newest_reviews(request, post_pk):
+    """
+    List the newest reviews for a specific post.
+    """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).order_by('-created_at')
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)

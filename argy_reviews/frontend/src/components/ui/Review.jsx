@@ -36,9 +36,9 @@ const Review = ({ review, postId }) => {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
-  const fetchData = async (url, setData, field = null) => {
+  const fetchData = async (url, setData, field = null, urlParam = "") => {
     try {
-      const response = await api.get(url);
+      const response = await api.get(url + urlParam);
 
       // Si 'field' es proporcionado, actualiza solo ese campo del estado
       if (field) {
@@ -55,12 +55,12 @@ const Review = ({ review, postId }) => {
   useEffect(() => {
     fetchData(`/users/${review.owner}/`, setOwner);
     fetchData(
-      `/posts/${postId}/reviews/${review.id}/valorations`,
+      `/posts/${postId}/reviews/${review.id}/valorations/`,
       setValorations
     );
     if (me) {
       fetchData(
-        `/posts/${postId}/reviews/${review.id}/valorations/${me?.id}`,
+        `/posts/${postId}/reviews/${review.id}/valorations/${me?.id}/`,
         (data) => {
           setActive(data.valoration);
         }
