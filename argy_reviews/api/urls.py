@@ -36,6 +36,8 @@ urlpatterns = [
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/', views.valorations_count, name='valorations-count'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>/', views.valorations_count_detail, name='valorations-count'),
     
+    path('posts/search/<str:search_query>/', views.post_list_filtered, name='post-list'),
+
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),
     path('report_categories/', views.report_category_list, name='report-category-list'),

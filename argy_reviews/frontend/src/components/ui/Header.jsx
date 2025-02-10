@@ -6,23 +6,19 @@ import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { useNavigate } from "react-router-dom";
 import { useMe } from "../hooks/useMe";
+import SearchBar from "./SearchBar";
+
 const Header = () => {
   const [view, setView] = useState(null);
   const { me } = useMe();
+  const [searchQuery, setSearchQuery] = useState("");
+  
 
   return (
     <>
       <div className="flex mb-16 justify-between items-center gap-6">
         <div className="relative flex-1 max-w-4xl">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Buscar"
-            className="w-full pl-10 pr-4 py-2 rounded-md border bg-gray-100 border-gray-300 focus:outline-none focus:ring-2  dark:border-gray-700 dark:bg-gray-800 focus:ring-blue-500"
-          />
+          <SearchBar onSearch={setSearchQuery} />
         </div>
         <div className="flex-shrink-0">
           {!me ? (

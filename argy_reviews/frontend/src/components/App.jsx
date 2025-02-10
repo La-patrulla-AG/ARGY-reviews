@@ -6,10 +6,11 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
-import ReglasPage from "./ReglasPage"
-import TermsAndConditionsPage from "./TermsAndConditionsPage"
-import PrivacyPage from "./PrivacyPage"
-import WorkWithUsFormPage from "./WorkWithUsFormPage"
+import ReglasPage from "./ReglasPage";
+import TermsAndConditionsPage from "./TermsAndConditionsPage";
+import PrivacyPage from "./PrivacyPage";
+import WorkWithUsFormPage from "./WorkWithUsFormPage";
+import SearchPage from "./SearchPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,7 +20,6 @@ import {
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
 
 const queryClient = new QueryClient();
 
@@ -37,7 +37,6 @@ const App = () => {
               <Route path="/terminos-condiciones" element={<TermsAndConditionsPage />} />
               <Route path="/privacidad" element={<PrivacyPage />} />
               <Route path="/trabaja-con-nosotros" element={<WorkWithUsFormPage />} />
-
 
               <Route
                 path="/crear-post"

@@ -774,3 +774,16 @@ def newest_reviews(request, post_pk):
     reviews = Review.objects.filter(post=post).order_by('-created_at')
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
+
+
+#Filtro de Busqueda
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def post_list_filtered(request, search_query):
+    """
+    List all posts filtered by title containing the search query.
+    """
+    posts = Post.objects.filter(title__icontains=search_query)
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
