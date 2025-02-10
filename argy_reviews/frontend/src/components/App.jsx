@@ -6,11 +6,8 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
-import ReglasPage from "./ReglasPage";
-import TermsAndConditionsPage from "./TermsAndConditionsPage";
-import PrivacyPage from "./PrivacyPage";
-import WorkWithUsFormPage from "./WorkWithUsFormPage";
-import SearchPage from "./SearchPage";
+
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,6 +17,7 @@ import {
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import NotFound from "./NotFoundPage";
 
 const queryClient = new QueryClient();
 
@@ -63,7 +61,8 @@ const App = () => {
                 }
               />
 
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* Ruta para manejar 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
           <ReactQueryDevtools initialIsOpen={false} />

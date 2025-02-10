@@ -566,10 +566,10 @@ def valorations_count(request, post_pk, review_pk):
 
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
+    
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -640,7 +640,7 @@ def valorations_count_detail(request, post_pk, review_pk, user_pk):
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Valoration.DoesNotExist:
-        return Response({ "valoration": null })
+        return Response({ "valoration": None })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

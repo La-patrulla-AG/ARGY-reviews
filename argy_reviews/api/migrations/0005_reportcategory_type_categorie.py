@@ -51,6 +51,85 @@ def create_report_categories_users(apps, schema_editor):
     for category in categories:
         ReportCategory.objects.get_or_create(name=category, type_categorie='users')
 
+def create_post_categories(apps, schema_editor):
+    PostCategory = apps.get_model('api', 'PostCategory')
+
+    categories = [
+        'Tecnología',
+        'Cine y TV',
+        'Libros',
+        'Música',
+        'Videojuegos',
+        'Restaurantes',
+        'Viajes',
+        'Moda',
+        'Deportes',
+        'Salud y bienestar',
+        'Educación',
+        'Finanzas',
+        'Hogar y jardín',
+        'Mascotas',
+        'Automóviles',
+        'Belleza',
+        'Comida y bebida',
+        'Eventos',
+        'Fotografía',
+        'Arte',
+        'Historia',
+        'Ciencia',
+        'Política',
+        'Religión',
+        'Filosofía',
+        'Idiomas',
+        'Negocios',
+        'Emprendimiento',
+        'Marketing',
+        'Publicidad',
+        'Recetas',
+        'Manualidades',
+        'Decoración',
+        'Joyería',
+        'Ropa y accesorios',
+        'Juguetes',
+        'Coleccionables',
+        'Instrumentos musicales',
+        'Películas',
+        'Series',
+        'Documentales',
+        'Cómics',
+        'Anime',
+        'Manga',
+        'Fotografía',
+        'Pintura',
+        'Escultura',
+        'Arquitectura',
+        'Diseño gráfico',
+        'Diseño web',
+        'Programación',
+        'Desarrollo de aplicaciones',
+        'Desarrollo de videojuegos',
+        'Hardware',
+        'Software',
+        'Sistemas operativos',
+        'Redes',
+        'Ciberseguridad',
+        'Inteligencia artificial',
+        'Big data',
+        'Machine learning',
+        'Deep learning',
+        'Blockchain',
+        'Criptomonedas',
+        'Economía',
+        'Inversiones',
+        'Finanzas personales',
+        'Contabilidad',
+        'Impuestos',
+        'Bolsa',
+    ]
+
+    for category in categories:
+        PostCategory.objects.get_or_create(name=category)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -61,4 +140,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(create_report_categories_reviews),
         migrations.RunPython(create_report_categories_posts),
         migrations.RunPython(create_report_categories_users),
+        migrations.RunPython(create_post_categories),
     ]

@@ -32,7 +32,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id','image','post']
 
 # UserProfileSerializer
-class UserProfileSerializer(serializers.ModelSerializer):
+class BanStatus(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['is_banned', 'banned_until']
@@ -89,7 +89,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'posts', 'is_banned', 'banned_until']
+        fields = ['id', 'username', 'posts']
     
     def get_posts(self, obj):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')

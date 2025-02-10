@@ -68,14 +68,14 @@ const Review = ({ review, postId }) => {
     }
   }, [me, postId, review.id]);
 
-  const openReportModal = (contentType, objectId) => {
-    setReport({
-      reported_content_type: contentType,
-      reported_object_id: objectId,
+  const openReportModal = (reported_content_type, reported_object_id) => {
+    setReport((prev) => ({
+      ...prev,
+      reported_content_type,
+      reported_object_id,
       category: "",
-    });
+    }));
     setShowReportModal(true);
-    console.log(active);
   };
 
   //Obtengo la primera letra para el comentario
