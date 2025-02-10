@@ -6,6 +6,7 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
+import NotFound from "./NotFoundPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -54,7 +55,8 @@ const App = () => {
                 }
               />
 
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* Ruta para manejar 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
           <ReactQueryDevtools initialIsOpen={false} />

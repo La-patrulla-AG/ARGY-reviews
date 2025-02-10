@@ -135,6 +135,10 @@ TEMPLATES = [
     },
 ]
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "frontend", "static"),
+]
+
 WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 
 
