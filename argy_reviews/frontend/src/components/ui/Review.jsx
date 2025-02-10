@@ -1,21 +1,28 @@
 import React, { useEffect, useState, useRef } from "react";
-import { EllipsisVertical, Star } from "lucide-react";
+import { EllipsisVertical, Star , Trash} from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import api from "../../api/api";
 import ReportModal from "./ReportModal";
 import { useMe } from "../hooks/useMe";
+import Modal from "./Modal";
+import { useDeleteReview } from "../hooks/useDeleteReview";
 
-const Review = ({ review, postId }) => {
+
+const Review = ({ review, postId, updatePost, updateReviews }) => {
   const [owner, setOwner] = useState({});
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState("");
+  const [activeModal, setActiveModal] = useState(null);
   const [valorations, setValorations] = useState({
     likes: "",
     dislikes: "",
   });
+
   const [active, setActive] = useState(null);
 
   const { me } = useMe();
+  const { deleteReview } = useDeleteReview();
 
   const stars = Array.from({ length: 5 });
 
@@ -24,6 +31,16 @@ const Review = ({ review, postId }) => {
     reported_object_id: "",
     category: "",
   });
+
+  const openModal = (mode) => {
+    setActiveModal(mode);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setIsModalOpen(false);
+  };
 
   const ReportContentType = {
     REVIEW: 11,
@@ -115,6 +132,19 @@ const Review = ({ review, postId }) => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteReview({ postId, reviewId: review.id });
+      updatePost();
+      updateReviews();
+      console.log("Review deleted successfully");
+      // Aquí puedes agregar lógica adicional, como actualizar la lista de reseñas
+    } catch (error) {
+      console.error("Error deleting review:", error);
+    }
+  };
+  
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside); // Detectar clics fuera
     return () => {
@@ -200,13 +230,20 @@ const Review = ({ review, postId }) => {
           </div>
         </div>
         <div className="relative" ref={menuRef}>
-          {/* Icono de menú */}
-          <button
+          {me.id === review.owner ? (
+            <button
+            className="p-2 bg-red-600 hover:bg-red-700 rounded-md mr-2 shadow-md"
+            onClick={ () => openModal("delete")}
+          >
+            <Trash size={20}></Trash>
+          </button>) : (
+            <button
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
             onClick={() => toggleMenu(review.id)}
           >
             <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          </button>
+          </button>)} 
+          
           {/* Menú desplegable */}
           {openMenuId === review.id && (
             <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-50 w-48">
@@ -239,6 +276,17 @@ const Review = ({ review, postId }) => {
           setReport={setReport}
         />
       )}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        mode={activeModal}
+        onButtonBClick={() => {
+          handleDelete();
+          closeModal;
+        }}
+        message="Quieres eliminar esta reseña? Esta acción es irreversible"
+        buttonB="Sí, deseo eliminarla"
+      />
     </div>
   );
 };
