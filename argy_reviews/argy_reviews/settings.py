@@ -151,7 +151,7 @@ DATABASES = {
 
 POSTGRES_LOCALLY = True
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
 
 
 # Password validation
