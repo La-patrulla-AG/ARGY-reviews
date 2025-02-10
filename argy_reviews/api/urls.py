@@ -29,6 +29,9 @@ urlpatterns = [
     
     path('posts/<int:post_pk>/reviews/', views.reviews_list, name='reviews-list'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
+    path('posts/<int:post_pk>/reviews/best/', views.best_reviews_by_likes, name='comments-list'),
+    path('posts/<int:post_pk>/reviews/oldest/', views.oldest_reviews, name=''),
+    path('posts/<int:post_pk>/reviews/newest/', views.newest_reviews, name=''),
     
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/', views.valorations_count, name='valorations-count'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>/', views.valorations_count_detail, name='valorations-count'),
