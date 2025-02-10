@@ -4,6 +4,8 @@ import TimeSince from "../../utils/TimeSince";
 import api from "../../api/api";
 import ReportModal from "./ReportModal";
 import { useMe } from "../hooks/useMe";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const Review = ({ review, postId }) => {
   const [owner, setOwner] = useState({});
@@ -14,6 +16,7 @@ const Review = ({ review, postId }) => {
     dislikes: "",
   });
   const [active, setActive] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { me } = useMe();
 
@@ -115,6 +118,10 @@ const Review = ({ review, postId }) => {
     }
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside); // Detectar clics fuera
     return () => {
@@ -148,8 +155,31 @@ const Review = ({ review, postId }) => {
               />
             ))}
           </div>
-          <div className="text-gray-700 dark:text-gray-100 line-clamp-2">
-            {review.comment}
+          <div className="text-gray-700 dark:text-gray-100">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({ src, alt }) => (
+                  <img
+                    src={src}
+                    alt={alt}
+                    className="h-52 w-auto rounded-lg"
+                  />
+                ),
+              }}
+            >
+              {isExpanded || review.comment.length <= 100
+                ? review.comment.replace(/\n/g, "  \n")
+                : `${review.comment.slice(0, 100)}...`}
+            </ReactMarkdown>
+            {review.comment.length > 100 && (
+              <button
+                onClick={toggleExpand}
+                className="text-blue-500 hover:underline"
+              >
+                {isExpanded ? "Mostrar menos" : "Mostrar más"}
+              </button>
+            )}
           </div>
           <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400 text-sm">
             <button

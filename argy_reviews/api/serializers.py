@@ -95,10 +95,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')
         return PostSerializer(posts, many=True).data
 
+# CategorySerializer
+# -------------------
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
+
 # PostSerializer
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    categories = PostCategorySerializer(many=True, read_only=True)
     
     class Meta:
         model = Post
@@ -234,13 +242,6 @@ class ValorationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('You cannot modify the valoration of another user')
         
         return super().update(instance, validated_data)
-    
-# CategorySerializer
-# -------------------
-class PostCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostCategory
-        fields = ['id', 'name']
         
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
