@@ -43,31 +43,33 @@ const PostSwiper = ({ posts, isLoading }) => {
   };
 
   useEffect(() => {
-    if (!isLoading && posts.length > 0) {
-      const fetchData = async () => {
-        const imageBatch = posts.map((post) => getFirstImage(post.id));
-        const reviewBatch = posts.map((post) => getReviews(post.id));
+    if (posts) {
+      if (!isLoading && posts.length > 0) {
+        const fetchData = async () => {
+          const imageBatch = posts.map((post) => getFirstImage(post.id));
+          const reviewBatch = posts.map((post) => getReviews(post.id));
 
-        const imageResults = await Promise.all(imageBatch);
-        setImages((prevImages) => {
-          const newImages = {};
-          imageResults.forEach(({ postId, imageUrl }) => {
-            newImages[postId] = imageUrl;
+          const imageResults = await Promise.all(imageBatch);
+          setImages((prevImages) => {
+            const newImages = {};
+            imageResults.forEach(({ postId, imageUrl }) => {
+              newImages[postId] = imageUrl;
+            });
+            return { ...prevImages, ...newImages };
           });
-          return { ...prevImages, ...newImages };
-        });
 
-        const reviewResults = await Promise.all(reviewBatch);
-        setReviews((prevReviews) => {
-          const newReviews = {};
-          reviewResults.forEach(({ postId, reviewLength }) => {
-            newReviews[postId] = reviewLength;
+          const reviewResults = await Promise.all(reviewBatch);
+          setReviews((prevReviews) => {
+            const newReviews = {};
+            reviewResults.forEach(({ postId, reviewLength }) => {
+              newReviews[postId] = reviewLength;
+            });
+            return { ...prevReviews, ...newReviews };
           });
-          return { ...prevReviews, ...newReviews };
-        });
-      };
+        };
 
-      fetchData();
+        fetchData();
+      }
     }
   }, [posts, isLoading]);
 
