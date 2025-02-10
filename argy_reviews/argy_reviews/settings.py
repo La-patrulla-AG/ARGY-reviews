@@ -10,19 +10,10 @@ from datetime import timedelta
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG=True
 
 ALLOWED_HOSTS = [
@@ -66,7 +57,6 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-# settings.py
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 SIMPLE_JWT = {
@@ -84,11 +74,10 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Argy reviews permite al usuario realizar reseñas de productos y servicios.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:3000",  # Frontend en React
+    "http://127.0.0.1:3000", 
     "http://localhost:3000", 
     'https://argy-reviews-production.up.railway.app',
 ]
@@ -102,6 +91,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -132,32 +122,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'argy_reviews.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-    
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'ArgyReviews',
-    #     'USER': 'grupo11',
-    #     'PASSWORD': 'meestanqueseando',
-    #     'HOST': 'colosal.duckdns.org',  # Dirección IP o dominio del servidor
-    #     'PORT': '14998',  # El puerto de PostgreSQL, normalmente es el 5432
-    # }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.getenv('DATABASE_NAME', 'default_db_name'),
-    #     'USER': os.getenv('DATABASE_USER', 'default_user'),
-    #     'PASSWORD': os.getenv('DATABASE_PASSWORD', 'default_password'),
-    #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-    #     'PORT': os.getenv('DATABASE_PORT', '5432'),
-    # }
 }
 
 
@@ -165,9 +134,6 @@ POSTGRES_LOCALLY = False
 if POSTGRES_LOCALLY == True:
     DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -184,10 +150,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -196,16 +158,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/argy_reviews/frontend/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'http://localhost:8000'
-#LOGIN_URL = 'https://argy-reviews-production.up.railway.app'  # Cambia esto por la ruta correcta
