@@ -1,14 +1,21 @@
-FROM python:3.12.2-alpine
+# Dockerfile para Django (backend)
+FROM python:3.12.2-slim
 
-RUN apk update && apk add --no-cache build-base libpq-dev
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y build-essential libpq-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-COPY requirements.txt .
+# Copiar el archivo de requisitos y instalar dependencias de Python
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copiar el resto del código de la aplicación, incluido manage.py
 COPY . .
 
+# Exponer el puerto que usará Django
 EXPOSE 8000
 
-CMD ["sh", "-c", "python argy_reviews/manage.py makemigrations && python argy_reviews/manage.py migrate && python argy_reviews/manage.py collectstatic --noinput && python argy_reviews/manage.py runserver"]
+# Comando para ejecutar el servidor de desarrollo de Django
+CMD ["sh", "-c", "python argy_reviews/manage.py makemigrations && python argy_reviews/manage.py migrate && python argy_reviews/manage.py runserver 0.0.0.0:8000"]

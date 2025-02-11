@@ -1,9 +1,8 @@
 site_name: Documentacion de ARGY Reviews
 
 nav:
-  - Getting started: getting_started.md
-  - Estilos del codigo en python: formatts.md
-  - MkDocs: mkdocs.md
+  - Getting started: index.md
+  - Guia para desarrollo de las interacciones: api.md
 
 theme:
   name: material
@@ -47,4 +46,8 @@ markdown_extensions:
 plugins:
   - search
   - callouts
-
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
