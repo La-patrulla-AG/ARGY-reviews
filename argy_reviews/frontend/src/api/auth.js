@@ -1,4 +1,4 @@
-import api, { setNewToken } from "./api";
+import api from "./api";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
 document.cookie = "sessionid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
