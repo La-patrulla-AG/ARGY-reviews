@@ -56,6 +56,8 @@ const ProductDetails = ({ postId }) => {
     fetchData(`/posts/${postId}/images/`, setImages);
   }, [postId]);
 
+
+
   useEffect(() => {
     fetchData(`/posts/${postId}/`, setPost);
     fetchData(`/posts/${postId}/reviews/`, setReviews);
@@ -150,11 +152,11 @@ const ProductDetails = ({ postId }) => {
               </div>
             </div>
             <div className="flex items-center mb-2">
-              <StarValue value={post.avg_ratings} />
-              <span className="text-lg font-semibold">
+              <StarValue value={post.avg_ratings} size={29} />
+              <span className="text-lg font-semibold mx-2">
                 {post.avg_ratings ? post.avg_ratings.toFixed(1) : "N/A"}
               </span>
-              <span className="text-gray-500 dark:text-gray-300 ml-2">
+              <span className="text-gray-500 dark:text-gray-300">
                 ({reviews.length})
               </span>
             </div>

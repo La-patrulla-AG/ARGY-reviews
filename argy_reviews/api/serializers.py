@@ -106,7 +106,6 @@ class PostCategorySerializer(serializers.ModelSerializer):
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    categories = PostCategorySerializer(many=True, read_only=True)
     
     class Meta:
         model = Post

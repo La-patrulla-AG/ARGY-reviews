@@ -23,7 +23,7 @@
 import React from "react";
 import { Star } from "lucide-react";
 
-const StarValue = ({ value }) => {
+const StarValue = ({ value, size=22 }) => {
   // Ensure value is between 0 and 5
   const clampedValue = Math.max(0, Math.min(5, value));
 
@@ -35,7 +35,7 @@ const StarValue = ({ value }) => {
         return (
           <div key={index} className="relative">
             {/* Background star (gray) */}
-            <Star size={22} className="text-gray-300 dark:text-gray-700" fill="currentColor" />
+            <Star size={size} className="text-gray-300 dark:text-gray-500" strokeWidth={2} />
 
             {/* Foreground star (yellow) with width based on fill percentage */}
             <div
@@ -43,7 +43,8 @@ const StarValue = ({ value }) => {
               style={{ width: `${fillPercentage * 100}%` }}
             >
               <Star
-                size={22}
+                size={size}
+                strokeWidth={2}
                 className="text-yellow-400"
                 fill="currentColor"
               />
