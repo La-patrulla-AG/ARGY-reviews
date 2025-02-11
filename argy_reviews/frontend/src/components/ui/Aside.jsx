@@ -165,7 +165,7 @@ const Aside = () => {
                 </li>
                 <li>
                   <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                  onClick={() => {navigate("/docs")}}>
+                  onClick={() => {navigate("/docs/index.html")}}>
                     Documentación
                   </button>
                 </li>

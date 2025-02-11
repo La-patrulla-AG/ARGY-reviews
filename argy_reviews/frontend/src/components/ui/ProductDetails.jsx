@@ -18,6 +18,7 @@ const ProductDetails = ({ postId }) => {
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const [report, setReport] = useState({
     reported_content_type: "", // Valor inicial para el tipo de contenido
@@ -56,8 +57,6 @@ const ProductDetails = ({ postId }) => {
     fetchData(`/posts/${postId}/images/`, setImages);
   }, [postId]);
 
-
-
   useEffect(() => {
     fetchData(`/posts/${postId}/`, setPost);
     fetchData(`/posts/${postId}/reviews/`, setReviews);
@@ -93,10 +92,6 @@ const ProductDetails = ({ postId }) => {
       document.removeEventListener("mousedown", handleClickOutside); // Limpiar evento
     };
   }, []);
-
-  const handleUpdatePost = () => {
-    setUpdatePost((prev) => !prev);
-  };
 
   return (
     <>
@@ -176,15 +171,19 @@ const ProductDetails = ({ postId }) => {
                 Categorías:
               </p>
               <div className="flex flex-wrap">
-                {["categoria", "categoria", "categoria", "categoria"].map(
-                  (cat, index) => (
+                {post.categories && post.categories.length > 0 ? (
+                  post.categories.map((cat, index) => (
                     <span
-                      key={index}
+                      key={`${cat.id}-${index}`}
                       className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full text-sm mr-2 mb-2"
                     >
-                      {cat}
+                      {cat.name}
                     </span>
-                  )
+                  ))
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-300">
+                    Sin categorías
+                  </span>
                 )}
               </div>
             </div>
@@ -202,7 +201,9 @@ const ProductDetails = ({ postId }) => {
       </div>
       <ReviewSection
         postId={postId}
-        updatePost={handleUpdatePost}
+        updatePost={() => {
+          setUpdatePost(true);
+        }}
       />
     </>
   );

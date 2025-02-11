@@ -91,24 +91,27 @@ class PostCategorySerializer(serializers.ModelSerializer):
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    
+    categories = serializers.PrimaryKeyRelatedField(many=True, queryset=PostCategory.objects.all())
+
     class Meta:
         model = Post
         fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state', 'categories']
-        
+
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = generate_code()
-        
-        # if 'verification_state' not in validated_data:
-        #     validated_data['verification_state'] = PostState.objects.get(name='verified')
-        # else:
-        #     validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
-            
         return super().create(validated_data)
-    
-    def get_url(self, obj):
-        return obj.image.url
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['categories'] = PostCategoryDetailSerializer(instance.categories.all(), many=True).data
+        return representation
+# PostCategoryDetailSerializer
+# -----------------------------
+class PostCategoryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
 
 # PostStateSerializer
 # --------------------
