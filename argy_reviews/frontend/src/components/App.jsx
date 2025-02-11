@@ -7,6 +7,7 @@ import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
 import NotFound from "./NotFoundPage";
+import WorkersPage from "./WorkersPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -43,6 +44,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <MyPostsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trabajadores"
+                element={
+                  <ProtectedRoute>
+                    <WorkersPage />
                   </ProtectedRoute>
                 }
               />

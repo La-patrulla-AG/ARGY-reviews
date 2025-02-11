@@ -88,16 +88,30 @@ const Aside = () => {
                     </button>
                   </li>
                   {me.is_superuser ? (
-                    <li>
-                      <button
-                        className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                        onClick={() => {
-                          window.location.href = "http://localhost:8000/admin/";
-                        }}
-                      >
-                        Panel de administrador
-                      </button>
-                    </li>
+                    <>
+                      <li>
+                        <button
+                          className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                          onClick={() => {
+                            window.location.href = "http://localhost:8000/admin/";
+                          }}
+                        >
+                          Panel de administrador
+                        </button>
+                      </li>
+
+                      <li>
+                        <button
+                          className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                          onClick={() => {
+                            navigate("/trabajadores");
+                          }}
+                        >
+                          Solicitar trabajadores
+                        </button>
+                      </li>
+                    </>
+             
                   ) : (
                     <></>
                   )}
@@ -150,7 +164,8 @@ const Aside = () => {
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                  onClick={() => {navigate("/docs")}}>
                     Documentación
                   </button>
                 </li>

@@ -23,3 +23,7 @@ export const createPost = async ({ files, ...rest }) => {
 export const reviewPost = ({ postId, formData }) => {
   return api.post(`/posts/${postId}/reviews/`, formData);
 };
+
+export const deleteReview = ({postId, reviewId}) => {
+  return api.delete(`/posts/${postId}/reviews/${reviewId}/`);
+}

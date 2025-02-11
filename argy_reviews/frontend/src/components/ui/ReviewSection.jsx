@@ -55,6 +55,10 @@ const ReviewSection = ({ postId, updatePost }) => {
     }
   };
 
+  const handleUpdateReviews = () => {
+    setUpdateReviews((prev) => !prev);
+  };
+
   const applyFormat = (format) => {
     const start = document.getSelection().anchorOffset;
     const end = document.getSelection().focusOffset;
@@ -187,7 +191,7 @@ const ReviewSection = ({ postId, updatePost }) => {
         {reviews.map((review) => (
           <div key={review.id}>
             <div>
-              <Review review={review} postId={postId}></Review>
+              <Review review={review} postId={postId} updatePost={updatePost} updateReviews={handleUpdateReviews}></Review>
             </div>
           </div>
         ))}

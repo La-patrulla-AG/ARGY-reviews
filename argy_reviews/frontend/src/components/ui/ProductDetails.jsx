@@ -94,6 +94,10 @@ const ProductDetails = ({ postId }) => {
     };
   }, []);
 
+  const handleUpdatePost = () => {
+    setUpdatePost((prev) => !prev);
+  };
+
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
@@ -198,9 +202,7 @@ const ProductDetails = ({ postId }) => {
       </div>
       <ReviewSection
         postId={postId}
-        updatePost={() => {
-          setUpdatePost(true);
-        }}
+        updatePost={handleUpdatePost}
       />
     </>
   );
