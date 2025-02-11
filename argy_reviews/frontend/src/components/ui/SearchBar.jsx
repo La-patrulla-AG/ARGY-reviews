@@ -3,20 +3,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchBar({ onSearch }) {
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState(localStorage.getItem("searchQuery") || "");
     const navigate = useNavigate(); // Mueve el hook useNavigate aquí
 
     const handleChange = (e) => {
         const value = e.target.value;
-        console.log("el texto de la barra de búsqueda fue modificado", value);
-        if (value!==""){//
-            setQuery(value);
-            onSearch(value); // Llama a la función para actualizar los resultados
-            navigate("/busqueda");
-        }else{
-            setQuery("");
-            navigate("/"); 
 
+        setQuery(value);
+        localStorage.setItem("searchQuery", value)
+        
+        if (value!==""){//
+           
+            navigate("/buscar");
+        }else{
+
+            navigate("/");
         }
 
     };

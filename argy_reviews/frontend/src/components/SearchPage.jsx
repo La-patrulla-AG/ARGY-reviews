@@ -1,79 +1,89 @@
-// SearchPage.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import PostCard from "./ui/PostCard"; // Importamos el componente PostCard
 
 function SearchPage() {
-    const [posts, setPosts] = useState([]);
-    const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [visiblePosts, setVisiblePosts] = useState(12);
+  const [filter, setFilter] = useState(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const searchQuery = localStorage.getItem("searchQuery");
 
-    useEffect(() => {
-        console.log("searchQuery ha cambiado:", searchQuery);  // Verificar valor de searchQuery
-        if (searchQuery.trim() != "") {  // Asegurarse de que searchQuery no esté vacío
-            console.log("Ejecutando fetch");
-            fetch(`http://localhost:8000/posts/search/${searchQuery}`)
-                .then(response => response.json())
-                .then(data => setPosts(data));
-            console.log("data");
-        }
-    }, [searchQuery]);// Se ejecuta cada vez que searchQuery cambia
+  useEffect(() => {
+    if (searchQuery && searchQuery.trim() !== "") {
+      fetch(`http://localhost:8000/posts/search/${searchQuery}/?limit=12`)
+        .then((response) => response.json())
+        .then((data) => {
+          setPosts(data);
+        })
+        .catch((error) => console.error("Error en fetch:", error));
+    }
+  }, [searchQuery]);
 
-    
-    return (
-    
-        <div className="p-4">
+  const loadMorePosts = () => {
+    setVisiblePosts((prev) => prev + 15);
+  };
 
-            <ul className="mt-4">
-                {posts.map((post) => (
-                              <SwiperSlide
-                              key={post.id}
-                              className="relative group transition-all hover:z-10 cursor-pointer"
-                            >
-                              <div
-                                className="relative group transition-all hover:scale-90 hover:z-10 cursor-pointer"
-                                onClick={() => navigate(`/post/${post.id}`)}
-                              >
-                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 h-full">
-                                  {images[post.id] ? (
-                                    <img
-                                      src={images[post.id]}
-                                      alt={`Imagen de ${post.title}`}
-                                      className="w-full !h-32 object-cover rounded mb-2"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-32 bg-gray-200 dark:bg-gray-700 rounded mb-2 flex items-center justify-center">
-                                      <svg
-                                        className="w-16 md:w-32 lg:w-48 h-12 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                        />
-                                      </svg>
-                                    </div>
-                                  )}
-                                  <h3 className="font-semibold text-sm mb-1 truncate dark:text-white text-black">
-                                    {post.title}
-                                  </h3>
-                                  <div className="flex items-center justify-start">
-                                    <StarValue valoracion={post.avg_ratings} />
-                                    <span className="text-gray-500 dark:text-gray-300 ml-2">
-                                      ({reviews[post.id]})
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </SwiperSlide>
-                            )
-                        )
-                    }
-            </ul>
+  const filteredPosts = filter
+    ? posts.filter((post) => post[filter.toLowerCase()])
+    : posts;
+
+  return (
+    <div className="p-4">
+      {/* Encabezado y filtro */}
+      <div className="flex flex-col items-center mb-4 bg-gray-600 text-white p-4 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-2">Búsqueda:</h2>
+        <div className="relative">
+          <button
+            className="bg-slate-800 text-white px-4 py-2 rounded"
+            onClick={() => setShowFilter(!showFilter)}
+          >
+            Filtrar
+          </button>
+          {showFilter && (
+            <div className="absolute right-0 mt-2 bg-slate-700 shadow-md rounded w-32">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-slate-600"
+                onClick={() => setFilter("Nombre")}
+              >
+                Nombre
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-slate-600"
+                onClick={() => setFilter("Categoría")}
+              >
+                Categoría
+              </button>
+            </div>
+          )}
         </div>
-    );
+      </div>
+
+      {/* Grilla de publicaciones */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {filteredPosts.slice(0, visiblePosts).map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            onClick={() => navigate(`/post/${post.id}`)}
+          />
+        ))}
+      </div>
+
+      {/* Botón para cargar más publicaciones */}
+      {visiblePosts < filteredPosts.length && (
+        <div className="flex justify-center mt-6">
+          <button
+            className="text-grey-500 text-lg flex items-center"
+            onClick={loadMorePosts}
+          >
+            ▼ Cargar más
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default SearchPage;

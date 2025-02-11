@@ -784,6 +784,6 @@ def post_list_filtered(request, search_query):
     """
     List all posts filtered by title containing the search query.
     """
-    posts = Post.objects.filter(title__icontains=search_query)
+    posts = Post.objects.filter(title__icontains=search_query)[:15]#limitado a 15
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
