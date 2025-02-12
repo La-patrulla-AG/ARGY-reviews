@@ -6,6 +6,5 @@ argy_reviews/argy_reviews/__pycache__/
 argy_reviews/frontend/__pycache__/
 argy_reviews/frontend/migrations/__pycache__/
 db.sqlite3
-argy_reviews/frontend/static/frontend/
 images/
 .env
