@@ -7,6 +7,7 @@ import ImageSwiper from "./ImageSwiper";
 import ReportModal from "./ReportModal";
 import { EllipsisVertical } from "lucide-react";
 import ReviewSection from "./ReviewSection";
+import StarValue from "./StarValue";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
@@ -17,6 +18,7 @@ const ProductDetails = ({ postId }) => {
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const [report, setReport] = useState({
     reported_content_type: "", // Valor inicial para el tipo de contenido
@@ -149,20 +151,11 @@ const ProductDetails = ({ postId }) => {
               </div>
             </div>
             <div className="flex items-center mb-2">
-              <div className="flex text-yellow-400 mr-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < post.avg_ratings ? "fill-current" : ""
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-lg font-semibold">
+              <StarValue value={post.avg_ratings} size={29} />
+              <span className="text-lg font-semibold mx-2">
                 {post.avg_ratings ? post.avg_ratings.toFixed(1) : "N/A"}
               </span>
-              <span className="text-gray-500 dark:text-gray-300 ml-2">
+              <span className="text-gray-500 dark:text-gray-300">
                 ({reviews.length})
               </span>
             </div>
@@ -178,15 +171,19 @@ const ProductDetails = ({ postId }) => {
                 Categorías:
               </p>
               <div className="flex flex-wrap">
-                {["categoria", "categoria", "categoria", "categoria"].map(
-                  (cat, index) => (
+                {post.categories && post.categories.length > 0 ? (
+                  post.categories.map((cat, index) => (
                     <span
-                      key={index}
+                      key={`${cat.id}-${index}`}
                       className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full text-sm mr-2 mb-2"
                     >
-                      {cat}
+                      {cat.name}
                     </span>
-                  )
+                  ))
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-300">
+                    Sin categorías
+                  </span>
                 )}
               </div>
             </div>

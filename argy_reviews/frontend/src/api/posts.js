@@ -4,7 +4,8 @@ export const getPosts = () => api.get("/carousels/").then(({ data }) => data);
 
 export const deletePost = (postId) => api.delete(`/posts/${postId}/`);
 
-export const createPost = async ({ files, ...rest }) =>
+export const createPost = async ({ files, ...rest }) => {
+  console.log(rest);
   api.post("/posts/", rest).then(async ({ data }) => {
     if (files?.length)
       await Promise.allSettled(
@@ -15,10 +16,14 @@ export const createPost = async ({ files, ...rest }) =>
           return api.post(`/posts/${data.id}/images/`, imageData);
         })
       );
-
     return data;
   });
+};
 
-export const reviewPost = ({postId, formData}) => {
+export const reviewPost = ({ postId, formData }) => {
   return api.post(`/posts/${postId}/reviews/`, formData);
 };
+
+export const deleteReview = ({postId, reviewId}) => {
+  return api.delete(`/posts/${postId}/reviews/${reviewId}/`);
+}

@@ -10,77 +10,31 @@ const ReviewSection = ({ postId, updatePost }) => {
   const [hover, setHover] = useState(0);
   const [updateReviews, setUpdateReviews] = useState(false);
   const { reviewPost } = useReviewPost();
+  const [reviewFilter, setReviewFilter] = useState("");
 
   const [formData, setFormData] = useState({
     rating: "",
     comment: "",
   });
-  const [reviewType, setReviewType] = useState("default");
 
   useEffect(() => {
-    if (reviewType === "default") {
-      getReviews(postId);
-    } else if (reviewType === "newest") {
-      getNewestReviews(postId);
-    } else if (reviewType === "oldest") {
-      getOldestReviews(postId);
-    } else if (reviewType === "best") {
-      getBestReviews(postId);
+    fetchData(`/posts/${postId}/reviews/`, setReviews, null, reviewFilter);
+  }, [postId, updateReviews, reviewFilter]);
+
+  const fetchData = async (url, setData, field = null, urlParam = "") => {
+    try {
+      const response = await api.get(url + urlParam);
+
+      // Si 'field' es proporcionado, actualiza solo ese campo del estado
+      if (field) {
+        setData((prev) => ({ ...prev, [field]: response.data }));
+      } else {
+        // Si no hay 'field', actualiza el estado directamente con la data
+        setData(response.data);
+      }
+    } catch (error) {
+      console.error(`Error loading data from ${url}:`, error);
     }
-  }, [postId, updateReviews, reviewType]);
-
-  const getReviews = (postId) => {
-    api
-      .get(`/posts/${postId}/reviews/`)
-      .then((response) => {
-        setReviews(response.data);
-      })
-      .catch((err) => {
-        setError(err);
-        console.log("Error loading data", err);
-      });
-  };
-
-  const getNewestReviews = (postId) => {
-    api
-      .get(`/posts/${postId}/reviews/newest/`)
-      .then((response) => {
-        setReviews(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
-  };
-
-  const getOldestReviews = (postId) => {
-    api
-      .get(`/posts/${postId}/reviews/oldest/`)
-      .then((response) => {
-        setReviews(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
-  };
-
-  const getBestReviews = (postId) => {
-    api
-      .get(`/posts/${postId}/reviews/best/`)
-      .then((response) => {
-        setReviews(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-        console.log("Error loading data", err);
-      });
   };
 
   const handleSubmit = async () => {
@@ -99,6 +53,10 @@ const ReviewSection = ({ postId, updatePost }) => {
     } catch (error) {
       console.error("Error al publicar la reseña:", error);
     }
+  };
+
+  const handleUpdateReviews = () => {
+    setUpdateReviews((prev) => !prev);
   };
 
   const applyFormat = (format) => {
@@ -212,19 +170,19 @@ const ReviewSection = ({ postId, updatePost }) => {
           <div className="space-x-2">
             <button
               className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
-              onClick={() => setReviewType("best")}
+              onClick={() => setReviewFilter("best/")}
             >
               Mejor
             </button>
             <button
               className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
-              onClick={() => setReviewType("newest")}
+              onClick={() => setReviewFilter("newest/")}
             >
               Nuevo
             </button>
             <button
               className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
-              onClick={() => setReviewType("oldest")}
+              onClick={() => setReviewFilter("oldest/")}
             >
               Viejo
             </button>
@@ -233,7 +191,7 @@ const ReviewSection = ({ postId, updatePost }) => {
         {reviews.map((review) => (
           <div key={review.id}>
             <div>
-              <Review review={review} postId={postId}></Review>
+              <Review review={review} postId={postId} updatePost={updatePost} updateReviews={handleUpdateReviews}></Review>
             </div>
           </div>
         ))}

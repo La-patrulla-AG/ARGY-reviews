@@ -174,7 +174,7 @@ const PostSwiper = ({ posts, isLoading }) => {
                   {post.title}
                 </h3>
                 <div className="flex items-center justify-start">
-                  <StarValue valoracion={post.avg_ratings} />
+                  <StarValue value={post.avg_ratings} />
                   <span className="text-gray-500 dark:text-gray-300 ml-2">
                     ({reviews[post.id]})
                   </span>

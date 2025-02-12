@@ -37,25 +37,15 @@ class BanStatus(serializers.ModelSerializer):
         model = UserProfile
         fields = ['is_banned', 'banned_until']
 
-
 # SensibleUserSerializer
 # ----------------
 class SensibleUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)  # Declarar explícitamente el campo
-    token = serializers.SerializerMethodField()
+    password = serializers.CharField(write_only=True, required=True)
     date_joined = serializers.ReadOnlyField()
     
     class Meta:
         model = User
-        fields = [
-            'id', 
-            'username', 
-            'email', 
-            'password',  # Incluir el campo aquí
-            'token', 
-            'date_joined',
-            'is_superuser'
-        ]
+        fields = ['id', 'username', 'password', 'email', 'date_joined']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
@@ -70,18 +60,13 @@ class SensibleUserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=password  # Pasar la contraseña extraída
         )
-        Token.objects.create(user=user)  # Crear un token asociado al usuario
+        
         return user
-    
-    def get_token(self, obj):
-        token, created = Token.objects.get_or_create(user=obj)
-        return token.key
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'is_superuser']
-
 
 # UserProfilePicture Serializer
 # ------------------------------
@@ -95,28 +80,38 @@ class UserProfileSerializer(serializers.ModelSerializer):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')
         return PostSerializer(posts, many=True).data
 
+# CategorySerializer
+# -------------------
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
+
 # PostSerializer
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    
+    categories = serializers.PrimaryKeyRelatedField(many=True, queryset=PostCategory.objects.all())
+
     class Meta:
         model = Post
         fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state', 'categories']
-        
+
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = generate_code()
-        
-        # if 'verification_state' not in validated_data:
-        #     validated_data['verification_state'] = PostState.objects.get(name='verified')
-        # else:
-        #     validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
-            
         return super().create(validated_data)
-    
-    def get_url(self, obj):
-        return obj.image.url
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['categories'] = PostCategoryDetailSerializer(instance.categories.all(), many=True).data
+        return representation
+# PostCategoryDetailSerializer
+# -----------------------------
+class PostCategoryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
 
 # PostStateSerializer
 # --------------------
@@ -234,14 +229,6 @@ class ValorationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('You cannot modify the valoration of another user')
         
         return super().update(instance, validated_data)
-    
-# CategorySerializer
-# -------------------
-class PostCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostCategory
-        fields = ['id', 'name']
-        
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType

@@ -5,16 +5,17 @@ import api from "../api/api";
 import ImagePreview from "./ui/ImagePreview";
 import Modal from "./ui/Modal";
 import { toast } from "react-toastify";
+import CategorySelector from "./ui/CategorySelector";
 
 const EditPostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [images, setImages] = useState([]);
   const [imagesToDelete, setImagesToDelete] = useState([]);
-  const [newImages, setNewImages] = useState([]);
   const [imageIndexes, setImageIndexes] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
+    categories: [],
   });
 
   const [isModalOpen, setIsModalOpen] = useState("");
@@ -45,7 +46,6 @@ const EditPostPage = () => {
     setFiles((prev) => [...prev, ...files]);
     const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
     setImages((prev) => [...prev, ...imageUrls]);
-    setNewImages((prev) => [...prev, ...imageUrls]);
   };
 
   const handleFileInput = (e) => {
@@ -55,9 +55,7 @@ const EditPostPage = () => {
   const handleDeleteImage = (urlToDelete, indexToDelete) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToDelete));
     setFiles((prev) => prev.filter((_, index) => index !== indexToDelete));
-    if (urlToDelete.startsWith("blob")) {
-      setNewImages((prev) => prev.filter((img) => img !== urlToDelete));
-    } else {
+    if (!urlToDelete.startsWith("blob")) {
       setImagesToDelete((prev) => [...prev, imageIndexes[indexToDelete]]);
       setImageIndexes((prev) =>
         prev.filter((index) => index !== imageIndexes[indexToDelete])
@@ -102,10 +100,7 @@ const EditPostPage = () => {
     // Si tienes imágenes, agrégalas a FormData
     try {
       // Actualizar el post
-      await api.put(`/posts/${postId}/`, {
-        title: formData.title,
-        content: formData.content,
-      });
+      await api.put(`/posts/${postId}/`, formData);
 
       // Subir las imágenes nuevas
       const uploadPromises = files.map((file) => {
@@ -140,6 +135,7 @@ const EditPostPage = () => {
         setFormData({
           title: response.data.title,
           content: response.data.content,
+          categories: response.data.categories.map((cat) => cat.id),
         });
       })
       .catch(() => {
@@ -209,7 +205,16 @@ const EditPostPage = () => {
             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
           />
         </div>
-
+        <div>
+          <label className="block text-lg font-medium mb-2 dark:text-white text-black">
+            Categoría
+          </label>
+          <CategorySelector
+            selectedCategories={formData.categories}
+            onChange={(categories) => setFormData({ ...formData, categories })}
+            maxCategories={8}
+          />
+        </div>
         <div>
           <label className="block text-lg font-medium mb-2 dark:text-white text-black">
             Descripción
@@ -267,7 +272,10 @@ const EditPostPage = () => {
         <div className="border-t flex justify-end space-x-4 pt-4 border-gray-300 dark:border-gray-500">
           <button
             type="button" // Asegúrate de que este botón no actúe como submit
-            onClick={() => openModal("warning")}
+            onClick={() => {
+              openModal("warning");
+              console.log(formData);
+            }}
             className="px-4 py-2 rounded-md transition-colors border
         hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "
           >
