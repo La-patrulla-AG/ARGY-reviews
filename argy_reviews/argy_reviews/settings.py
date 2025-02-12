@@ -137,9 +137,9 @@ DATABASES = {
 }
 
 
-POSTGRES_LOCALLY = False
+POSTGRES_LOCALLY = True
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
 
 AUTH_PASSWORD_VALIDATORS = [
