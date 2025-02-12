@@ -3,38 +3,28 @@ import { Trash2, AlertCircle, HelpCircle } from "lucide-react";
 
 const modalConfigs = {
   delete: {
-    message: "Do you want to delete this post?",
-    buttonA: "Cancel",
-    buttonB: "Yes, I want to delete",
     icon: Trash2,
     iconClassName: "text-red-600 dark:text-red-400",
     iconContainerClassName: "bg-red-100 dark:bg-red-900",
   },
   warning: {
-    message: "This action cannot be undone. Please proceed with caution.",
-    buttonA: "Got it",
-    buttonB: "Continue anyway",
     icon: AlertCircle,
     iconClassName: "text-amber-600 dark:text-amber-400",
     iconContainerClassName: "bg-amber-100 dark:bg-amber-900",
   },
   help: {
-    message: "Need help? Contact our support team for assistance.",
-    buttonA: "Close",
-    buttonB: "Contact Support",
+    buttonA: "Cerrar",
+    buttonB: "Contactar soporte",
     icon: HelpCircle,
     iconClassName: "text-blue-600 dark:text-blue-400",
     iconContainerClassName: "bg-blue-100 dark:bg-blue-900",
   },
 };
 
-const Modal = ({ isOpen, onClose, mode, onButtonBClick }) => {
+const Modal = ({ isOpen, onClose, mode, onButtonBClick, message, buttonB, buttonA="Cancelar" }) => {
   if (!isOpen || !modalConfigs[mode]) return null;
 
   const {
-    message,
-    buttonA,
-    buttonB,
     icon: Icon = Trash2, // Icon prop con AlertTriangle como valor por defecto
     iconClassName = "text-red-600 dark:text-red-400", // Clases por defecto para el ícono
     iconContainerClassName = "bg-red-100 dark:bg-red-900", // Clases por defecto para el contenedor del ícono
@@ -59,10 +49,10 @@ const Modal = ({ isOpen, onClose, mode, onButtonBClick }) => {
             {/* Message */}
             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
               <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-                Alert
+                Alerta
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-base text-gray-500 dark:text-gray-400">
                   {message}
                 </p>
               </div>

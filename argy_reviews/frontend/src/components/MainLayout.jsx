@@ -22,12 +22,20 @@ const MainLayout = ({ children }) => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-grow">
+      <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <Aside />
-        <main className="flex-1 p-4 transition-all duration-300 ml-16">
-          <Header />
-          {children}
-        </main>
+        {/* Contenedor principal que se ajusta al ancho del sidebar */}
+        <div
+          className="transition-all duration-300 h-full"
+          style={{ marginLeft: "4rem" }}
+        >
+          <main className="min-h-screen p-4">
+            <div className="container mx-auto max-w-[88rem]">
+              <Header />
+              {children}
+            </div>
+          </main>
+        </div>
         <ThemeSelector theme={theme} setTheme={setTheme} />
       </div>
 

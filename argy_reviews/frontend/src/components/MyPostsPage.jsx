@@ -23,7 +23,7 @@ const MyPostsPage = () => {
   const [updatePosts, setUpdatePosts] = useState(false); //Para actualizar los posts que se muestran si elimino un post
   const [postsData, setPostsData] = useState({}); // Objeto para guardar titulos de los posts
 
-  const { me } = useMe()
+  const { me } = useMe();
 
   useEffect(() => {
     api
@@ -63,7 +63,7 @@ const MyPostsPage = () => {
     : postsId;
 
   return (
-    <div className="container mx-auto px-4 py-0 max-w-8xl">
+    <>
       <h1 className="text-4xl font-bold mb-6 dark:text-white text-black">
         Mis publicaciones
       </h1>
@@ -126,7 +126,7 @@ const MyPostsPage = () => {
           </div>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 

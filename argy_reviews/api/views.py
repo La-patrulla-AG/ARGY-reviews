@@ -7,7 +7,7 @@ from django.db.models import Avg, Max, Count, F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics, status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -18,10 +18,16 @@ from rest_framework.response import Response
 from .authentication import CsrfExemptSessionAuthentication
 from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
-from .permissions import IsStaffUser    
 
-from .permissions import IsNotBanned
+from .permissions import IsNotBanned, IsStaffUser
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
 
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
+from django.http import JsonResponse
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -51,6 +57,7 @@ def bayesian_rating(post_rating: float, post_votes: int, global_avg: float, min_
 
 """Views auxiliares"""
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 def content_types(request) -> Response:
     content_types = ContentType.objects.all()
     data = {ct.model: ct.id for ct in content_types}
@@ -59,6 +66,7 @@ def content_types(request) -> Response:
 # PostState-List
 # --------------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 @permission_classes([AllowAny])
 def post_state_list(request):
     """
@@ -71,6 +79,8 @@ def post_state_list(request):
 # UserList 
 # --------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 @permission_classes([IsAdminUser])
 def user_list(request):
      if request.method == 'GET':
@@ -81,6 +91,7 @@ def user_list(request):
 # UserProfile 
 # -----------
 @api_view(['GET','POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     if request.method == 'GET':
@@ -97,6 +108,7 @@ def user_profile(request):
 # User-Detail
 # -----------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def user_detail(request, user_pk):
     """
@@ -114,6 +126,7 @@ def user_detail(request, user_pk):
 # Carousels
 # ---------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def get_carousels_data(request):
     
@@ -125,7 +138,7 @@ def get_carousels_data(request):
     # 2. Mejores del mes (últimos 30 días)
     date_limit = timezone.now() - timedelta(days=30)
     best_posts = Post.objects.filter(
-        verification_state=get_post_state_id('not_verified'),
+        verification_state=get_post_state_id('verified'),
         review__created_at__gte=date_limit
     ).annotate(
         avg_rating=Avg('review__rating')
@@ -141,6 +154,8 @@ def get_carousels_data(request):
 
     # 4. Promedio de los promedios
     average_of_averages = Post.objects.aggregate(average_of_averages=Avg('avg_ratings'))['average_of_averages']
+    if average_of_averages is None:
+        average_of_averages = 0
     
     # 5. Mejores puntuados según el ranking bayesiano
     min_votes = 3  # Número mínimo de votos para considerar un post confiable
@@ -148,7 +163,11 @@ def get_carousels_data(request):
     posts_with_bayesian_ranking = Post.objects.annotate(
         review_count=Count('review'),
         bayesian_rating=(F('avg_ratings') * F('review_count') + average_of_averages * min_votes) / (F('review_count') + min_votes)
-    ).filter(review_count__gte=min_votes, created_at__gte=one_week_ago).order_by('-bayesian_rating')[:15]
+    ).filter(
+        verification_state=get_post_state_id('verified'),
+        review_count__gte=min_votes, 
+        created_at__gte=one_week_ago
+    ).order_by('-bayesian_rating')[:15]
     
     # Serializa los datos usando PostSerializer
     recent_posts_serialized = PostSerializer(recent_posts, many=True)
@@ -171,6 +190,7 @@ def get_carousels_data(request):
 # Post-List
 # ---------
 @api_view(['GET', 'POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def post_list(request):
     """
@@ -184,7 +204,7 @@ def post_list(request):
 
     elif request.method == 'POST':
         if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_401_UNAUTHORIZED,)
         
         permission = IsNotBanned()
         if not permission.has_permission(request, None):
@@ -199,6 +219,7 @@ def post_list(request):
 # Post-Detail   
 # ------------
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def post_detail(request, post_pk):
     """
@@ -215,11 +236,9 @@ def post_detail(request, post_pk):
         return Response(serializer.data)
 
     elif request.method in ['PUT', 'DELETE']:
-        # Requerires atutentication to update and delete a post
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
-        # Verifies if the user is the owner of the post
         if post.owner != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -237,13 +256,15 @@ def post_detail(request, post_pk):
 # Reviews-List
 # ------------
 @api_view(['GET', 'POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 @permission_classes([AllowAny])
 def reviews_list(request, post_pk):
     """
     List all reviews for a specific post or create a new review for that post.
     """
     try:
-        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+        # post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk) 
+        post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -268,6 +289,7 @@ def reviews_list(request, post_pk):
 # Review-Detail
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def review_detail(request, post_pk, review_pk):
     """
@@ -307,54 +329,61 @@ def review_detail(request, post_pk, review_pk):
 
 # Login
 # -----
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
-def login(request):
-    """
-    Login a user.
-    """
-    username_or_email = request.data.get('username_or_email')
-    password = request.data.get('password')
-
-    # Buscar usuario por username o email
-    user = User.objects.filter(username=username_or_email).first() or User.objects.filter(email=username_or_email).first()
-
-    if user is None:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    if not user.check_password(password):
-        return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
-
-    token, created = Token.objects.get_or_create(user=user)
-    serializer = SensibleUserSerializer(instance=user)
-
-    return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
-
-# Register
-# --------
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
-def register(request):
-    """
-    Register a user.
-    """
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# @authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
+# def login(request):
+#     """
+#     Login a user.
+#     """
+#     #if request.user.is_authenticated:
+#         #return Response({"error": "You are already logged in."}, status=status.HTTP_400_BAD_REQUEST)
     
-    if request.method == 'POST':
-        serializer = SensibleUserSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                user = serializer.save()
-                token, created = Token.objects.get_or_create(user=user)
-                return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
-            except IntegrityError:
-                return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     username_or_email = request.data.get('username_or_email')
+#     password = request.data.get('password')
+
+#     # Buscar usuario por username o email
+#     user = User.objects.filter(username=username_or_email).first() or User.objects.filter(email=username_or_email).first()
+
+#     if user is None:
+#         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#     if not user.check_password(password):
+#         return Response({"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST)
+
+#     token, created = Token.objects.get_or_create(user=user)
+#     serializer = SensibleUserSerializer(instance=user)
+
+#     return Response({"user": serializer.data, "token": token.key}, status=status.HTTP_200_OK)
+
+# # Register
+# # --------
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# @authentication_classes([CsrfExemptSessionAuthentication, BasicAuthentication])
+# def register(request):
+#     """
+#     Register a user.
+#     """
+    
+#     #if request.user.is_authenticated:
+#         #return Response({"error": "You are already registered and logged in."}, status=status.#HTTP_400_BAD_REQUEST)
+    
+#     if request.method == 'POST':
+#         serializer = SensibleUserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             try:
+#                 user = serializer.save()
+#                 token, created = Token.objects.get_or_create(user=user)
+#                 return Response({'token': token.key, "user": serializer.data}, status=status.HTTP_201_CREATED)
+#             except IntegrityError:
+#                 return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # UserProfile 
 # -----------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def user_profile(request, user_pk):
     if request.method == 'GET':
@@ -368,6 +397,7 @@ def user_profile(request, user_pk):
 # Report-List
 # -----------
 @api_view(['GET', 'POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAdminUser, IsAuthenticated])
 @permission_classes([IsAuthenticated])
@@ -383,22 +413,24 @@ def report_list(request):
         serializer = ReportSerializer(reports, many=True)
         return Response(serializer.data)
     
-    
     elif request.method == 'POST':
-        
-        
-        
         data = request.data.copy()
         data['reporter'] = request.user.id
         serializer = ReportSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(reporter=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save(reporter=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {"message": "Ya has reportado este contenido."},
+                    status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Report-Detail
 # -------------
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 #@permission_classes([IsAdminUser, IsAuthenticated])
 @permission_classes([IsStaffUser, IsAuthenticated])
 def report_detail(request, report_pk):
@@ -431,6 +463,7 @@ def report_detail(request, report_pk):
 
 # Report-Category-List
 @api_view(['GET', 'POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def report_category_list(request):
     """
@@ -455,6 +488,7 @@ def report_category_list(request):
 # Image-List
 # ------------
 @api_view(['GET','POST','PUT'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def image_upload(request, post_pk):
     """
@@ -500,6 +534,7 @@ def image_upload(request, post_pk):
 # Image-Detail
 # ------------
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def image_detail(request, post_pk, image_pk):
     """
@@ -533,6 +568,7 @@ def image_detail(request, post_pk, image_pk):
 # Valorations-Count
 # -----------------
 @api_view(['GET', 'POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def valorations_count(request, post_pk, review_pk):
     """
@@ -542,7 +578,7 @@ def valorations_count(request, post_pk, review_pk):
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
-            
+
             likes_count = Valoration.objects.filter(valoration=True, review=review).count()
             dislikes_count = Valoration.objects.filter(valoration=False, review=review).count()
             data = {
@@ -551,41 +587,57 @@ def valorations_count(request, post_pk, review_pk):
             }
 
             return Response(data)
-        
+
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-    
+        
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
     elif request.method == 'POST':
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
+
         try:
             post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
             review = Review.objects.get(pk=review_pk, post=post)
-            
+            user = request.user
+
+            # Verificar si el usuario ya tiene una valoración en esa review
+            existing_valoration = Valoration.objects.filter(user=user, review=review).first()
+
+            if existing_valoration:
+                return Response(
+                    {"error": "El usuario ya ha valorado esta reseña"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Si no existe, permitimos crear una nueva valoración
             data = request.data.copy()
             data['review'] = review_pk
-            
-            serializer = ValorationSerializer(data=data, context={'request': request})
+            data['user'] = user.id  # Aseguramos que el usuario autenticado es el dueño
+
+            serializer = ValorationSerializer(data=data, context={'request': request, "user": user})
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Valoration created successfully'}, status=status.HTTP_201_CREATED)
+                return Response({'message': 'Valoración creada exitosamente'}, status=status.HTTP_201_CREATED)
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         except Review.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-
 @api_view(['GET', 'DELETE', 'PUT'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def valorations_count_detail(request, post_pk, review_pk, user_pk):
     """
     Retrieve the count of likes and dislikes for a specific post.
     """
     try:
-        post = Post.objects.filter(verification_state=get_post_state_id('verified')).get(pk=post_pk)
+        post = Post.objects.get(pk=post_pk)
         review = Review.objects.get(pk=review_pk, post=post)
         valoration = Valoration.objects.get(user=user_pk, review=review)
         
@@ -612,8 +664,11 @@ def valorations_count_detail(request, post_pk, review_pk, user_pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    except Valoration.DoesNotExist:
+        return Response({ "valoration": None })
 
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAuthenticated])
 def me(request):
     user = request.user  # Obtenemos el usuario autenticado
@@ -621,11 +676,12 @@ def me(request):
         'id': user.id,
         'username': user.username,
         'email': user.email,
-        'is_superuser': user.is_superuser
+        'is_superuser': user.is_superuser,
     }
     return Response(data)
     
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def category_list(request):
     """
@@ -638,6 +694,7 @@ def category_list(request):
 # ContentTypes
 # ------------
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsStaffUser])
 def content_type_list(request):
     """
@@ -648,6 +705,7 @@ def content_type_list(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([AllowAny])
 def report_category_type_list(request, type_categorie):
     """
@@ -657,8 +715,9 @@ def report_category_type_list(request, type_categorie):
         categories = ReportCategory.objects.filter(type_categorie=type_categorie)
         serializer = ReportCategorySerializer(categories, many=True)
         return Response(serializer.data)
-    
+
 @api_view(['POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAdminUser])
 def ban_user_permanently(request, user_id):
     try:
@@ -672,6 +731,7 @@ def ban_user_permanently(request, user_id):
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAdminUser])
 def ban_user_temporarily(request, user_id):
     try:
@@ -686,6 +746,7 @@ def ban_user_temporarily(request, user_id):
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
 @permission_classes([IsAdminUser])
 def unban_user(request, user_id):
     try:
@@ -698,12 +759,87 @@ def unban_user(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def send_email_confirmation_token(request, user_id):
+   
+@api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
+@permission_classes([AllowAny])
+def best_reviews_by_likes(request, post_pk):
+    """
+    List the best reviews for a specific post by likes.
+    """
     try:
-        user = User.objects.get(id=user_id)
-        user.profile.send_confirmation_email()
-        return Response({'status': 'Email confirmation token sent'}, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).annotate(likes_count=Count('valoration', filter=F('valoration__valoration') == True)).order_by('-likes_count')
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
+@permission_classes([AllowAny])
+def oldest_reviews(request, post_pk):
+    """
+    List the oldest reviews for a specific post.
+    """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).order_by('created_at')
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
+@permission_classes([AllowAny])
+def newest_reviews(request, post_pk):
+    """
+    List the newest reviews for a specific post.
+    """
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(post=post).order_by('-created_at')
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = SensibleUserSerializer
+    permission_classes = [AllowAny]
+    
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+@api_view(['POST'])
+def logout_view(request):
+    logout(request)  # Cierra la sesión
+    response = Response({'status': 'User logged out'}, status=status.HTTP_200_OK)
+
+    # Eliminar la cookie sessionid
+    response.delete_cookie('sessionid')  # Asegura que se borre la cookie de sesión
+
+    return response # Redirige a la página de login
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            refresh_token = response.data.pop('refresh', None)
+            if refresh_token:
+                response.set_cookie(
+                    key='refresh_token',
+                    value=refresh_token,
+                    httponly=True,
+                    secure=True,  # Asegura que la cookie solo se envíe a través de HTTPS
+                    samesite='Strict',  # Previene que la cookie se envíe en solicitudes de origen cruzado
+                    path='/api/token/refresh/'  # La cookie solo se enviará a esta ruta
+                )
+        return response

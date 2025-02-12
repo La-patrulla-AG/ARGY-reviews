@@ -1,12 +1,11 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 from django.db import models
 from django.contrib.auth import get_user_model  # This is the default user model provided by Django
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
-from uuid import uuid4
 
 # TODO 
 # - [x] Create a model for the Report
@@ -32,17 +31,19 @@ from uuid import uuid4
 
 #UserProfile model
 class UserProfile(models.Model):
-    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)
     banned_until = models.DateTimeField(null=True, blank=True)
-    is_email_confirmed = models.BooleanField(default=False)
-
+    
     def is_currently_banned(self):
         if self.is_banned:
             return True
         if self.banned_until and self.banned_until > timezone.now():
             return True
         return False
+    
+    def __str__(self):
+        return self.user.username
 
 # PostState model
 # ---------------
@@ -157,6 +158,9 @@ class Report(models.Model):
     content = models.TextField(blank=True, null=True)
     resolved = models.BooleanField(default=False)
     
+    class Meta:
+        unique_together = ('reporter', 'reported_content_type', 'reported_object_id')
+        
     def __str__(self):
         return f"Report by {self.reporter} on {self.reported_object}"  
 
@@ -179,10 +183,3 @@ class ReportCategory(models.Model):
     def __str__(self):
         return self.name
 
-class EmailConfirmationToken(models.Model):
-    id= models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return f"Email confirmation for {self.user.username}"

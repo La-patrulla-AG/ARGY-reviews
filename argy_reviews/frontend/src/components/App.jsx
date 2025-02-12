@@ -6,6 +6,8 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
+import NotFound from "./NotFoundPage";
+import WorkersPage from "./WorkersPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -32,29 +34,38 @@ const App = () => {
               <Route
                 path="/crear-post"
                 element={
-                  <ProtectedRoute>
+                  
                     <CreatePostPage />
-                  </ProtectedRoute>
+                  
                 }
               />
               <Route
                 path="/mis-publicaciones"
                 element={
-                  <ProtectedRoute>
+                  
                     <MyPostsPage />
-                  </ProtectedRoute>
+                  
+                }
+              />
+              <Route
+                path="/trabajadores"
+                element={
+                  
+                    <WorkersPage />
+                  
                 }
               />
               <Route
                 path="/editar-post/:postId"
                 element={
-                  <ProtectedRoute>
+                  
                     <EditPostPage />
-                  </ProtectedRoute>
+                  
                 }
               />
 
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* Ruta para manejar 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
           <ReactQueryDevtools initialIsOpen={false} />

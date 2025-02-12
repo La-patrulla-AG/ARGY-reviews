@@ -18,3 +18,11 @@ export const createPost = async ({ files, ...rest }) =>
 
     return data;
   });
+
+export const reviewPost = ({postId, formData}) => {
+  return api.post(`/posts/${postId}/reviews/`, formData);
+};
+
+export const deleteReview = ({postId, reviewId}) => {
+  return api.delete(`/posts/${postId}/reviews/${reviewId}/`);
+}

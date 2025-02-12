@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('types/', views.content_types, name='type-list'),
@@ -14,8 +15,11 @@ urlpatterns = [
     
     path('categories/', views.category_list, name='category-list'),
     
-    path('login/', views.login, name='login'),
-    path('register/', views.register, name='register'),
+    #path('login/', views.login, name='login'),
+    path('register/', views.CreateUserView.as_view(), name='register'),
+    path('token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', views.logout_view, name='logout'),
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
@@ -29,9 +33,12 @@ urlpatterns = [
     
     path('posts/<int:post_pk>/reviews/', views.reviews_list, name='reviews-list'),
     path('posts/<int:post_pk>/reviews/<int:review_pk>/', views.review_detail, name='review-detail'),
+    path('posts/<int:post_pk>/reviews/best/', views.best_reviews_by_likes, name='comments-list'),
+    path('posts/<int:post_pk>/reviews/oldest/', views.oldest_reviews, name=''),
+    path('posts/<int:post_pk>/reviews/newest/', views.newest_reviews, name=''),
     
     path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/', views.valorations_count, name='valorations-count'),
-    path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>', views.valorations_count_detail, name='valorations-count'),
+    path('posts/<int:post_pk>/reviews/<int:review_pk>/valorations/<int:user_pk>/', views.valorations_count_detail, name='valorations-count'),
     
     path('reports/', views.report_list, name='report-list'),
     path('reports/<int:report_pk>/', views.report_detail, name='report-detail'),

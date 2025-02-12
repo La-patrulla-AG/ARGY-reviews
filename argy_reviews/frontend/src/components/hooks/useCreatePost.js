@@ -8,7 +8,7 @@ export const useCreatePost = () => {
     mutationKey: ["Create Post"],
     mutationFn: createPostFn,
 
-    onSuccess: () => queryClient.fetchQuery({ queryKey: ["Posts"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["Posts"] }),
   });
 
   return {

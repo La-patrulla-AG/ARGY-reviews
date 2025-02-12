@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import "../../../static/css/homePage.css";
 import api from "../../api/api";
 import { login } from "../../api/auth";
-import { toast, Bounce } from "react-toastify";
+import { toast } from "react-toastify";
 
 const RegisterForm = ({ onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -34,7 +34,7 @@ const RegisterForm = ({ onClose }) => {
       setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
-    if (!/[!@#$%^&*()<>,."]/.test(formData.password)) {
+    if (!/[!@#$%?¿¡\^&*()<>,."]/.test(formData.password)) {
       setError("La contraseña debe contener al menos un carácter especial");
       return;
     }
