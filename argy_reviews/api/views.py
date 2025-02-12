@@ -24,6 +24,10 @@ from django.http import JsonResponse
 from django.middleware.csrf import get_token
 
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
+from django.http import JsonResponse
 
 # TODO
 # - [x] Crear una view para listar todos los reportes
@@ -823,3 +827,19 @@ def logout_view(request):
     response.delete_cookie('sessionid')  # Asegura que se borre la cookie de sesión
 
     return response # Redirige a la página de login
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            refresh_token = response.data.pop('refresh', None)
+            if refresh_token:
+                response.set_cookie(
+                    key='refresh_token',
+                    value=refresh_token,
+                    httponly=True,
+                    secure=True,  # Asegura que la cookie solo se envíe a través de HTTPS
+                    samesite='Strict',  # Previene que la cookie se envíe en solicitudes de origen cruzado
+                    path='/api/token/refresh/'  # La cookie solo se enviará a esta ruta
+                )
+        return response

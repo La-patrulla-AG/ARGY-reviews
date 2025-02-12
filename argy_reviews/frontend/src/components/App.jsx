@@ -34,33 +34,33 @@ const App = () => {
               <Route
                 path="/crear-post"
                 element={
-                  <ProtectedRoute>
+                  
                     <CreatePostPage />
-                  </ProtectedRoute>
+                  
                 }
               />
               <Route
                 path="/mis-publicaciones"
                 element={
-                  <ProtectedRoute>
+                  
                     <MyPostsPage />
-                  </ProtectedRoute>
+                  
                 }
               />
               <Route
                 path="/trabajadores"
                 element={
-                  <ProtectedRoute>
+                  
                     <WorkersPage />
-                  </ProtectedRoute>
+                  
                 }
               />
               <Route
                 path="/editar-post/:postId"
                 element={
-                  <ProtectedRoute>
+                  
                     <EditPostPage />
-                  </ProtectedRoute>
+                  
                 }
               />
 

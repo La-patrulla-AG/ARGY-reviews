@@ -12,6 +12,8 @@
         <link rel="prev" href="..">
       
       
+        <link rel="next" href="../auth/">
+      
       
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
@@ -284,6 +286,26 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auth/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guia de autenticacion de interacciones
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -303,8 +325,9 @@
 <p>Este documento tiene como proposito guiar al desarrollador en la utilizacion del servicio REST que ofrece Argy Reviews. A continuacion se enunciaron los puntos clave para poder realizar correctamente las solicitudes.</p>
 <h1 id="funcionamiento-general-de-la-api">Funcionamiento general de la API</h1>
 <p>El servicio consta de una url base para todos los endpoints de la aplicacion.</p>
-<p>La URL base sera <code>http://localhost:8000</code> en caso de estar utilizando la aplicacion <strong>localmente</strong>. En cambio, si se esta utilizando el servicio desde el dominio web, la URL base sera <code>https://argy-reviews-production.up.railway.app</code></p>
+<p>La URL base sera <code>http://localhost:8000</code> en caso de estar utilizando la aplicacion <strong>localmente</strong>. En cambio, si se esta utilizando el servicio desde el dominio web, la URL base sera <code>https://argy-reviews-production.up.railway.app</code>.</p>
 <p>A continuacion se dara una lista de <strong>enpoints</strong> que se consideran indispensables para poder llevar a cabo las interaciones del proyecto.</p>
+<p>Dependiendo de la ruta y el meotodo al que se quiera hacer la peticion se debera estar o no <a href="../auth/">autenticado</a> </p>
 <p>Cada uno de los puntos viene con una breve explicacion del funcionamiento general de la view, ejemplos en formato <code>json</code> de lo que se espera como <code>request</code> y que se espera como <code>response</code>una descripcion de cada metodo de cabezara HTTPS y la URL que se debera agregar a la URL base. </p>
 <p>Algunas de las views <strong>no seran necesarias</strong> dependiendo de como se haya planteado en primer lugar la interaccion. </p>
 <h2 id="publicaciones">Publicaciones</h2>
