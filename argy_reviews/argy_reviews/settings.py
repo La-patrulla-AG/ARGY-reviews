@@ -12,9 +12,9 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG=True
+DEBUG=False     
 
 if DEBUG:
     SESSION_COOKIE_SECURE = False
@@ -35,8 +35,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'serrafacundo2004@gmail.com'
-EMAIL_HOST_PASSWORD = 'iluf pryp oaxc govm'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Application definition
 
@@ -139,7 +139,7 @@ DATABASES = {
 
 POSTGRES_LOCALLY = False
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
 
 
 AUTH_PASSWORD_VALIDATORS = [

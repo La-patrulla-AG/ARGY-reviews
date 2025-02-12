@@ -2,7 +2,7 @@ import axios from "axios";
 import { ACCESS_TOKEN } from "./constants";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000"
+  baseURL: "https://argy-reviews-production.up.railway.app"
 });
 
 // Interceptor para agregar el token en las solicitudes
