@@ -7,7 +7,7 @@ const WorkersPage = () => {
         // Reemplaza esta URL con la URL correcta para obtener los datos del trabajador
         const fetchWorkerData = async () => {
             try {
-                const response = await axios.get("http://localhost:8001/app/interaccion/");
+                const response = await axios.get("http://localhost:8001/app/trabajador/6/");
                 const workerData = response.data;
                 setCvLink(`http://localhost:8001${workerData.cvlink}`);
             } catch (error) {
