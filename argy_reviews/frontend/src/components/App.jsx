@@ -24,7 +24,6 @@ import {
 } from "react-router-dom";
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import NotFound from "./NotFoundPage";
 
 
 const queryClient = new QueryClient();
