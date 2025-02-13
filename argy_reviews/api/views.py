@@ -239,6 +239,11 @@ def post_detail(request, post_pk):
         return Response(serializer.data)
 
     elif request.method in ['PUT', 'DELETE']:
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -277,6 +282,11 @@ def reviews_list(request, post_pk):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -308,6 +318,10 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -321,6 +335,11 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if review.owner != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         
