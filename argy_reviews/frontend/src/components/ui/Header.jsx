@@ -4,24 +4,21 @@ import "../../../static/css/homePage.css";
 import { logout } from "../../api/auth";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import { useNavigate } from "react-router-dom";
 import { useMe } from "../hooks/useMe";
-import SearchBar from "./SearchBar";
-
+import SearchBar from "./SearchBar"
 const Header = () => {
   const [view, setView] = useState(null);
-  const { me } = useMe();
-  const [searchQuery, setSearchQuery] = useState("");
-  
+  const { user, isLoading} = useMe();
+  const [SearchQuery, setSearchQuery] = useState("");
 
   return (
     <>
       <div className="flex mb-16 justify-between items-center gap-6">
         <div className="relative flex-1 max-w-4xl">
-          <SearchBar onSearch={setSearchQuery} />
+        <SearchBar onSearch={setSearchQuery} />
         </div>
         <div className="flex-shrink-0">
-          {!me ? (
+          {!user?.id ? (
             <div>
               <button
                 className="mr-3 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -41,7 +38,7 @@ const Header = () => {
               <button
                 className="px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
                 onClick={() =>
-                  logout().then(() => (window.location.href = "/"))
+                  logout()
                 }
               >
                 Cerrar Sesión
@@ -51,8 +48,8 @@ const Header = () => {
         </div>
       </div>
 
-      {view === "login" && <LoginForm onClose={() => setView(null)} />}
-      {view === "register" && <RegisterForm onClose={() => setView(null)} />}
+      {view === "login" && <LoginForm onClose={() => setView(null)} isOpen={view} setView={setView}/>}
+      {view === "register" && <RegisterForm onClose={() => setView(null)} isOpen={view} setView={setView} />}
     </>
   );
 };

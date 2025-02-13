@@ -8,7 +8,7 @@ function SearchPage() {
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const searchQuery = localStorage.getItem("searchQuery");
+  const searchQuery = localStorage.getItem("searchQuery") || "";
   const [visiblePosts, setVisiblePosts] = useState(12);
 
   // Obtener categorías del localStorage
@@ -17,31 +17,34 @@ function SearchPage() {
     setCategories(storedCategories);
   }, []);
 
-  // Obtener posts filtrados por título y categorías
+  // Obtener posts filtrados desde el backend cuando cambie searchQuery o selectedCategories
   useEffect(() => {
-    if (searchQuery && searchQuery.trim() !== "") {
-      const categoryIds = selectedCategories.map((category) => category.id);
-      const queryParams = new URLSearchParams();
+    const fetchFilteredPosts = async () => {
+      try {
+        const categoryIds = selectedCategories.map((category) => category.id);
+        const queryParams = new URLSearchParams();
 
-      queryParams.append('title', searchQuery); // Filtro por título
-      if (categoryIds.length > 0) {
-        queryParams.append('categories', categoryIds.join(',')); // Filtro por categorías
+        if (searchQuery.trim() !== "") {
+          queryParams.append("title", searchQuery);
+        }
+        if (categoryIds.length > 0) {
+          queryParams.append("categories", categoryIds.join(","));
+        }
+
+        const response = await fetch(`http://localhost:8000/posts/filter/?${queryParams.toString()}`);
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error en fetch:", error);
       }
+    };
 
-      fetch(`http://localhost:8000/posts/filter/?${queryParams.toString()}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const sortedPosts = data.sort((a, b) => a.title.localeCompare(b.title));
-          setPosts(sortedPosts);
-        })
-        .catch((error) => console.error("Error en fetch:", error));
-    }
+    fetchFilteredPosts();
   }, [searchQuery, selectedCategories]);
 
-  // Manejar el cambio de categorías seleccionadas
-  const handleCategoryChange = (newSelectedCategories) => {
-    // Buscar las categorías completas en el localStorage usando los ids
-    const fullCategories = newSelectedCategories.map((id) =>
+  // Manejar el cambio de categorías seleccionadas y hacer la petición automáticamente
+  const handleCategoryChange = (newSelectedCategoryIds) => {
+    const fullCategories = newSelectedCategoryIds.map((id) =>
       categories.find((category) => category.id === id)
     );
     setSelectedCategories(fullCategories);
