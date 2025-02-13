@@ -1,11 +1,11 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import api from "../../api/api";
-import { Star, User } from "lucide-react";
+import { Star, User, ChevronDown, ChevronUp } from "lucide-react";
 import "../../../static/css/homePage.css";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import ImageSwiper from "./ImageSwiper";
 import ReportModal from "./ReportModal";
-import { EllipsisVertical } from "lucide-react";
+import { FlipVertical as EllipsisVertical } from "lucide-react";
 import ReviewSection from "./ReviewSection";
 import StarValue from "./StarValue";
 import { useMe } from "../hooks/useMe";
@@ -20,11 +20,12 @@ const ProductDetails = ({ postId }) => {
   const [login, setLogin] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { user: me } = useMe();
 
   const [report, setReport] = useState({
-    reported_content_type: "", // Valor inicial para el tipo de contenido
+    reported_content_type: "",
     reported_object_id: "",
     category: "",
   });
@@ -81,18 +82,16 @@ const ProductDetails = ({ postId }) => {
     setShowReportModal(true);
   };
 
-  //manejo el clcik por fuera del menú de reportes
-
   const handleClickOutside = (event) => {
     if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setOpenMenuId(null); // Cerrar el menú si se hace clic fuera
+      setOpenMenuId(null);
     }
   };
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside); // Detectar clics fuera
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside); // Limpiar evento
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -125,7 +124,7 @@ const ProductDetails = ({ postId }) => {
               <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={me?.id ? (me.id === post.owner ? null : () => toggleMenu(postId)): () => setLogin(true)}
+                  onClick={me?.id ? (me.id === post.owner ? null : () => toggleMenu(postId)) : () => setLogin(true)}
                   className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150 ${me?.id ? (me.id === post.owner ? "cursor-not-allowed" : "") : "cursor-not-allowed"}`}
                 >
                   <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -191,6 +190,31 @@ const ProductDetails = ({ postId }) => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Post Content Section */}
+        <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className={`prose dark:prose-invert max-w-none ${!isExpanded ? 'line-clamp-3' : ''}`}>
+            {post.content}
+          </div>
+          {post.content && post.content.length > 200 && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-2 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-1" />
+                  Ver menos
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-1" />
+                  Ver más
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {showReportModal && (
