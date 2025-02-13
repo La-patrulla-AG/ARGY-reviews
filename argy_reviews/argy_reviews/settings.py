@@ -22,6 +22,7 @@ ALLOWED_HOSTS = [
     'localhost', 
     'http://localhost:8000',
     'https://astonishing-enjoyment-production.up.railway.app', 
+    'astonishing-enjoyment-production.up.railway.app',
     'argy-reviews-production.up.railway.app'
 ]
 
