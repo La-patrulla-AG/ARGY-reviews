@@ -169,7 +169,9 @@ const ReviewSection = ({ postId, updatePost }) => {
           </span>
           <div className="space-x-2">
             <button
-              className="text-gray-600 hover:text-blue-500 focus:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300"
+              className={` hover:text-blue-500 transition-colors duration-200 dark:text-gray-300 dark:focus:text-blue-300 ${
+                reviewFilter === "best/" ? "text-blue-500 " : "text-gray-600"
+              }`}
               onClick={() => setReviewFilter("best/")}
             >
               Mejor
@@ -191,7 +193,12 @@ const ReviewSection = ({ postId, updatePost }) => {
         {reviews.map((review) => (
           <div key={review.id}>
             <div>
-              <Review review={review} postId={postId} updatePost={updatePost} updateReviews={handleUpdateReviews}></Review>
+              <Review
+                review={review}
+                postId={postId}
+                updatePost={updatePost}
+                updateReviews={handleUpdateReviews}
+              ></Review>
             </div>
           </div>
         ))}

@@ -24,7 +24,7 @@ const Aside = () => {
       className={`${
         isOpen ? "w-64" : "w-16"
       } fixed top-0 left-0 h-full transition-all duration-200 bg-white dark:bg-gray-800 p-4 z-40 shadow-lg flex flex-col`}
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: "100vh" }}
     >
       {/* Header section */}
       <div className="flex items-center justify-between mb-8">
@@ -93,7 +93,8 @@ const Aside = () => {
                         <button
                           className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
                           onClick={() => {
-                            window.location.href = "http://localhost:8000/admin/";
+                            window.location.href =
+                              "http://localhost:8000/admin/";
                           }}
                         >
                           Panel de administrador
@@ -111,7 +112,6 @@ const Aside = () => {
                         </button>
                       </li>
                     </>
-             
                   ) : (
                     <></>
                   )}
@@ -179,9 +179,17 @@ const Aside = () => {
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                  onClick={() => {navigate("/docs/index.html")}}>
-                    Documentación
+                  <button
+                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                    onClick={() =>
+                      window.open(
+                        "https://la-patrulla-ag.github.io/ARGY-reviews/api/",
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                  >
+                    Documentación API
                   </button>
                 </li>
               </ul>
