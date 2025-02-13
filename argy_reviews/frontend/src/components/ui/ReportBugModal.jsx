@@ -33,7 +33,6 @@ const BugReportModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(token)
     try {
       // Primera petición para crear el ticket
       const ticketResponse = await axios.post(

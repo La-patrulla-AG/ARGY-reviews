@@ -4,6 +4,7 @@ import axios from "axios";
 
 const LogPage = () => {
     const [logs, setLogs] = useState([]);
+    const [updateLogs, setUpdateLogs] = useState(false)
   
     const fetchData = async () => {
       try {
@@ -52,7 +53,7 @@ const LogPage = () => {
   
     useEffect(() => {
       fetchData();
-    }, []);
+    }, [updateLogs]);
   
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -60,7 +61,7 @@ const LogPage = () => {
           <h1 className="text-2xl font-semibold text-gray-900 mb-8 dark:text-gray-100">
             Bug Logs
           </h1>
-          <LogList logs={logs} />
+          <LogList logs={logs} updateLogs={()=>setUpdateLogs(!updateLogs)} />
         </div>
       </div>
     );

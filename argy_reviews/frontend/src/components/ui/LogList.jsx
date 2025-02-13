@@ -10,7 +10,7 @@ import {
 import { useMe } from "../hooks/useMe";
 import axios from "axios";
 
-function LogList({ logs }) {
+function LogList({ logs, updateLogs }) {
   const [expandedLogId, setExpandedLogId] = useState(null);
   const [selectedLog, setSelectedLog] = useState(null);
   const [responses, setResponses] = useState({});
@@ -32,10 +32,9 @@ function LogList({ logs }) {
     setResponses((prev) => ({ ...prev, [logId]: value }));
   };
 
-  const handleSendResponse = (logId, id) => {
-    console.log(responses[0])
+  const handleSendResponse = async (logId, id) => {
     try {
-      axios.post(`http://127.0.0.1:8001/api/ticket-messages/${logId}/responder/`, 
+       await axios.post(`http://127.0.0.1:8001/api/ticket-messages/${logId}/responder/`, 
         {
           respuesta: responses[id]
         },
@@ -43,10 +42,10 @@ function LogList({ logs }) {
           headers: {
             Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
           },
-        }
-    )
-    } catch {
-      console.log("")
+        })
+        updateLogs();
+    } catch (error) {
+      console.log(error)
     }
     console.log(`Respuesta enviada para el ticket ${logId}:`, responses[logId]);
     setResponses((prev) => ({ ...prev, [logId]: "" }));
