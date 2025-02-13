@@ -20,3 +20,4 @@ services:
     ports:
       - "3000:3000"  # Cambia según el puerto que utilice tu aplicación React
     command: npm run dev  # Asegúrate de que este comando inicie tu aplicación React
+  

@@ -128,15 +128,7 @@ const Aside = () => {
               <Star className="mr-2" />
               {isOpen && <span>Reseñas</span>}
             </div>
-            {isOpen && (
-              <ul className="ml-6 mt-2 space-y-2">
-                <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
-                    Búsqueda avanzada
-                  </button>
-                </li>
-              </ul>
-            )}
+
           </li>
           <li>
             <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
@@ -146,22 +138,37 @@ const Aside = () => {
             {isOpen && (
               <ul className="ml-6 mt-2 space-y-2">
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                    onClick={() => {
+                    navigate("/privacidad");
+                  }}
+                  >
                     Privacidad
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                   onClick={() => {
+                    navigate("/reglas");
+                  }}>
                     Reglas del Sitio
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                   onClick={() => {
+                    navigate("/terminos-condiciones");
+                  }}
+                  >
                     Términos y Condiciones
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black">
+                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                    onClick={() => {
+                      navigate("/trabaja-con-nosotros");
+                  }}
+                  >
                     Sé Parte de ArgyReviews
                   </button>
                 </li>
