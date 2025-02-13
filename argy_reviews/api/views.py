@@ -881,3 +881,20 @@ def interaccion(request):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED) 
+
+
+#view filtro busqueda
+
+@api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication])  
+@permission_classes([AllowAny])
+def filtered_posts(request):
+    """
+    List posts filtered by title and ordered alphabetically.
+    """
+    title_filter = request.GET.get('title', '')  # Obtiene el parámetro 'title' de la URL
+    posts = Post.objects.filter(title__icontains=title_filter).order_by('title')  # Filtra y ordena alfabéticamente
+
+    # Serializa los datos
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
