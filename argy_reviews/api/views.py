@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, Valoration, PostCategory, Trabajador, Profesion
-from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, Valoration, PostCategory, Trabajador, Profesion, BanStatus
+from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer, BanStatusSerializer
 
 from .permissions import IsNotBanned, IsStaffUser, OptionalJWTAuthentication
 from django.http import JsonResponse
