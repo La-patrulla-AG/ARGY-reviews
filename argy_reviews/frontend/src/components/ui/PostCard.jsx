@@ -12,7 +12,7 @@ const PostCard = ({ post }) => {
     // Realizamos la petición y actualizamos el estado con la URL de la imagen
     const fetchImage = async () => {
       try {
-        const response = await fetch(`https://argy-reviews-production.up.railway.app/posts/${post.id}/images/`);
+        const response = await fetch(`https://astonishing-enjoyment-production.up.railway.app/posts/${post.id}/images/`);
         if (response.ok) {
           const data = await response.json();
 

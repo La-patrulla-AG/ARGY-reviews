@@ -10,7 +10,7 @@ export function getCookie(name) {
 }
 
 const api = axios.create({
-  baseURL: "https://argy-reviews-production.up.railway.app",
+  baseURL: "https://astonishing-enjoyment-production.up.railway.app",
 });
 
 // Interceptor para agregar el access token a cada petición

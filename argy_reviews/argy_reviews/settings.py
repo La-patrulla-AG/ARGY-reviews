@@ -21,7 +21,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
     'http://localhost:8000',
-    'https://argy-reviews-production.up.railway.app', 
+    'https://astonishing-enjoyment-production.up.railway.app', 
     'argy-reviews-production.up.railway.app'
 ]
 
@@ -83,10 +83,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000", 
     "http://localhost:3000", 
     'https://argy-reviews-production.up.railway.app',
+    'https://astonishing-enjoyment-production.up.railway.app'   
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://argy-reviews-production.up.railway.app',
+    'https://astonishing-enjoyment-production.up.railway.app',
     'http://localhost:3000',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
@@ -171,4 +173,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'https://argy-reviews-production.up.railway.app'
+LOGIN_URL = 'https://astonishing-enjoyment-production.up.railway.app'

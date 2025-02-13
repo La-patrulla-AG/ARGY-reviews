@@ -88,7 +88,7 @@ const LoginForm = ({ onClose , setView, isOpen }) => {
           <button
             className="text-blue-500 hover:underline"
             onClick={() => {
-              window.location.href = "https://argy-reviews-production.up.railway.app/password-reset/";
+              window.location.href = "https://astonishing-enjoyment-production.up.railway.app/password-reset/";
             }}
           >
             ¿Olvidó su contraseña?
