@@ -829,28 +829,19 @@ def logout_view(request):
     return response # Redirige a la página de login
 
 
+
+#view filtro busqueda
+
 @api_view(['GET'])
+@authentication_classes([CsrfExemptSessionAuthentication])  
 @permission_classes([AllowAny])
-def post_list_filtered_by_title_and_category(request):
+def filtered_posts(request):
     """
-    
-    List all posts filtered by title and/or category.
+    List posts filtered by title and ordered alphabetically.
     """
-    title_query = request.GET.get('title', '').strip()
-    categories = request.GET.getlist('categories', [])
+    title_filter = request.GET.get('title', '')  # Obtiene el parámetro 'title' de la URL
+    posts = Post.objects.filter(title__icontains=title_filter).order_by('title')  # Filtra y ordena alfabéticamente
 
-    posts = Post.objects.all()
-
-    # Filtrar por título si se proporciona
-    if title_query:
-        posts = posts.filter(title__icontains=title_query)
-    
-    # Filtrar por categorías si se proporciona
-    if categories:
-        posts = posts.filter(category__id__in=categories)
-
-    # Limitar a 15 posts
-    posts = posts[:15]
-
+    # Serializa los datos
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)

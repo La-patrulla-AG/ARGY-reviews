@@ -9,6 +9,7 @@ export default function SearchBar({ onSearch }) {
         const value = e.target.value;
         setQuery(value);
         localStorage.setItem("searchQuery", value);
+
     };
 
     const handleFocus = () => {

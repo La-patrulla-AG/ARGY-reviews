@@ -1,94 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PostCard from "./ui/PostCard";
-import CategorySelector from "./ui/CategorySelector";
+import PostCard from "./ui/PostCard"; // Importamos el componente PostCard
 
 function SearchPage() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const searchQuery = localStorage.getItem("searchQuery") || "";
   const [visiblePosts, setVisiblePosts] = useState(12);
+  const [filter, setFilter] = useState(null);
+  const searchQuery = localStorage.getItem("searchQuery");
 
-  // Obtener categorías del localStorage
   useEffect(() => {
-    const storedCategories = JSON.parse(localStorage.getItem("postCategories")) || [];
-    setCategories(storedCategories);
-  }, []);
+    if (searchQuery && searchQuery.trim() !== "") {
+      fetch(`localhost:8000/posts/filter/?title=${searchQuery}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setPosts(data);
+        })
+        .catch((error) => console.error("Error en fetch:", error));
+    }
+  }, [searchQuery]);
 
-  // Obtener posts filtrados desde el backend cuando cambie searchQuery o selectedCategories
-  useEffect(() => {
-    const fetchFilteredPosts = async () => {
-      try {
-        const categoryIds = selectedCategories.map((category) => category.id);
-        const queryParams = new URLSearchParams();
-
-        if (searchQuery.trim() !== "") {
-          queryParams.append("title", searchQuery);
-        }
-        if (categoryIds.length > 0) {
-          queryParams.append("categories", categoryIds.join(","));
-        }
-
-        const response = await fetch(`http://localhost:8000/posts/filter/?${queryParams.toString()}`);
-        const data = await response.json();
-        setPosts(data);
-      } catch (error) {
-        console.error("Error en fetch:", error);
-      }
-    };
-
-    fetchFilteredPosts();
-  }, [searchQuery, selectedCategories]);
-
-  // Manejar el cambio de categorías seleccionadas y hacer la petición automáticamente
-  const handleCategoryChange = (newSelectedCategoryIds) => {
-    const fullCategories = newSelectedCategoryIds.map((id) =>
-      categories.find((category) => category.id === id)
-    );
-    setSelectedCategories(fullCategories);
-  };
 
   return (
     <div className="p-4">
       {/* Encabezado y filtro */}
-      <div className="flex justify-between items-center mb-4 bg-gray-600 text-white p-4 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold">Búsqueda:</h2>
-
-        {/* Selector de categorías */}
-        <CategorySelector
-          selectedCategories={selectedCategories.map((category) => category.id)}
-          onChange={handleCategoryChange}
-          showDefaultTags={false}  
-        />
-      </div>
-
-      {/* Etiquetas de categorías seleccionadas */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {selectedCategories.map((category) => (
-          <div
-            key={category.id}
-            className="flex items-center bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white px-3 py-1 rounded-full border border-gray-400 dark:border-gray-500"
+      <div className="flex flex-col items-center mb-4 bg-gray-600 text-white p-4 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-2">Búsqueda:</h2>
+        <div className="relative">
+          <button
+            className="bg-slate-800 text-white px-4 py-2 rounded"
+            onClick={() => setShowFilter(!showFilter)}
           >
-            <span className="text-sm">{category.name}</span>
-            <button
-              className="ml-2 text-xs text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-transform transform hover:scale-110"
-              onClick={() =>
-                setSelectedCategories(
-                  selectedCategories.filter((c) => c.id !== category.id)
-                )
-              }
-            >
-              ✖
-            </button>
-          </div>
-        ))}
+            Filtrar
+          </button>
+          {showFilter && (
+            <div className="absolute right-0 mt-2 bg-slate-700 shadow-md rounded w-32">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-slate-600"
+                onClick={() => setFilter("Nombre")}
+              >
+                Nombre
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-slate-600"
+                onClick={() => setFilter("Categoría")}
+              >
+                Categoría
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Grilla de publicaciones */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {posts.slice(0, visiblePosts).map((post) => (
+        {filteredPosts.slice(0, visiblePosts).map((post) => (
           <PostCard
             key={post.id}
             post={post}
@@ -98,11 +64,11 @@ function SearchPage() {
       </div>
 
       {/* Botón para cargar más publicaciones */}
-      {visiblePosts < posts.length && (
+      {visiblePosts < filteredPosts.length && (
         <div className="flex justify-center mt-6">
           <button
-            className="text-gray-500 dark:text-white text-lg flex items-center"
-            onClick={() => setVisiblePosts((prev) => prev + 15)}
+            className="text-grey-500 text-lg flex items-center"
+            onClick={loadMorePosts}
           >
             ▼ Cargar más
           </button>

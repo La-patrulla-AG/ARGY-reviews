@@ -15,7 +15,7 @@ urlpatterns = [
     
     path('categories/', views.category_list, name='category-list'),
 
-    path('posts/filter/', views.post_list_filtered_by_title_and_category, name='post_list_filtered_by_title_and_category'),
+    path('posts/filter/', views.filtered_posts, name='filtered_posts'),
 
     
     #path('login/', views.login, name='login'),
