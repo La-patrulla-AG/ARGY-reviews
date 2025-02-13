@@ -13,10 +13,11 @@ const BugReportModal = ({ isOpen, onClose }) => {
     message: "",
     category: 1,
   });
-  const token = Cookies.get('st')
+  const [token, setToken] = useState(null);
   useEffect(() => {
     if (Cookies.get("st")) {
       setIsAuthenticated(true);
+      setToken(Cookies.get("st"));
       
     }
   }, []);
