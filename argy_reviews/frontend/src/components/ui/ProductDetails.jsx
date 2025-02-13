@@ -8,6 +8,8 @@ import ReportModal from "./ReportModal";
 import { EllipsisVertical } from "lucide-react";
 import ReviewSection from "./ReviewSection";
 import StarValue from "./StarValue";
+import { useMe } from "../hooks/useMe";
+import LoginForm from "./LoginForm";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
@@ -15,10 +17,11 @@ const ProductDetails = ({ postId }) => {
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState({});
   const [updatePost, setUpdatePost] = useState(false);
-
+  const [login, setLogin] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [categories, setCategories] = useState([]);
+
+  const { user: me } = useMe();
 
   const [report, setReport] = useState({
     reported_content_type: "", // Valor inicial para el tipo de contenido
@@ -122,8 +125,8 @@ const ProductDetails = ({ postId }) => {
               <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={() => toggleMenu(postId)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150"
+                  onClick={me?.id ? (me.id === post.owner ? null : () => toggleMenu(postId)): () => setLogin(true)}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150 ${me?.id ? (me.id === post.owner ? "cursor-not-allowed" : "") : "cursor-not-allowed"}`}
                 >
                   <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 </button>
@@ -205,6 +208,7 @@ const ProductDetails = ({ postId }) => {
           setUpdatePost(true);
         }}
       />
+      <LoginForm isOpen={login} onClose={() => setLogin(false)} />
     </>
   );
 };

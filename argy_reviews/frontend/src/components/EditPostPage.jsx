@@ -274,7 +274,6 @@ const EditPostPage = () => {
             type="button" // Asegúrate de que este botón no actúe como submit
             onClick={() => {
               openModal("warning");
-              console.log(formData);
             }}
             className="px-4 py-2 rounded-md transition-colors border
         hover:bg-gray-300 dark:hover:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-white "

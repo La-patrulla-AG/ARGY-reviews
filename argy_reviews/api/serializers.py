@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, BanStatus, Valoration
 
 """Auxiliary functions"""
 def generate_code():
@@ -32,10 +32,10 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id','image','post']
 
 # UserProfileSerializer
-class BanStatus(serializers.ModelSerializer):
+class BanStatusSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
-        fields = ['is_banned', 'banned_until']
+        model = BanStatus
+        fields = ['user','is_banned', 'banned_until']
 
 # SensibleUserSerializer
 # ----------------

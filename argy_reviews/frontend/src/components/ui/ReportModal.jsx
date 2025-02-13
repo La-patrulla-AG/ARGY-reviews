@@ -2,6 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import useReportCategories from "../hooks/useReportCategories";
 import api from "../../api/api";
+import { toast } from "react-toastify";
 
 const ReportModal = ({ isOpen, onClose, report, setReport }) => {
   const { posts, users, reviews } = useReportCategories();
@@ -11,7 +12,7 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
     10: users,
     11: reviews,
   };
-  
+
   const selectedCategories = categoryMap[report.reported_content_type] || [];
 
   const typeMap = {
@@ -19,9 +20,8 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
     10: "usuario",
     11: "comentario",
   };
-  
+
   const reportedType = typeMap[report.reported_content_type] || "desconocido";
-  
 
   const handleSelection = (e) => {
     const selectedCategory = e.target.value;
@@ -35,7 +35,7 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
     e.preventDefault();
     try {
       await api.post("/reports/", report);
-      console.log("Reporte creado!");
+      notify("Reporte enviado exitosamente", "success");
     } catch (error) {
       console.error(error);
     } finally {
@@ -48,6 +48,18 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
     }
   };
 
+  const notify = (
+    message,
+    type = "success",
+    position = "bottom-right",
+    autoClose = 4000
+  ) => {
+    toast[type](message, {
+      position: position,
+      autoClose: autoClose,
+    });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -55,9 +67,7 @@ const ReportModal = ({ isOpen, onClose, report, setReport }) => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-96 max-w-md mx-4">
         <div className="flex justify-between items-center pr-4 pl-4 pt-4 pb-5">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-            {`Denunciar ${
-              reportedType
-            }`}
+            {`Denunciar ${reportedType}`}
           </h2>
 
           <button

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import api from "../api/api.js";
 import { useMe } from "./hooks/useMe.js";
 import MyPost from "./ui/MyPost.jsx";
+import { is } from "date-fns/locale";
 
 const FILTER_OPTIONS = [
   "Todas",
@@ -23,37 +24,38 @@ const MyPostsPage = () => {
   const [updatePosts, setUpdatePosts] = useState(false); //Para actualizar los posts que se muestran si elimino un post
   const [postsData, setPostsData] = useState({}); // Objeto para guardar titulos de los posts
 
-  const { me } = useMe();
+  const { user } = useMe();
 
   useEffect(() => {
     api
-      .get(`/profile/${me?.id}/`)
+      .get(`/profile/${user?.id}/`)
       .then((response) => setPostsId(response.data.posts))
       .catch((err) => console.log("Error loading data", err));
-  }, [me?.id, updatePosts]);
+  }, [user?.id, updatePosts]);
 
   useEffect(() => {
+    if (!!postsId) {
+      const fetchPostsData = async () => {
+        try {
+          const posts = {};
+
+          // Hacer solicitudes para cada postId
+          await Promise.allSettled(
+            postsId.map(async (id) => {
+              const response = await api.get(`/posts/${id}/`);
+              posts[id] = response.data.title; // Guardar el título del post
+            })
+          );
+
+          // Actualizar el estado con los datos obtenidos
+          setPostsData(posts);
+        } catch (error) {
+          console.error("Error fetching post data:", error);
+        }
+      };
+      fetchPostsData();
+    }
     // Función para cargar los titulos de los posts
-    const fetchPostsData = async () => {
-      try {
-        const posts = {};
-
-        // Hacer solicitudes para cada postId
-        await Promise.allSettled(
-          postsId.map(async (id) => {
-            const response = await api.get(`/posts/${id}/`);
-            posts[id] = response.data.title; // Guardar el título del post
-          })
-        );
-
-        // Actualizar el estado con los datos obtenidos
-        setPostsData(posts);
-      } catch (error) {
-        console.error("Error fetching post data:", error);
-      }
-    };
-
-    fetchPostsData();
   }, [postsId]);
 
   const filteredPosts = searchTerm
@@ -113,18 +115,18 @@ const MyPostsPage = () => {
         </div>
 
         <div className="text-sm text-gray-600">
-          {postsId.length} publicaciones
+          {!!postsId ? postsId.length : 0} publicaciones
         </div>
       </div>
 
       <div className="space-y-4">
-        {filteredPosts.map((postId) => (
+        {!!postsId ? filteredPosts.map((postId) => (
           <div key={postId}>
             <div>
               <MyPost postId={postId} setUpdatePosts={setUpdatePosts}></MyPost>
             </div>
           </div>
-        ))}
+        )) :(<div>No hay publicaciones</div>)}
       </div>
     </>
   );

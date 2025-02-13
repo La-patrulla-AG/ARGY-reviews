@@ -5,13 +5,15 @@ import { useState } from "react";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
 
-const LoginForm = ({ onClose }) => {
+const LoginForm = ({ isOpen, onClose }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   const [error, setError] = useState("");
+  
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

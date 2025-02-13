@@ -8,16 +8,19 @@ import {
   Star,
   Twitter,
   Users,
+  Bug,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../static/css/homePage.css";
 import { useMe } from "../hooks/useMe";
+import BugReportModal from "./ReportBugModal";
 
 const Aside = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { me } = useMe();
+  const { user } = useMe();
   const navigate = useNavigate();
+  const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
 
   return (
     <aside
@@ -59,7 +62,7 @@ const Aside = () => {
               {isOpen && <span>Inicio</span>}
             </button>
           </li>
-          {me ? (
+          {user?.id ? (
             <li>
               <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
                 <Users className="mr-2" />
@@ -87,7 +90,7 @@ const Aside = () => {
                       Nueva publicación
                     </button>
                   </li>
-                  {me.is_superuser ? (
+                  {user.is_superuser ? (
                     <>
                       <li>
                         <button
@@ -165,6 +168,14 @@ const Aside = () => {
                 </li>
                 <li>
                   <button
+                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black flex items-center gap-3"
+                    onClick={() => setIsBugReportModalOpen(true)}
+                  >
+                    <span>Reportar un bug</span> <Bug className="w-5 h-5" />
+                  </button>
+                </li>
+                <li>
+                  <button
                     className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
                     onClick={() =>
                       window.open(
@@ -207,6 +218,10 @@ const Aside = () => {
           <Twitter className="w-4 h-4" />
         </button>
       </div>
+      <BugReportModal
+        isOpen={isBugReportModalOpen}
+        onClose={() => setIsBugReportModalOpen(false)}
+      />
     </aside>
   );
 };

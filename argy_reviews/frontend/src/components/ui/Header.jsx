@@ -4,11 +4,10 @@ import "../../../static/css/homePage.css";
 import { logout } from "../../api/auth";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import { useNavigate } from "react-router-dom";
 import { useMe } from "../hooks/useMe";
 const Header = () => {
   const [view, setView] = useState(null);
-  const { me } = useMe();
+  const { user, isLoading} = useMe();
 
   return (
     <>
@@ -25,7 +24,7 @@ const Header = () => {
           />
         </div>
         <div className="flex-shrink-0">
-          {!me ? (
+          {!user?.id ? (
             <div>
               <button
                 className="mr-3 px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -45,7 +44,7 @@ const Header = () => {
               <button
                 className="px-4 py-2 border text-gray-700 bg-white rounded-md  dark:bg-gray-800 border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-white"
                 onClick={() =>
-                  logout().then(() => (window.location.href = "/"))
+                  logout()
                 }
               >
                 Cerrar Sesión
@@ -55,8 +54,8 @@ const Header = () => {
         </div>
       </div>
 
-      {view === "login" && <LoginForm onClose={() => setView(null)} />}
-      {view === "register" && <RegisterForm onClose={() => setView(null)} />}
+      {view === "login" && <LoginForm onClose={() => setView(null)} isOpen={view}/>}
+      {view === "register" && <RegisterForm onClose={() => setView(null)} isOpen={view} />}
     </>
   );
 };

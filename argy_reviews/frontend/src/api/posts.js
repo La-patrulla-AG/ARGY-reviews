@@ -5,7 +5,6 @@ export const getPosts = () => api.get("/carousels/").then(({ data }) => data);
 export const deletePost = (postId) => api.delete(`/posts/${postId}/`);
 
 export const createPost = async ({ files, ...rest }) => {
-  console.log(rest);
   api.post("/posts/", rest).then(async ({ data }) => {
     if (files?.length)
       await Promise.allSettled(
