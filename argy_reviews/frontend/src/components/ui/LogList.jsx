@@ -32,12 +32,12 @@ function LogList({ logs }) {
     setResponses((prev) => ({ ...prev, [logId]: value }));
   };
 
-  const handleSendResponse = (logId) => {
+  const handleSendResponse = (logId, id) => {
     console.log(responses[0])
     try {
       axios.post(`http://127.0.0.1:8001/api/ticket-messages/${logId}/responder/`, 
         {
-          respuesta: responses[0]
+          respuesta: responses[id]
         },
         {
           headers: {
@@ -120,7 +120,7 @@ function LogList({ logs }) {
                       className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                     <button
-                      onClick={() => handleSendResponse(log.responseId)}
+                      onClick={() => handleSendResponse(log.responseId, log.id)}
                       className="mt-2 flex items-center px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                     >
                       <Send className="w-4 h-4 mr-2" /> Enviar respuesta
