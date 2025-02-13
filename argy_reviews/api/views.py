@@ -827,3 +827,30 @@ def logout_view(request):
     response.delete_cookie('sessionid')  # Asegura que se borre la cookie de sesión
 
     return response # Redirige a la página de login
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def post_list_filtered_by_title_and_category(request):
+    """
+    
+    List all posts filtered by title and/or category.
+    """
+    title_query = request.GET.get('title', '').strip()
+    categories = request.GET.getlist('categories', [])
+
+    posts = Post.objects.all()
+
+    # Filtrar por título si se proporciona
+    if title_query:
+        posts = posts.filter(title__icontains=title_query)
+    
+    # Filtrar por categorías si se proporciona
+    if categories:
+        posts = posts.filter(category__id__in=categories)
+
+    # Limitar a 15 posts
+    posts = posts[:15]
+
+    serializer = PostSerializer(posts, many=True)
+    return Response(serializer.data)
