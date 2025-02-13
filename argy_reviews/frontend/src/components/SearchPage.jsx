@@ -22,7 +22,7 @@ function SearchPage() {
   }, [searchQuery]);
 
   useEffect(() => {
-    let url = `http://localhost:8000/posts/filter/`;
+    let url = `https://argy-reviews-production.up.railway.app/posts/filter/`;
     if (searchQuery) {
       url += `?title=${searchQuery}`;
     }

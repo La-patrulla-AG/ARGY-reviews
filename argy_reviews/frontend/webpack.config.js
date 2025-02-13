@@ -1,12 +1,15 @@
 const path = require("path");
 const webpack = require("webpack");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
 
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "./static/frontend"),
+    path: path.resolve(__dirname, "dist"),
     filename: "main.js",
+    publicPath: "/"
   },
   watchOptions: {
     poll: 1000,   // Cada cuánto revisar cambios (en ms)
@@ -29,7 +32,7 @@ module.exports = {
       },
       {
         test: /\.css$/, // Para archivos CSS
-        use: ['style-loader', 'css-loader', 'postcss-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
     ],
   },
@@ -42,6 +45,14 @@ module.exports = {
         // This has effect on the react lib size
         NODE_ENV: JSON.stringify("development"),
       },
+    }),
+    new HtmlWebpackPlugin({
+      template: './templates/frontend/index.html',
+      filename: 'index.html',
+      minify: false,  // Desactiva la minificación // Si tienes un archivo template
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'static/css/[name].css',
     }),
   ],
   devServer: {

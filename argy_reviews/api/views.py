@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, Valoration, PostCategory, Trabajador, Profesion
-from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, Valoration, PostCategory, Trabajador, Profesion, BanStatus
+from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer, BanStatusSerializer
 
 from .permissions import IsNotBanned, IsStaffUser, OptionalJWTAuthentication
 from django.http import JsonResponse
@@ -238,6 +238,11 @@ def post_detail(request, post_pk):
         return Response(serializer.data)
 
     elif request.method in ['PUT', 'DELETE']:
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -276,6 +281,11 @@ def reviews_list(request, post_pk):
         return Response(serializer.data)
     
     elif request.method == 'POST':
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -307,6 +317,10 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
+        permission = IsNotBanned()
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
@@ -320,6 +334,11 @@ def review_detail(request, post_pk, review_pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
+        permission = IsNotBanned()
+        
+        if not permission.has_permission(request, None):
+            return Response({'detail': 'You are banned and cannot perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+        
         if review.owner != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         

@@ -25,7 +25,6 @@ import {
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -59,6 +58,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <MyPostsPage />{" "}
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trabajadores"
+                element={
+                  <ProtectedRoute>
+                    <WorkersPage />
                   </ProtectedRoute>
                 }
               />

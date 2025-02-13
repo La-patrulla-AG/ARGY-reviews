@@ -12,16 +12,10 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG=True
+DEBUG=True     
 
-if DEBUG:
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
-else:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
@@ -35,8 +29,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo: smtp.gmail.com
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'serrafacundo2004@gmail.com'
-EMAIL_HOST_PASSWORD = 'iluf pryp oaxc govm'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Application definition
 
@@ -139,7 +133,7 @@ DATABASES = {
 }
 
 
-POSTGRES_LOCALLY = False
+POSTGRES_LOCALLY = True
 if POSTGRES_LOCALLY == True:
     DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
@@ -167,7 +161,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/argy_reviews/frontend/static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -177,4 +171,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'http://localhost:8000'
+LOGIN_URL = 'https://argy-reviews-production.up.railway.app'

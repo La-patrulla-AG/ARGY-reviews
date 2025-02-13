@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app  # Esto permite que los cambios en el código se reflejen sin necesidad de reconstruir
+      - .:/app
+      - ./frontend/dist:/app/frontend/dist  # Esto permite que los cambios en el código se reflejen sin necesidad de reconstruir
     ports:
       - "8000:8000"
   

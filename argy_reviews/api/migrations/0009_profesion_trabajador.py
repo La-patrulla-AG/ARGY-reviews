@@ -2,7 +2,21 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.conf import settings
 
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('api', '0008_rename_ban_until_userprofile_banned_until_and_more'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.RenameModel(
+            old_name='UserProfile',
+            new_name='BanStatus',
+        ),
+    ]
 
 class Migration(migrations.Migration):
 
