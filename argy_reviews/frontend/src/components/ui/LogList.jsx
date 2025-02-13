@@ -33,14 +33,15 @@ function LogList({ logs }) {
   };
 
   const handleSendResponse = (logId) => {
+    console.log(responses[0])
     try {
       axios.post(`http://127.0.0.1:8001/api/ticket-messages/${logId}/responder/`, 
         {
-          respuesta:"hola"
+          respuesta: responses[0]
         },
         {
           headers: {
-            Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
+            Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
           },
         }
     )
