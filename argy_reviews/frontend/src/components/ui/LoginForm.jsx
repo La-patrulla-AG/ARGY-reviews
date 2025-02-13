@@ -5,7 +5,7 @@ import { useState } from "react";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
 
-const LoginForm = ({ onClose , setView , isOpen}) => {
+const LoginForm = ({ onClose , setView, isOpen }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [formData, setFormData] = useState({
     username: "",

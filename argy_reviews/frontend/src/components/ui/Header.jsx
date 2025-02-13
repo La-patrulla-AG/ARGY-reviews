@@ -47,9 +47,9 @@ const Header = () => {
           )}
         </div>
       </div>
+      {view === "login" && <LoginForm onClose={() => setView(null)} setView={setView} isOpen={view}/>}
+      {view === "register" && <RegisterForm onClose={() => setView(null)} setView={setView} isOpen={view}/>}
 
-      {view === "login" && <LoginForm onClose={() => setView(null)} isOpen={view} setView={setView}/>}
-      {view === "register" && <RegisterForm onClose={() => setView(null)} isOpen={view} setView={setView} />}
     </>
   );
 };

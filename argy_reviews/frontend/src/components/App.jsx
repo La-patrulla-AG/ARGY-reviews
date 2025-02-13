@@ -6,13 +6,9 @@ import PostPage from "./PostPage";
 import CreatePostPage from "./CreatePostPage";
 import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
-import ReglasPage from "./ReglasPage";
-import PrivacyPage from "./PrivacyPage";
-import TermsAndConditionsPage from "./TermsAndConditionsPage"
-import WorkWithUsFormPage from "./WorkWithUsFormPage";
-import SearchPage from "./SearchPage";
-
-
+import NotFound from "./NotFoundPage";
+import WorkersPage from "./WorkersPage";
+import LogPage from "./LogPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -21,9 +17,7 @@ import {
 } from "react-router-dom";
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import NotFound from "./NotFoundPage";
-
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +30,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/post/:postId" element={<PostPage />} />
+              <Route path="/soporte" element={<LogPage />} />
 
               <Route path="/buscar" element={<SearchPage/>}/>
 
@@ -47,25 +42,33 @@ const App = () => {
               <Route
                 path="/crear-post"
                 element={
-                  
+                  <ProtectedRoute>
                     <CreatePostPage />
-                  
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/mis-publicaciones"
                 element={
-                  
-                    <MyPostsPage />
-                  
+                  <ProtectedRoute>
+                    <MyPostsPage />{" "}
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trabajadores"
+                element={
+                  <ProtectedRoute>
+                    <WorkersPage />
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/editar-post/:postId"
                 element={
-                  
+                  <ProtectedRoute>
                     <EditPostPage />
-                  
+                  </ProtectedRoute>
                 }
               />
 

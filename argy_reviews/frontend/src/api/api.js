@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
+import { logout } from "./auth";
 
 // Helper para obtener una cookie
 export function getCookie(name) {
@@ -38,6 +39,7 @@ api.interceptors.response.use(
         originalRequest._retry = true;
         const refreshToken = getCookie(REFRESH_TOKEN);
         if (!refreshToken) {
+          logout();
           return Promise.reject(error);
         }
         try {
@@ -51,6 +53,7 @@ api.interceptors.response.use(
           originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
           return api(originalRequest);
         } catch (refreshError) {
+          logout();
           return Promise.reject(refreshError);
         }
       }

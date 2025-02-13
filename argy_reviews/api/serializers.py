@@ -47,7 +47,6 @@ class ImageSerializer(serializers.ModelSerializer):
         model = PostImage
         fields = ['id','image','post']
 
-# UserProfileSerializer
 class BanStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BanStatus
