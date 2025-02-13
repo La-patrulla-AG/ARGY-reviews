@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { ACCESS_TOKEN } from "../../api/constants";
 import { useMe } from "../hooks/useMe";
 import api from "../../api/api";
+import { logout } from "../../api/auth";
 
 // Helper para obtener una cookie por su nombre
 function getCookie(name) {
@@ -33,10 +34,10 @@ const ProtectedRoute = ({ children }) => {
           })
           .catch((err) => {
             console.error("Error al refrescar token:", err);
-            setChecking(false);
+            logout();
           });
       } else {
-        setChecking(false);
+        logout();
       }
     } else {
       setChecking(false);

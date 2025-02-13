@@ -29,7 +29,6 @@ from django.contrib.contenttypes.models import ContentType
 
 """Modelos de la aplicación"""
 
-#UserProfile model
 class BanStatus(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)

@@ -16,7 +16,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory, Trabajador, Profesion
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, Valoration, PostCategory, Trabajador, Profesion
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer
 
 from .permissions import IsNotBanned, IsStaffUser, OptionalJWTAuthentication
@@ -80,7 +80,6 @@ def post_state_list(request):
 # --------
 @api_view(['GET'])
 @authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
-@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication]) 
 @permission_classes([IsAdminUser])
 def user_list(request):
      if request.method == 'GET':

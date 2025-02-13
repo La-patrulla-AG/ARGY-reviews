@@ -8,6 +8,7 @@ import EditPostPage from "./EditPostPage";
 import MyPostsPage from "./MyPostsPage";
 import NotFound from "./NotFoundPage";
 import WorkersPage from "./WorkersPage";
+import LogPage from "./LogPage";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,8 +17,7 @@ import {
 } from "react-router-dom";
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -30,37 +30,38 @@ const App = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/post/:postId" element={<PostPage />} />
+              <Route path="/soporte" element={<LogPage />} />
 
               <Route
                 path="/crear-post"
                 element={
-                  
+                  <ProtectedRoute>
                     <CreatePostPage />
-                  
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/mis-publicaciones"
                 element={
-                  
-                    <MyPostsPage />
-                  
+                  <ProtectedRoute>
+                    <MyPostsPage />{" "}
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/trabajadores"
                 element={
-                  
+                  <ProtectedRoute>
                     <WorkersPage />
-                  
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/editar-post/:postId"
                 element={
-                  
+                  <ProtectedRoute>
                     <EditPostPage />
-                  
+                  </ProtectedRoute>
                 }
               />
 

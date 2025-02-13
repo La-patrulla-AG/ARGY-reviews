@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, Valoration, Trabajador, Profesion, Solicitud
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, Valoration, Trabajador, Profesion, Solicitud, BanStatus
 
 """Auxiliary functions"""
 def generate_code():
@@ -47,7 +47,6 @@ class ImageSerializer(serializers.ModelSerializer):
         model = PostImage
         fields = ['id','image','post']
 
-# UserProfileSerializer
 class BanStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BanStatus

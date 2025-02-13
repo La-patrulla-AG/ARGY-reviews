@@ -28,7 +28,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export const login = async ({ username, password }) => {
   // const queryClient = useQueryClient();
   try {
-    const response = await api.post("http://127.0.0.1:8000/token/", {
+    const response = await api.post("token/", {
       username,
       password,
     });
@@ -45,14 +45,12 @@ export const login = async ({ username, password }) => {
     
   } catch (error) {
     console.error("Error en login:", error);
-    throw error;
   }
 };
 
 export const logout = () => {
   localStorage.removeItem(ACCESS_TOKEN);
-  (document.cookie = REFRESH_TOKEN),
-    `=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+  document.cookie = `${REFRESH_TOKEN}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
   // Opcional: remover el header de autorización
   delete axios.defaults.headers.common["Authorization"];
   api.post("/logout/");
