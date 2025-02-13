@@ -14,7 +14,7 @@ function SearchPage() {
       if (storedSearchQuery !== searchQuery) {
         setSearchQuery(storedSearchQuery);
       }
-    }, [searchQuery]); 
+    }, [searchQuery]);
 
     return () => {
       clearInterval(intervalId); // Limpia el intervalo cuando el componente se desmonta
@@ -30,7 +30,9 @@ function SearchPage() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setPosts(data);
+        // Ordenar los posts alfabéticamente por el título
+        const sortedPosts = data.sort((a, b) => a.title.localeCompare(b.title));
+        setPosts(sortedPosts);
       })
       .catch((error) => console.error("Error en fetch:", error));
   }, [searchQuery]); // Este useEffect se activa cuando cambia searchQuery
