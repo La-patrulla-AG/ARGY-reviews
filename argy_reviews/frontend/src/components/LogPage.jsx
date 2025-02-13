@@ -2,56 +2,6 @@ import React, { useEffect, useState } from "react";
 import LogList from "./ui/LogList";
 import axios from "axios";
 
-const sampleLogs = [
-  {
-    id: 1,
-    username: "sarah_dev",
-    subject: "API Authentication Issue",
-    status: "unanswered",
-    content: "Users are being logged out randomly when making API calls.",
-    timestamp: "2024-03-10T10:30:00Z",
-    responses: [
-      {
-        id: 1,
-        username: "john_backend",
-        content:
-          "This might be related to token expiration. I'll investigate the JWT refresh mechanism.",
-        timestamp: "2024-03-10T11:00:00Z",
-        adminResponse: {
-          content:
-            "Issue confirmed. Token refresh mechanism has been fixed in latest deployment.",
-          timestamp: "2024-03-10T14:30:00Z",
-        },
-      },
-    ],
-  },
-  {
-    id: 2,
-    username: "alex_frontend",
-    subject: "Mobile Layout Breaking",
-    status: "answered",
-    content:
-      "The dashboard layout is breaking on mobile devices below 375px width.",
-    timestamp: "2024-03-09T15:20:00Z",
-    responses: [
-      {
-        id: 2,
-        username: "emma_ui",
-        content:
-          "I can reproduce this. It seems to be caused by a fixed width container.",
-        timestamp: "2024-03-09T16:45:00Z",
-        adminResponse: {
-          content:
-            "Fixed with responsive container implementation. Please verify on staging.",
-          timestamp: "2024-03-09T18:15:00Z",
-        },
-      },
-    ],
-  },
-];
-
-
-
 const LogPage = () => {
     const [logs, setLogs] = useState([]);
   
@@ -60,12 +10,12 @@ const LogPage = () => {
         const [ticketsResponse, messagesResponse] = await Promise.all([
           axios.get("http://127.0.0.1:8001/api/tickets/", {
             headers: {
-              Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
+              Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
             },
           }),
           axios.get("http://127.0.0.1:8001/api/ticket-messages/", {
             headers: {
-              Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
+              Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
             },
           }),
         ]);

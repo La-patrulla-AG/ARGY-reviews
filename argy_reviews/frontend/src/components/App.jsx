@@ -76,7 +76,6 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
-          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </Router>
     </div>
