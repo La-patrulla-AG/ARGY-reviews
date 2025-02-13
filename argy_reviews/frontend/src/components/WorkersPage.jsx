@@ -12,6 +12,7 @@ const WorkersPage = () => {
                 const response = await axios.get("http://localhost:8001/app/trabajador/6/");
                 const workerData = response.data;
                 setCvLink(`http://localhost:8001${workerData.cvlink}`);
+                console.log("Worker data:", workerData);
             } catch (error) {
                 console.error("Error fetching worker data:", error);
             }
