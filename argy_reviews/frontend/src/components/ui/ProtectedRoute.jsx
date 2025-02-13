@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children }) => {
       const refreshToken = getCookie("refreshToken");
       if (refreshToken) {
         api
-          .post("http://127.0.0.1:8000/token/refresh/", {
+          .post("https://argy-reviews-production.up.railway.app/token/refresh/", {
             refresh: refreshToken,
           })
           .then((response) => {

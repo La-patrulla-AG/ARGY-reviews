@@ -143,7 +143,7 @@ const RegisterForm = ({ onClose , setView }) => {
         <div className="mt-4 text-center">
           <a href="#" className="text-blue-500 hover:underline"
           onClick={() => {
-            window.location.href = "http://localhost:8000/password-reset/";
+            window.location.href = "https://argy-reviews-production.up.railway.app/password-reset/";
           }}>
             ¿Olvidó su contraseña?
           </a>
