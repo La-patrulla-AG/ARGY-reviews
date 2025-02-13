@@ -5,7 +5,7 @@ import api from "../../api/api";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
 
-const RegisterForm = ({ onClose }) => {
+const RegisterForm = ({ onClose , setView }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
   const [error, setError] = useState("");
@@ -141,15 +141,19 @@ const RegisterForm = ({ onClose }) => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <a href="#" className="text-blue-500 hover:underline">
+          <a href="#" className="text-blue-500 hover:underline"
+          onClick={() => {
+            window.location.href = "http://localhost:8000/password-reset/";
+          }}>
             ¿Olvidó su contraseña?
           </a>
         </div>
         <div className="mt-4 text-center">
           <span>¿Ya tiene una cuenta? </span>
-          <a href="#" className="text-blue-500 hover:underline">
+          <a href="#" className="text-blue-500 hover:underline" onClick={() => setView("login")}>
             INICIE SESIÓN AQUÍ
           </a>
+
         </div>
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"

@@ -16,6 +16,13 @@ SECRET_KEY = 'django-insecure-au^s67c7mb#v$+^zd54ri&v4a0d_e()wkc)b&9&=^vo!0ytiu2
 
 DEBUG=True
 
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+else:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
@@ -60,8 +67,8 @@ REST_FRAMEWORK = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=5),
     'ROTATE_REFRESH_TOKENS': False,
     'ALGORITHM': 'HS256',
     'AUTH_HEADER_TYPES': ('Bearer',),
@@ -107,7 +114,7 @@ ROOT_URLCONF = 'argy_reviews.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -132,7 +139,7 @@ DATABASES = {
 
 POSTGRES_LOCALLY = False
 if POSTGRES_LOCALLY == True:
-    DATABASES['default'] = dj_database_url.config(default=os.getenv('postgresql://postgres:VhnWDNGbLBrxEFHnlWzlZKhLmQYBsJyc@viaduct.proxy.rlwy.net:52335/railway'))
+    DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
 
 AUTH_PASSWORD_VALIDATORS = [

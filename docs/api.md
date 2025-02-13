@@ -3,9 +3,11 @@ Este documento tiene como proposito guiar al desarrollador en la utilizacion del
 # Funcionamiento general de la API
 El servicio consta de una url base para todos los endpoints de la aplicacion.
 
-La URL base sera `http://localhost:8000` en caso de estar utilizando la aplicacion __localmente__. En cambio, si se esta utilizando el servicio desde el dominio web, la URL base sera `https://argy-reviews-production.up.railway.app`
+La URL base sera `http://localhost:8000` en caso de estar utilizando la aplicacion __localmente__. En cambio, si se esta utilizando el servicio desde el dominio web, la URL base sera `https://argy-reviews-production.up.railway.app`.
 
 A continuacion se dara una lista de __enpoints__ que se consideran indispensables para poder llevar a cabo las interaciones del proyecto.
+
+Dependiendo de la ruta y el meotodo al que se quiera hacer la peticion se debera estar o no [autenticado](auth.md) 
  
 Cada uno de los puntos viene con una breve explicacion del funcionamiento general de la view, ejemplos en formato `json` de lo que se espera como `request` y que se espera como `response`una descripcion de cada metodo de cabezara HTTPS y la URL que se debera agregar a la URL base. 
 

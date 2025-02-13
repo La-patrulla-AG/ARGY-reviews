@@ -3,6 +3,7 @@ site_name: Documentacion de ARGY Reviews
 nav:
   - Getting started: index.md
   - Guia para desarrollo de las interacciones: api.md
+  - Guia de autenticacion de interacciones: auth.md
 
 theme:
   name: material
