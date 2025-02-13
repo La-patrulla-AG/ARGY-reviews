@@ -4,16 +4,16 @@ import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom"; 
 
-const LoginForm = ({ onClose , setView }) => {
+const LoginForm = ({ onClose , setView , isOpen}) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Inicializa useNavigate
+  
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -23,8 +23,8 @@ urlpatterns = [
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
-    path('users/me/', views.me, name='me'),
     path('profile/<int:user_pk>/', views.user_profile, name='profile'),
+    path('check-auth/', views.check_logged_in, name='check-auth'),
     
     path('post-states/', views.post_state_list, name='post-state-list'),
     path('carousels/', views.get_carousels_data, name='get_carousels_data'),
@@ -67,6 +67,7 @@ urlpatterns = [
     path('ban/permanent/<int:user_id>/', views.ban_user_permanently, name='ban_user_permanently'),
     path('ban/temporary/<int:user_id>/', views.ban_user_temporarily, name='ban_user_temporarily'),
     path('unban/<int:user_id>/', views.unban_user, name='unban_user'),
+    path('ban/status/<int:user_id>/', views.ban_status, name='ban_status'),
     
     path('interaccion/', views.interaccion, name='interaccion'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

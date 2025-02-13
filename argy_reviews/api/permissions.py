@@ -1,5 +1,6 @@
 from rest_framework import permissions
-from .models import UserProfile
+from .models import BanStatus
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
@@ -24,7 +25,23 @@ class IsStaffUser(permissions.BasePermission):
 class IsNotBanned(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
-            profile = UserProfile.objects.filter(user=request.user).first()
+            profile = BanStatus.objects.filter(user=request.user).first()
             if profile and profile.is_currently_banned():
                 return False
         return True
+class OptionalJWTAuthentication(JWTAuthentication):
+    def authenticate(self, request):
+        # Obtener el header de autorización
+        header = self.get_header(request)
+        if header is None:
+            # Si no se envía token, retornamos None
+            return None
+
+        try:
+            return super().authenticate(request)
+        except Exception as e:
+            # En métodos GET (o los que definas como públicos) se permite el acceso anónimo
+            if request.method == "GET":
+                return None
+            # En otros métodos se vuelve a levantar el error para que el usuario no autenticado no acceda
+            raise e

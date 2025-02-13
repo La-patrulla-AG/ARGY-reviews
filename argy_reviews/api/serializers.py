@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration, Trabajador, Profesion, Solicitud
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration, Trabajador, Profesion, Solicitud, BanStatus
 
 """Auxiliary functions"""
 def generate_code():
@@ -48,10 +48,10 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['id','image','post']
 
 # UserProfileSerializer
-class BanStatus(serializers.ModelSerializer):
+class BanStatusSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
-        fields = ['is_banned', 'banned_until']
+        model = BanStatus
+        fields = ['user','is_banned', 'banned_until']
 
 # SensibleUserSerializer
 # ----------------
@@ -96,28 +96,38 @@ class UserProfileSerializer(serializers.ModelSerializer):
         posts = Post.objects.filter(owner=obj).order_by('-created_at')
         return PostSerializer(posts, many=True).data
 
+# CategorySerializer
+# -------------------
+class PostCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
+
 # PostSerializer
 # -------------------
 class PostSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
-    
+    categories = serializers.PrimaryKeyRelatedField(many=True, queryset=PostCategory.objects.all())
+
     class Meta:
         model = Post
         fields = ['id', 'title', 'content', 'created_at', 'code', 'avg_ratings', 'owner', 'verification_state', 'categories']
-        
+
     def create(self, validated_data):
         if 'code' not in validated_data or not validated_data['code']:
             validated_data['code'] = generate_code()
-        
-        # if 'verification_state' not in validated_data:
-        #     validated_data['verification_state'] = PostState.objects.get(name='verified')
-        # else:
-        #     validated_data['verification_state'] = PostState.objects.get(id=validated_data['verification_state'])
-            
         return super().create(validated_data)
-    
-    def get_url(self, obj):
-        return obj.image.url
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['categories'] = PostCategoryDetailSerializer(instance.categories.all(), many=True).data
+        return representation
+# PostCategoryDetailSerializer
+# -----------------------------
+class PostCategoryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostCategory
+        fields = ['id', 'name']
 
 # PostStateSerializer
 # --------------------
@@ -235,14 +245,6 @@ class ValorationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('You cannot modify the valoration of another user')
         
         return super().update(instance, validated_data)
-    
-# CategorySerializer
-# -------------------
-class PostCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostCategory
-        fields = ['id', 'name']
-       
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType

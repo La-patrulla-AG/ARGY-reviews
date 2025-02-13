@@ -1,81 +1,60 @@
-import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { ACCESS_TOKEN } from "../../api/constants";
+import { useMe } from "../hooks/useMe";
 import api from "../../api/api";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../api/constants";
-import { useState, useEffect } from "react";
 
-function ProtectedRoute({ children }) {
-  const [isAuthorized, setIsAuthorized] = useState(null);
-  const navigate = useNavigate();
+// Helper para obtener una cookie por su nombre
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
+const ProtectedRoute = ({ children }) => {
+  const { user, error, isLoading, refetch } = useMe();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    auth().catch(() => setIsAuthorized(false));
-  }, []);
-
-  const refreshToken = async () => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-    if (!refreshToken) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    const decodedRefresh = jwtDecode(refreshToken);
-    const refreshTokenExpiration = decodedRefresh.exp;
-    const now = Date.now() / 1000;
-
-    if (refreshTokenExpiration < now) {
-      // Si el refresh_token ha expirado, deslogueamos al usuario
-      localStorage.removeItem(ACCESS_TOKEN);
-      localStorage.removeItem(REFRESH_TOKEN);
-      setIsAuthorized(false);
-      return;
-    }
-
-    try {
-      const response = await api.post("/token/refresh/", {
-        refresh: refreshToken,
-      });
-      if (response.status === 200) {
-        localStorage.setItem(ACCESS_TOKEN, response.data.access);
-        setIsAuthorized(true);
+    if (
+      error?.response?.data?.code === "token_not_valid" ||
+      user?.error === "token_expired"
+    ) {
+      const refreshToken = getCookie("refreshToken");
+      if (refreshToken) {
+        api
+          .post("http://127.0.0.1:8000/token/refresh/", {
+            refresh: refreshToken,
+          })
+          .then((response) => {
+            localStorage.setItem(ACCESS_TOKEN, response.data.access);
+            refetch().finally(() => setChecking(false));
+          })
+          .catch((err) => {
+            console.error("Error al refrescar token:", err);
+            setChecking(false);
+          });
       } else {
-        setIsAuthorized(false);
+        setChecking(false);
       }
-    } catch (error) {
-      console.log(error);
-      setIsAuthorized(false);
-    }
-  };
-
-  const auth = async () => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    const decoded = jwtDecode(token);
-    const tokenExpiration = decoded.exp;
-    const now = Date.now() / 1000;
-
-    if (tokenExpiration < now) {
-      await refreshToken();
     } else {
-      setIsAuthorized(true);
+      setChecking(false);
     }
-  };
+  }, [isLoading, error, user, refetch]);
 
-  if (isAuthorized === null) {
+  // Mientras se carga o se está verificando el token, muestra un loading...
+  if (isLoading || checking) {
     return <div>Loading...</div>;
   }
 
-  if (!isAuthorized) {
-    navigate("/");
-    return null;
+  // Si después de intentar refrescar el token no hay usuario, redirige a login
+  if (!user) {
+    return <Navigate to="/" />;
   }
 
+  // Si se cumple todo, renderiza las rutas protegidas
   return children;
-}
+};
 
 export default ProtectedRoute;

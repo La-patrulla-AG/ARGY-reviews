@@ -5,6 +5,7 @@ import { useCreatePost } from "./hooks/useCreatePost";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Modal from "./ui/Modal";
+import CategorySelector from "./ui/CategorySelector";
 
 const CreatePostPage = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -12,6 +13,7 @@ const CreatePostPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
+    categories: [],
   });
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
@@ -147,6 +149,16 @@ const CreatePostPage = () => {
               setFormData({ ...formData, title: e.target.value })
             }
             className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 border-gray-300"
+          />
+        </div>
+        <div>
+          <label className="block text-lg font-medium mb-2 dark:text-white text-black">
+            Categoría
+          </label>
+          <CategorySelector
+            selectedCategories={formData.categories}
+            onChange={(categories) => setFormData({ ...formData, categories })}
+            maxCategories={8}
           />
         </div>
 

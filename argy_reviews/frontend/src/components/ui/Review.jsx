@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { EllipsisVertical, Star , Trash} from "lucide-react";
+import { EllipsisVertical, Star, Trash } from "lucide-react";
 import TimeSince from "../../utils/TimeSince";
 import api from "../../api/api";
 import ReportModal from "./ReportModal";
 import { useMe } from "../hooks/useMe";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Modal from "./Modal";
 import { useDeleteReview } from "../hooks/useDeleteReview";
-
+import LoginForm from "./LoginForm";
+import { toast } from "react-toastify";
 
 const Review = ({ review, postId, updatePost, updateReviews }) => {
   const [owner, setOwner] = useState({});
@@ -18,10 +21,12 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
     likes: "",
     dislikes: "",
   });
+  const [login, setLogin] = useState(false);
 
   const [active, setActive] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const { me } = useMe();
+  const { user } = useMe();
   const { deleteReview } = useDeleteReview();
 
   const stars = Array.from({ length: 5 });
@@ -75,15 +80,15 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
       `/posts/${postId}/reviews/${review.id}/valorations/`,
       setValorations
     );
-    if (me) {
+    if (user) {
       fetchData(
-        `/posts/${postId}/reviews/${review.id}/valorations/${me?.id}/`,
+        `/posts/${postId}/reviews/${review.id}/valorations/${user?.id}/`,
         (data) => {
           setActive(data.valoration);
         }
       );
     }
-  }, [me, postId, review.id]);
+  }, [user, postId, review.id]);
 
   const openReportModal = (reported_content_type, reported_object_id) => {
     setReport((prev) => ({
@@ -118,10 +123,10 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
         await api.post(url, { valoration: value });
         setActive(value);
       } else if (active === value) {
-        await api.delete(url + `${me.id}/`);
+        await api.delete(url + `${user.id}/`);
         setActive(null);
       } else {
-        await api.put(url + `${me.id}/`, { valoration: value });
+        await api.put(url + `${user.id}/`, { valoration: value });
         setActive(value);
       }
 
@@ -132,18 +137,33 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
     }
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const handleDelete = async () => {
     try {
       await deleteReview({ postId, reviewId: review.id });
       updatePost();
       updateReviews();
-      console.log("Review deleted successfully");
+      notify("Reseña eliminada exitosamente", "success");
       // Aquí puedes agregar lógica adicional, como actualizar la lista de reseñas
     } catch (error) {
       console.error("Error deleting review:", error);
     }
   };
-  
+
+  const notify = (
+    message,
+    type = "success",
+    position = "bottom-right",
+    autoClose = 4000
+  ) => {
+    toast[type](message, {
+      position: position,
+      autoClose: autoClose,
+    });
+  };
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside); // Detectar clics fuera
@@ -178,15 +198,36 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
               />
             ))}
           </div>
-          <div className="text-gray-700 dark:text-gray-100 line-clamp-2">
-            {review.comment}
+          <div className="text-gray-700 dark:text-gray-100">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({ src, alt }) => (
+                  <img src={src} alt={alt} className="h-52 w-auto rounded-lg" />
+                ),
+              }}
+            >
+              {isExpanded || review.comment.length <= 100
+                ? review.comment.replace(/\n/g, "  \n")
+                : `${review.comment.slice(0, 100)}...`}
+            </ReactMarkdown>
+            {review.comment.length > 100 && (
+              <button
+                onClick={toggleExpand}
+                className="text-blue-500 hover:underline"
+              >
+                {isExpanded ? "Mostrar menos" : "Mostrar más"}
+              </button>
+            )}
           </div>
           <div className="flex items-center mt-2 text-gray-500 dark:text-gray-400 text-sm">
             <button
               className={`flex items-center mr-4 transition-colors duration-200 ${
                 active === true ? "text-blue-500" : "hover:text-blue-500"
               }`}
-              onClick={() => handleValorate(true)}
+              onClick={
+                user?.id ? () => handleValorate(true) : () => setLogin(true)
+              }
             >
               <svg
                 className="w-4 h-4 mr-1"
@@ -209,7 +250,9 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
               className={`flex items-center transition-colors duration-200 ${
                 active === false ? "text-blue-500" : "hover:text-blue-500"
               }`}
-              onClick={() => handleValorate(false)}
+              onClick={
+                user?.id ? () => handleValorate(false) : () => setLogin(true)
+              }
             >
               <svg
                 className="w-4 h-4 mr-1"
@@ -230,20 +273,26 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
           </div>
         </div>
         <div className="relative" ref={menuRef}>
-          {me.id === review.owner ? (
+          {user?.id === review.owner ? (
             <button
-            className="p-2 bg-red-600 hover:bg-red-700 rounded-md mr-2 shadow-md"
-            onClick={ () => openModal("delete")}
-          >
-            <Trash size={20}></Trash>
-          </button>) : (
+              className="p-2 bg-red-600 hover:bg-red-700 rounded-md mr-2 shadow-md"
+              onClick={() => openModal("delete")}
+            >
+              <Trash size={20}></Trash>
+            </button>
+          ) : (
             <button
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-            onClick={() => toggleMenu(review.id)}
-          >
-            <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          </button>)} 
-          
+              className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full ${
+                user?.id ? "" : "disabled:opacity-50 cursor-not-allowed"
+              }`}
+              onClick={
+                user?.id ? () => toggleMenu(review.id) : () => setLogin(true)
+              }
+            >
+              <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+          )}
+
           {/* Menú desplegable */}
           {openMenuId === review.id && (
             <div className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg z-50 w-48">
@@ -287,6 +336,7 @@ const Review = ({ review, postId, updatePost, updateReviews }) => {
         message="Quieres eliminar esta reseña? Esta acción es irreversible"
         buttonB="Sí, deseo eliminarla"
       />
+      <LoginForm isOpen={login} onClose={() => setLogin(false)} />
     </div>
   );
 };
