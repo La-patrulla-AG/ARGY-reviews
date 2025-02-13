@@ -137,7 +137,7 @@ DATABASES = {
 }
 
 
-POSTGRES_LOCALLY = False
+POSTGRES_LOCALLY = True
 if POSTGRES_LOCALLY == True:
     DATABASES['default'] = dj_database_url.config(default=os.getenv('DATABASE_URL'))
 
@@ -175,4 +175,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'http://localhost:8000'
+LOGIN_URL = 'https://argy-reviews-production.up.railway.app'
