@@ -4,14 +4,16 @@ import { Eye, EyeOff, X } from "lucide-react";
 import { useState } from "react";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; 
 
-const LoginForm = ({ onClose }) => {
+const LoginForm = ({ onClose , setView }) => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // Inicializa useNavigate
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -83,15 +85,21 @@ const LoginForm = ({ onClose }) => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <a href="#" className="text-blue-500 hover:underline">
+          <button
+            className="text-blue-500 hover:underline"
+            onClick={() => {
+              window.location.href = "http://localhost:8000/password-reset/";
+            }}
+          >
             ¿Olvidó su contraseña?
-          </a>
+          </button>
         </div>
         <div className="mt-4 text-center">
           <span>¿No tiene una cuenta? </span>
-          <a href="#" className="text-blue-500 hover:underline">
+          <a href="#" className="text-blue-500 hover:underline" onClick={() => setView("register")}>
             REGISTRARSE AQUÍ
           </a>
+
         </div>
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"

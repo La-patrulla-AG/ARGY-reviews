@@ -11,7 +11,7 @@ from rest_framework.authtoken.models import Token
 import random
 import string
 
-from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration
+from .models import Post, PostState, PostCategory, Review, Report, ReportCategory , PostImage, UserProfile, Valoration, Trabajador, Profesion, Solicitud
 
 """Auxiliary functions"""
 def generate_code():
@@ -22,7 +22,23 @@ def generate_code():
     
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
-"""Serializers"""
+        
+class ProfesionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profesion
+        fields = ['id', 'nombre']
+        
+class SolicitudSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solicitud
+
+
+class TrabajadorSerializer(serializers.ModelSerializer):
+    profesion = ProfesionSerializer()
+    
+    class Meta:
+        model = Trabajador
+        fields = ['id', 'nombre', 'apellido', 'profesion', 'descripcion','cvlink']
 
 # ImageSerializer
 # ----------------

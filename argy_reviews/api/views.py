@@ -16,8 +16,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory
-from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, UserProfile, Valoration, PostCategory, Trabajador, Profesion
+from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer
 
 from .permissions import IsNotBanned, IsStaffUser
 from django.http import JsonResponse
@@ -843,3 +843,18 @@ def logout_view(request):
 #                     path='/api/token/refresh/'  # La cookie solo se enviará a esta ruta
 #                 )
 #         return response
+
+
+@api_view(['GET','POST'])
+@authentication_classes([CsrfExemptSessionAuthentication, JWTAuthentication])  
+@permission_classes([IsAdminUser])
+def interaccion(request):
+    if request.method == 'GET':
+        trabajadores = Trabajador.objects.all()
+        serializer = TrabajadorSerializer(trabajadores, many=True)
+        return JsonResponse({'jobs': serializer.data})
+    elif request.method == 'POST':
+        serializer = SolicitudSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED) 
