@@ -9,6 +9,13 @@ import MyPostsPage from "./MyPostsPage";
 import NotFound from "./NotFoundPage";
 import WorkersPage from "./WorkersPage";
 import LogPage from "./LogPage";
+import ReglasPage from "./ReglasPage";
+import PrivacyPage from "./PrivacyPage";
+import TermsAndConditionsPage from "./TermsAndConditionsPage"
+import WorkWithUsFormPage from "./WorkWithUsFormPage";
+import SearchPage from "./SearchPage";
+
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -17,7 +24,8 @@ import {
 } from "react-router-dom";
 import ProtectedRoute from "./ui/ProtectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import NotFound from "./NotFoundPage";
+
 
 const queryClient = new QueryClient();
 
@@ -31,6 +39,13 @@ const App = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/post/:postId" element={<PostPage />} />
               <Route path="/soporte" element={<LogPage />} />
+
+              <Route path="/buscar" element={<SearchPage/>}/>
+
+              <Route path="/reglas" element={<ReglasPage />} />
+              <Route path="/terminos-condiciones" element={<TermsAndConditionsPage />} />
+              <Route path="/privacidad" element={<PrivacyPage />} />
+              <Route path="/trabaja-con-nosotros" element={<WorkWithUsFormPage />} />
 
               <Route
                 path="/crear-post"
@@ -49,14 +64,6 @@ const App = () => {
                 }
               />
               <Route
-                path="/trabajadores"
-                element={
-                  <ProtectedRoute>
-                    <WorkersPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/editar-post/:postId"
                 element={
                   <ProtectedRoute>
@@ -69,7 +76,6 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </MainLayout>
-          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </Router>
     </div>

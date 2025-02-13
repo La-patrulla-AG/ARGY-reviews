@@ -62,6 +62,8 @@ REST_FRAMEWORK = {
     ],
     
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_FILTER_BACKENDS': ['rest_framework.filters.SearchFilter'],
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
