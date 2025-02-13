@@ -16,7 +16,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .authentication import CsrfExemptSessionAuthentication
-from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, BanStatus, Valoration, PostCategory
+from .models import Post, PostState, Report, Review, PostImage, ReportCategory, PostImage, BanStatus, Valoration, PostCategory, Trabajador, Profesion, Solicitud
 from .serializers import PostSerializer, ReviewSerializer, SensibleUserSerializer, PostStateSerializer, ReportCategorySerializer, ReportSerializer, ImageSerializer, UserProfileSerializer, ValorationSerializer, PostCategorySerializer, ContentTypeSerializer, UserSerializer, BanStatusSerializer, TrabajadorSerializer, ProfesionSerializer, SolicitudSerializer
 
 from .permissions import IsNotBanned, IsStaffUser, OptionalJWTAuthentication
