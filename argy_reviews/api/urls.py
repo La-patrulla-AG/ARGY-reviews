@@ -17,14 +17,14 @@ urlpatterns = [
     
     #path('login/', views.login, name='login'),
     path('register/', views.CreateUserView.as_view(), name='register'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', views.logout_view, name='logout'),
     
     path('users/', views.user_list, name='user_list'),
     path('users/<int:user_pk>/', views.user_detail, name='user-detail'),
-    path('users/me/', views.me, name='me'),
     path('profile/<int:user_pk>/', views.user_profile, name='profile'),
+    path('check-auth/', views.check_logged_in, name='check-auth'),
     
     path('post-states/', views.post_state_list, name='post-state-list'),
     path('carousels/', views.get_carousels_data, name='get_carousels_data'),
@@ -52,7 +52,14 @@ urlpatterns = [
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
-    path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(
+            template_name="registration/password_reset_form.html",
+            email_template_name="../frontend/templates/registration/password_reset_email.html",
+            subject_template_name="../frontend/templates/registration/password_reset_subject.txt",
+            success_url="/password-reset/done/"
+        ), 
+         name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
@@ -60,10 +67,9 @@ urlpatterns = [
     path('ban/permanent/<int:user_id>/', views.ban_user_permanently, name='ban_user_permanently'),
     path('ban/temporary/<int:user_id>/', views.ban_user_temporarily, name='ban_user_temporarily'),
     path('unban/<int:user_id>/', views.unban_user, name='unban_user'),
+    path('ban/status/<int:user_id>/', views.ban_status, name='ban_status'),
     
+    path('interaccion/', views.interaccion, name='interaccion'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
-
 
 urlpatterns = format_suffix_patterns(urlpatterns)

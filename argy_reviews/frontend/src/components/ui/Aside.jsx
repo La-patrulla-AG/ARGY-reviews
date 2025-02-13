@@ -8,23 +8,26 @@ import {
   Star,
   Twitter,
   Users,
+  Bug,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../static/css/homePage.css";
 import { useMe } from "../hooks/useMe";
+import BugReportModal from "./ReportBugModal";
 
 const Aside = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { me } = useMe();
+  const { user } = useMe();
   const navigate = useNavigate();
+  const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
 
   return (
     <aside
       className={`${
         isOpen ? "w-64" : "w-16"
       } fixed top-0 left-0 h-full transition-all duration-200 bg-white dark:bg-gray-800 p-4 z-40 shadow-lg flex flex-col`}
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: "100vh" }}
     >
       {/* Header section */}
       <div className="flex items-center justify-between mb-8">
@@ -59,7 +62,7 @@ const Aside = () => {
               {isOpen && <span>Inicio</span>}
             </button>
           </li>
-          {me ? (
+          {user?.id ? (
             <li>
               <div className="flex items-center w-full p-2 rounded dark:text-gray-300 text-black">
                 <Users className="mr-2" />
@@ -87,7 +90,7 @@ const Aside = () => {
                       Nueva publicación
                     </button>
                   </li>
-                  {me.is_superuser ? (
+                  {user.is_superuser ? (
                     <>
                       <li>
                         <button
@@ -111,7 +114,6 @@ const Aside = () => {
                         </button>
                       </li>
                     </>
-             
                   ) : (
                     <></>
                   )}
@@ -164,9 +166,25 @@ const Aside = () => {
                   </button>
                 </li>
                 <li>
-                  <button className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
-                  onClick={() => {navigate("/docs")}}>
-                    Documentación
+                  <button
+                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black flex items-center gap-3"
+                    onClick={() => setIsBugReportModalOpen(true)}
+                  >
+                    <span>Reportar un bug</span> <Bug className="w-5 h-5" />
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="w-full text-left p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-300 text-black"
+                    onClick={() =>
+                      window.open(
+                        "https://la-patrulla-ag.github.io/ARGY-reviews/api/",
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                  >
+                    Documentación API
                   </button>
                 </li>
               </ul>
@@ -199,6 +217,10 @@ const Aside = () => {
           <Twitter className="w-4 h-4" />
         </button>
       </div>
+      <BugReportModal
+        isOpen={isBugReportModalOpen}
+        onClose={() => setIsBugReportModalOpen(false)}
+      />
     </aside>
   );
 };

@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 """Modelos de la aplicación"""
 
 #UserProfile model
-class UserProfile(models.Model):
+class BanStatus(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     is_banned = models.BooleanField(default=False)
     banned_until = models.DateTimeField(null=True, blank=True)
@@ -183,3 +183,31 @@ class ReportCategory(models.Model):
     def __str__(self):
         return self.name
 
+class Profesion(models.Model):
+    nombre = models.TextField()
+class Trabajador(models.Model):
+
+    ESTADO_TRABAJO_CHOICES = [
+        ('disponible', 'Disponible'),
+        ('ocupado', 'Ocupado'),
+        ('inactivo', 'Inactivo'),
+    ]
+    
+    nombre = models.TextField()
+    apellido = models.TextField()
+    descripcion = models.TextField()
+    estadotrabajo = models.CharField(
+        db_column='estadoTrabajo',
+        max_length=20,
+        choices=ESTADO_TRABAJO_CHOICES,
+        default='disponible',
+    )
+    profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE)
+    cvlink = models.FileField(upload_to='cv/', blank=True)
+    
+class Solicitud(models.Model):
+    empresa = models.TextField()
+    id_trabajadores = models.ManyToManyField(Trabajador, related_name='solicitudes')
+
+    def __str__(self):
+        return f"Solicitud desde {self.fecha_inicio} hasta {self.fecha_fin}"

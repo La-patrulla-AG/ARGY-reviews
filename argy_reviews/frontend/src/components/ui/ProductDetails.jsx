@@ -7,6 +7,9 @@ import ImageSwiper from "./ImageSwiper";
 import ReportModal from "./ReportModal";
 import { EllipsisVertical } from "lucide-react";
 import ReviewSection from "./ReviewSection";
+import StarValue from "./StarValue";
+import { useMe } from "../hooks/useMe";
+import LoginForm from "./LoginForm";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
@@ -14,9 +17,11 @@ const ProductDetails = ({ postId }) => {
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState({});
   const [updatePost, setUpdatePost] = useState(false);
-
+  const [login, setLogin] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+
+  const { user: me } = useMe();
 
   const [report, setReport] = useState({
     reported_content_type: "", // Valor inicial para el tipo de contenido
@@ -91,10 +96,6 @@ const ProductDetails = ({ postId }) => {
     };
   }, []);
 
-  const handleUpdatePost = () => {
-    setUpdatePost((prev) => !prev);
-  };
-
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
@@ -124,8 +125,8 @@ const ProductDetails = ({ postId }) => {
               <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={() => toggleMenu(postId)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150"
+                  onClick={me?.id ? (me.id === post.owner ? null : () => toggleMenu(postId)): () => setLogin(true)}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150 ${me?.id ? (me.id === post.owner ? "cursor-not-allowed" : "") : "cursor-not-allowed"}`}
                 >
                   <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 </button>
@@ -153,20 +154,11 @@ const ProductDetails = ({ postId }) => {
               </div>
             </div>
             <div className="flex items-center mb-2">
-              <div className="flex text-yellow-400 mr-2">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < post.avg_ratings ? "fill-current" : ""
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-lg font-semibold">
+              <StarValue value={post.avg_ratings} size={29} />
+              <span className="text-lg font-semibold mx-2">
                 {post.avg_ratings ? post.avg_ratings.toFixed(1) : "N/A"}
               </span>
-              <span className="text-gray-500 dark:text-gray-300 ml-2">
+              <span className="text-gray-500 dark:text-gray-300">
                 ({reviews.length})
               </span>
             </div>
@@ -182,15 +174,19 @@ const ProductDetails = ({ postId }) => {
                 Categorías:
               </p>
               <div className="flex flex-wrap">
-                {["categoria", "categoria", "categoria", "categoria"].map(
-                  (cat, index) => (
+                {post.categories && post.categories.length > 0 ? (
+                  post.categories.map((cat, index) => (
                     <span
-                      key={index}
+                      key={`${cat.id}-${index}`}
                       className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full text-sm mr-2 mb-2"
                     >
-                      {cat}
+                      {cat.name}
                     </span>
-                  )
+                  ))
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-300">
+                    Sin categorías
+                  </span>
                 )}
               </div>
             </div>
@@ -208,8 +204,11 @@ const ProductDetails = ({ postId }) => {
       </div>
       <ReviewSection
         postId={postId}
-        updatePost={handleUpdatePost}
+        updatePost={() => {
+          setUpdatePost(true);
+        }}
       />
+      <LoginForm isOpen={login} onClose={() => setLogin(false)} />
     </>
   );
 };
