@@ -25,19 +25,19 @@ export const ReglasPage = () => {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">Reglas de la Comunidad</h1>
-      <p className="text-lg text-center text-gray-600 mb-8">
+      <p className="text-lg text-center dark:text-white text-gray-600 mb-8">
         Para mantener un espacio seguro y útil para todos, sigue estas reglas al publicar reseñas:
       </p>
-      <ul className="list-none text-gray-700 space-y-4">
+      <ul className="list-none text-gray-700 dark:text-white space-y-4">
         {reglas.map((regla, index) => (
-          <li key={index} className="text-gray-700 leading-relaxed">
+          <li key={index} className="text-gray-700 dark:text-white leading-relaxed">
             {regla}
           </li>
         ))}
       </ul>
-      <p className="text-sm text-gray-500 mt-8 text-center">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-8 text-center">
         El incumplimiento de estas reglas puede resultar en la eliminación de contenido o restricciones en tu cuenta.
       </p>
     </div>
