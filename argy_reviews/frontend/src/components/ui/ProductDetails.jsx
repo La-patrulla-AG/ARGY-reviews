@@ -10,6 +10,7 @@ import ReviewSection from "./ReviewSection";
 import StarValue from "./StarValue";
 import { useMe } from "../hooks/useMe";
 import LoginForm from "./LoginForm";
+import ReadMore from "./ReadMore";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
@@ -125,8 +126,20 @@ const ProductDetails = ({ postId }) => {
               <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
               <div className="relative" ref={menuRef}>
                 <button
-                  onClick={me?.id ? (me.id === post.owner ? null : () => toggleMenu(postId)): () => setLogin(true)}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150 ${me?.id ? (me.id === post.owner ? "cursor-not-allowed" : "") : "cursor-not-allowed"}`}
+                  onClick={
+                    me?.id
+                      ? me.id === post.owner
+                        ? null
+                        : () => toggleMenu(postId)
+                      : () => setLogin(true)
+                  }
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-150 ${
+                    me?.id
+                      ? me.id === post.owner
+                        ? "cursor-not-allowed"
+                        : ""
+                      : "cursor-not-allowed"
+                  }`}
                 >
                   <EllipsisVertical className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 </button>
@@ -202,6 +215,17 @@ const ProductDetails = ({ postId }) => {
           />
         )}
       </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+            Descripción
+          </h3>
+          <ReadMore>
+            <p className="text-gray-600 dark:text-gray-300">
+              {post.content }
+            </p>
+          </ReadMore>
+      </div>
+
       <ReviewSection
         postId={postId}
         updatePost={() => {
