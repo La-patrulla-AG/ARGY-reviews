@@ -129,32 +129,6 @@ const ReviewSection = ({ postId, updatePost }) => {
           )}
         </div>
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => applyFormat({ start: "**", end: "**" })}
-              className="p-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Bold className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => applyFormat({ start: "*", end: "*" })}
-              className="p-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Italic className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => applyFormat({ start: "__", end: "__" })}
-              className="p-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Underline className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => applyFormat({ start: "`", end: "`" })}
-              className="p-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Code className="w-5 h-5" />
-            </button>
-          </div>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-600 transition-colors duration-200"
             onClick={handleSubmit}

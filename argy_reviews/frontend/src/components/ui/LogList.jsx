@@ -40,7 +40,7 @@ function LogList({ logs, updateLogs }) {
         },
         {
           headers: {
-            Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
+            Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
           },
         })
         updateLogs();

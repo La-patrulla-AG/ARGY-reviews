@@ -51,6 +51,7 @@ export const login = async ({ username, password }) => {
 export const logout = () => {
   localStorage.removeItem(ACCESS_TOKEN);
   document.cookie = `${REFRESH_TOKEN}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+  document.cookie = `st=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
   // Opcional: remover el header de autorización
   delete axios.defaults.headers.common["Authorization"];
   api.post("/logout/");

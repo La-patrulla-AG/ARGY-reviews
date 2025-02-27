@@ -11,12 +11,12 @@ const LogPage = () => {
         const [ticketsResponse, messagesResponse] = await Promise.all([
           axios.get("http://127.0.0.1:8001/api/tickets/", {
             headers: {
-              Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
+              Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
             },
           }),
           axios.get("http://127.0.0.1:8001/api/ticket-messages/", {
             headers: {
-              Authorization: `Token 81b3adac52c67f90cbe036f752aa6db619e04b48`,
+              Authorization: `Token efea112a025fa03cd045e499a10b113adcd6b056`,
             },
           }),
         ]);

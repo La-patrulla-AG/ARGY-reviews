@@ -10,7 +10,8 @@ import ReviewSection from "./ReviewSection";
 import StarValue from "./StarValue";
 import { useMe } from "../hooks/useMe";
 import LoginForm from "./LoginForm";
-import ReadMore from "./ReadMore";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const ProductDetails = ({ postId }) => {
   const [post, setPost] = useState({});
@@ -21,6 +22,8 @@ const ProductDetails = ({ postId }) => {
   const [login, setLogin] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
+
+  const [isExpanded	, setIsExpanded] = useState(false)
 
   const { user: me } = useMe();
 
@@ -39,6 +42,10 @@ const ProductDetails = ({ postId }) => {
 
   const toggleMenu = (id) => {
     setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
   };
 
   const fetchData = async (url, setData, field = null) => {
@@ -157,73 +164,94 @@ const ProductDetails = ({ postId }) => {
                     <button
                       onClick={() => {
                         openReportModal(ReportContentType.USER, post.owner);
-                      }}
-                      className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
-                    >
-                      Reportar usuario
-                    </button>
+                        }}
+                        className="w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 text-left first:rounded-t-md"
+                      >
+                        Reportar usuario
+                      </button>
+                      </div>
+                    )}
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center mb-2">
-              <StarValue value={post.avg_ratings} size={29} />
-              <span className="text-lg font-semibold mx-2">
-                {post.avg_ratings ? post.avg_ratings.toFixed(1) : "N/A"}
-              </span>
-              <span className="text-gray-500 dark:text-gray-300">
-                ({reviews.length})
-              </span>
-            </div>
-            <div className="mb-4">
-              <p className="text-gray-600 dark:text-gray-100">Publicado por:</p>
-              <div className="flex items-center">
-                <User className="w-5 h-5 mr-2" />
-                <span>{user.username}</span>
-              </div>
-            </div>
-            <div>
-              <p className="text-gray-600 dark:text-gray-100 mb-2">
-                Categorías:
-              </p>
-              <div className="flex flex-wrap">
-                {post.categories && post.categories.length > 0 ? (
-                  post.categories.map((cat, index) => (
-                    <span
-                      key={`${cat.id}-${index}`}
-                      className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full text-sm mr-2 mb-2"
-                    >
-                      {cat.name}
+                  <div className="flex items-center mb-2">
+                    <StarValue value={post.avg_ratings} size={29} />
+                    <span className="text-lg font-semibold mx-2">
+                    {post.avg_ratings ? post.avg_ratings.toFixed(1) : "N/A"}
                     </span>
-                  ))
-                ) : (
-                  <span className="text-gray-500 dark:text-gray-300">
-                    Sin categorías
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+                    <span className="text-gray-500 dark:text-gray-300">
+                    ({reviews.length})
+                    </span>
+                  </div>
+                  <div className="mb-4">
+                    <p className="text-gray-600 dark:text-gray-100">Publicado por:</p>
+                    <div className="flex items-center">
+                    <User className="w-5 h-5 mr-2" />
+                    <span>{user.username}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 dark:text-gray-100 mb-2">
+                    Categorías:
+                    </p>
+                    <div className="flex flex-wrap">
+                    {post.categories && post.categories.length > 0 ? (
+                      post.categories.map((cat, index) => (
+                      <span
+                        key={`${cat.id}-${index}`}
+                        className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full text-sm mr-2 mb-2"
+                      >
+                        {cat.name}
+                      </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-300">
+                      Sin categorías
+                      </span>
+                    )}
+                    </div>
+                  </div>
+                  </div>
+                </div>
 
-        {showReportModal && (
-          <ReportModal
-            isOpen={showReportModal}
-            onClose={() => setShowReportModal(false)}
-            report={report}
-            setReport={setReport}
-          />
-        )}
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
-            Descripción
-          </h3>
-          <ReadMore>
-            <p className="text-gray-600 dark:text-gray-300">
-              {post.content }
-            </p>
-          </ReadMore>
+                {showReportModal && (
+                  <ReportModal
+                  isOpen={showReportModal}
+                  onClose={() => setShowReportModal(false)}
+                  report={report}
+                  setReport={setReport}
+                  />
+                )}
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+                  Descripción
+                </h3>
+
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                  img: ({ src, alt }) => (
+                    <img src={src} alt={alt} className="h-52 w-auto rounded-lg" />
+                  ),
+                  a: ({ href, children }) => (
+                    <a href={href} className="text-blue-500 hover:underline">
+                    {children}
+                    </a>
+                  ),
+                  }}
+                >
+                  {isExpanded || post.content?.length <= 300
+                  ? post.content?.replace(/\n/g, "  \n")
+                  : `${post.content?.slice(0, 300)}...`}
+                </ReactMarkdown>
+                {post.content?.length > 300 && (
+                  <button
+                  onClick={toggleExpand}
+                  className="text-blue-500 hover:underline"
+                  >
+                  {isExpanded ? "Mostrar menos" : "Mostrar más"}
+                  </button>
+                )}
       </div>
 
       <ReviewSection
